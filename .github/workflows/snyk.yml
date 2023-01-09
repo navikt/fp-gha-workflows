@@ -20,7 +20,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.3.0
 
       - name: Run Snyk to check Docker images for vulnerabilities
         if: false
@@ -58,7 +58,7 @@ jobs:
     if: github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.3.0
 
       - name: Set up JDK-${{ inputs.java-version }} with cache
         uses: actions/setup-java@v3

@@ -40,7 +40,7 @@ jobs:
         run: echo "IMAGE=ghcr.io/${{ github.repository }}:$(echo ${{ steps.issue_comment.outputs.title }} | awk '{print $NF}')" >> $GITHUB_ENV
 
       - name: Checkout ${{ steps.issue_comment.outputs.sha }}
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.3.0
         with:
           ref: ${{ steps.issue_comment.outputs.sha }}
 

@@ -63,7 +63,7 @@ jobs:
       build-version: ${{ steps.generate-build-version.outputs.build-version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.3.0
         # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
         with:
           fetch-depth: 0
