@@ -30,9 +30,25 @@ on:
 
 
 jobs:
+  setup-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      runner: ${{ steps.runner.outputs.runner }}
+    steps:
+      - name: Sjekk branch
+        id: runner
+        run: |
+          if [ ${{ github.ref }} == 'dependabot[bot]' ]; then
+            echo "runner=ubuntu-latest" >> $GITHUB_OUTPUT
+          else
+            echo "runner=${{ inputs.runs-on }}" >> $GITHUB_OUTPUT
+          fi
+
+
   build-and-test:
     name: Build and test
-    runs-on: ${{ inputs.runs-on }}
+    needs: [setup-runner]
+    runs-on: ${{ needs.setup-runner.outputs.runner }}
     env:
       TZ: "Europe/Oslo"
     outputs:
