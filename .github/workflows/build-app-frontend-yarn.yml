@@ -154,7 +154,7 @@ jobs:
 
       - name: Build and push
         if: inputs.build-image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           platforms: linux/amd64, linux/arm64
