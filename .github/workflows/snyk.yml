@@ -73,8 +73,8 @@ jobs:
           mvn -q -B -s settings.xml versions:set -DnewVersion=${{ inputs.build-version }}
 
       - name: Run Snyk test
-        if: github.ref_name != 'master'
         uses: snyk/actions/maven@master
+        continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -82,22 +82,6 @@ jobs:
           args: >
             --severity-threshold=high
             --fail-on=all
-            --fail-fast
-            --org=teamforeldrepenger
-            --project-name=${{ github.repository }}
-            --remote-repo-url=https://github.com/${{ github.repository }}.git
-            -- -s settings.xml -DskipTests
-
-      - name: Run Snyk monitor
-        if: github.ref_name == 'master'
-        uses: snyk/actions/maven@master
-        continue-on-error: true # To make sure that SARIF upload gets called
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: monitor
-          args: >
-            --severity-threshold=high
             --org=teamforeldrepenger
             --project-name=${{ github.repository }}
             --remote-repo-url=https://github.com/${{ github.repository }}.git
@@ -109,3 +93,17 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk.sarif
+
+      - name: Run Snyk monitor
+        if: github.ref_name == 'master'
+        uses: snyk/actions/maven@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: >
+            --severity-threshold=high
+            --org=teamforeldrepenger
+            --project-name=${{ github.repository }}
+            --remote-repo-url=https://github.com/${{ github.repository }}.git
+            -- -s settings.xml -DskipTests
