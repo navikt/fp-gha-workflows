@@ -17,6 +17,11 @@ on:
         type: boolean
         description: Skal trivy og snyk publisere sarif til code ql security?
         default: true
+      multi-module-maven-project:
+        required: false
+        type: boolean
+        description: Er det et multi module maven prosjekt?
+        default: true
 
 jobs:
   trivy-monitor-docker:
@@ -90,6 +95,10 @@ jobs:
           echo "Building ${{ inputs.build-version }}"
           mvn -q -B -s settings.xml versions:set -DnewVersion=${{ inputs.build-version }}
 
+      - name: Legger til ekstra argumenter for snyk analyse
+        if: inputs.multi-module-maven-project
+        run: echo "EXTRA_ARGS=--maven-aggregate-project" >> $GITHUB_ENV
+
       - name: Run Snyk test
         uses: snyk/actions/maven@master
         continue-on-error: true # To make sure that SARIF upload gets called
@@ -104,7 +113,7 @@ jobs:
             --project-name=${{ github.repository }}
             --remote-repo-url=https://github.com/${{ github.repository }}.git
             --sarif-file-output=snyk.sarif
-            -- -s settings.xml -DskipTests
+            -- -s settings.xml -DskipTests ${{ env.EXTRA_ARGS }}
 
       - name: Upload result to GitHub Code Scanning
         if: always() && github.ref_name == 'master' && inputs.publish-sarif
@@ -124,4 +133,4 @@ jobs:
             --org=teamforeldrepenger
             --project-name=${{ github.repository }}
             --remote-repo-url=https://github.com/${{ github.repository }}.git
-            -- -s settings.xml -DskipTests
+            -- -s settings.xml -DskipTests ${{ env.EXTRA_ARGS }}
