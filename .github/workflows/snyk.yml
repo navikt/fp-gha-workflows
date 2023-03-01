@@ -1,4 +1,4 @@
-name: Snyk
+name: Snyk og Trivy
 
 on:
   workflow_call:
@@ -12,6 +12,11 @@ on:
         type: string
         description: Java SDK versjon som skal brukes.
         default: '17'
+      publish-sarif:
+        required: false
+        type: boolean
+        description: Skal trivy og snyk publisere sarif til code ql security?
+        default: true
 
 jobs:
   trivy-monitor-docker:
@@ -32,7 +37,19 @@ jobs:
       - name: Henter image fra forrige steg
         run: docker pull ghcr.io/${{ github.repository }}:${{ inputs.build-version }}
 
+      - name: Run Trivy vulnerability scanner non-public repo
+        if: !inputs.publish-sarif
+        uses: aquasecurity/trivy-action@master
+        with:
+          security-checks: 'vuln'
+          image-ref: 'ghcr.io/${{ github.repository }}:${{ inputs.build-version }}'
+          format: 'table'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+          limit-severities-for-sarif: true
+
       - name: Run Trivy vulnerability scanner for container
+        if: inputs.publish-sarif
         uses: aquasecurity/trivy-action@master
         with:
           security-checks: 'vuln'
@@ -43,8 +60,8 @@ jobs:
           limit-severities-for-sarif: true
 
       - name: Upload Trivy scan results to GitHub Security tab
+        if: always() && inputs.publish-sarif
         uses: github/codeql-action/upload-sarif@v2
-        if: success()
         with:
           sarif_file: 'trivy.sarif'
 
@@ -90,7 +107,7 @@ jobs:
             -- -s settings.xml -DskipTests
 
       - name: Upload result to GitHub Code Scanning
-        if: always() && github.ref_name == 'master'
+        if: always() && github.ref_name == 'master' && inputs.publish-sarif
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk.sarif
