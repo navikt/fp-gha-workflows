@@ -16,7 +16,7 @@ on:
 jobs:
   snyk-monitor-docker:
     name: Docker
-    if: github.ref_name == 'master' || github.ref_name == 'main'
+    if: github.ref_name == 'master'
     runs-on: 'ubuntu-latest'
     steps:
       - name: Checkout code
@@ -36,7 +36,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           security-checks: 'vuln'
-          image-ref: 'ghcr.io/${{ github.repository }}:latest'
+          image-ref: 'ghcr.io/${{ github.repository }}::${{ inputs.build-version }}'
           format: 'sarif'
           output: 'trivy.sarif'
           severity: 'HIGH,CRITICAL'
