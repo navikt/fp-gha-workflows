@@ -6,7 +6,12 @@ on:
       cluster:
         required: true
         type: string
-        description: 'The clusters to deploy to. Array with comma separated elements.'
+        description: 'The cluster to deploy to.'
+      namespace:
+        required: false
+        type: string
+        description: 'The namespace to deploy to.'
+        default: 'teamforeldrepenger'
       issue-number:
         required: true
         type: string
@@ -14,12 +19,8 @@ on:
 
 jobs:
   promote:
-    name: to
+    name: promote
     runs-on: 'ubuntu-latest'
-    strategy:
-      fail-fast: true
-      matrix:
-        cluster: ${{ fromJson(inputs.cluster) }}
     steps:
       - name: Get information from issue
         id: issue_comment
@@ -44,18 +45,18 @@ jobs:
         with:
           ref: ${{ steps.issue_comment.outputs.sha }}
 
-      - name: Deploy to ${{ matrix.cluster }}
-        id: deploy
+      - name: Deploy to ${{ inputs.cluster}}
+        if: startsWith(inputs.cluster, 'dev-') || startsWith(inputs.cluster, 'prod-')
         uses: nais/deploy/actions/deploy@v1
         env:
           PRINT_PAYLOAD: true
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: ${{ matrix.cluster }}
+          CLUSTER: ${{ inputs.cluster }}
           RESOURCE: .deploy/naiserator.yaml
-          VARS: .deploy/${{ matrix.cluster }}-teamforeldrepenger.json
+          VARS: .deploy/${{ inputs.cluster }}-${{ inputs.namespace }}.json
 
-      - name: Oppdater kommentar med deployment status ved feil mot ${{ matrix.cluster }}
-        if: steps.deploy.outcome != 'success'
+      - name: Oppdater kommentar med deployment status ved feil mot ${{ inputs.cluster }}
+        if: failure()
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -64,12 +65,12 @@ jobs:
                             repo: context.issue.repo,
                             issue_number: ${{ inputs.issue-number }} }
             github.rest.issues.createComment({...issue,
-                            body: 'promote til ${{ matrix.cluster }} teamforeldrepenger feilet'})
+                            body: 'promote til ${{ inputs.cluster }} ${{ inputs.namespace }} feilet'})
             github.rest.issues.addLabels({...issue,
                             labels: ['deployment-failed']})
 
-      - name: Oppdater kommentar med deployment status mot ${{ matrix.cluster }}
-        if: steps.deploy.outcome == 'success'
+      - name: Oppdater kommentar med deployment status mot ${{ inputs.cluster }}
+        if: success()
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -78,6 +79,6 @@ jobs:
                             repo: context.issue.repo,
                             issue_number: ${{ inputs.issue-number }} }
             github.rest.issues.createComment({...issue,
-                            body: 'promote til ${{ matrix.cluster }} teamforeldrepenger utført'})
+                            body: 'promote til ${{ inputs.cluster }} ${{ inputs.namespace }} utført'})
             github.rest.issues.addLabels({...issue,
-                            labels: ['deployment','${{ matrix.cluster }}-teamforeldrepenger']})
+                            labels: ['deployment','${{ inputs.cluster }}-${{ inputs.namespace }}']})

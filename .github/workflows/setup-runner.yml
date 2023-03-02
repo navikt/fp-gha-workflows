@@ -1,0 +1,29 @@
+name: Runner
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: false
+        type: string
+        description: Miljø versjon som skal brukes til bygg.
+        default: 'ubuntu-latest'
+    outputs:
+      runner:
+        description: "Created issue number"
+        value: ${{ jobs.setup-runner.outputs.runner }}
+
+jobs:
+  setup-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      runner: ${{ steps.runner.outputs.runner }}
+    steps:
+      - name: Velg runner basert på aktør som oppretter PR
+        id: runner
+        run: |
+          if [ ${{ github.actor }} == 'dependabot[bot]' ]; then
+            echo "runner=ubuntu-latest" >> $GITHUB_OUTPUT
+          else
+            echo "runner=${{ inputs.runs-on }}" >> $GITHUB_OUTPUT
+          fi
