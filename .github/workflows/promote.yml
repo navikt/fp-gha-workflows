@@ -29,7 +29,7 @@ jobs:
     with:
       issue-number: ${{ inputs.issue-number }}
       namespace: ${{ inputs.namespace }}
-      cluster: dev-$${{ inputs.platform }}
+      cluster: dev-${{ inputs.platform }}
     secrets: inherit
 
   promote-prod:
@@ -40,5 +40,5 @@ jobs:
     with:
       issue-number: ${{ inputs.issue-number }}
       namespace: ${{ inputs.namespace }}
-      cluster: prod-$${{ inputs.platform }}
+      cluster: prod-${{ inputs.platform }}
     secrets: inherit
