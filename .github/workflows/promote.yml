@@ -24,7 +24,7 @@ on:
 jobs:
   promote-dev:
     name: dev-${{ inputs.platform }}
-    if: contains('dev', inputs.environment)
+    if: contains(inputs.environment, 'dev')
     uses: navikt/fp-gha-workflows/.github/workflows/promote-helper.yml@rydding
     with:
       issue-number: ${{ inputs.issue-number }}
@@ -35,7 +35,7 @@ jobs:
   promote-prod:
     name: prod-${{ inputs.platform }}
     needs: promote-dev
-    if: success() && contains('prod', inputs.environment)
+    if: success() && contains(inputs.environment, 'prod')
     uses: navikt/fp-gha-workflows/.github/workflows/promote-helper.yml@rydding
     with:
       issue-number: ${{ inputs.issue-number }}
