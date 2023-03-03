@@ -1,12 +1,16 @@
-name: Promote to env
+name: Deploy
 
 on:
   workflow_call:
     inputs:
-      cluster:
+      environment:
         required: true
         type: string
-        description: 'The cluster to deploy to.'
+        description: 'The enviroment to deployed to. Either dev, prod og both'
+      platform:
+        required: true
+        type: string
+        description: 'The platform/zone to deploy to. Either fss eller gcp'
       namespace:
         required: false
         type: string
@@ -45,17 +49,22 @@ jobs:
         with:
           ref: ${{ steps.issue_comment.outputs.sha }}
 
-      - name: Deploy to ${{ inputs.cluster}}
-        if: startsWith(inputs.cluster, 'dev-') || startsWith(inputs.cluster, 'prod-')
+      - name: Bestemmer cluster
+        run: |
+          echo "${{ inputs.environment }}-${{ inputs.platform }}"
+          echo "CLUSTER=${{ inputs.environment }}-${{ inputs.platform }}" >> $GITHUB_ENV
+
+      - name: Deploy to ${{ env.CLUSTER }}
+        if: startsWith(env.CLUSTER, 'dev-') || startsWith(env.CLUSTER, 'prod-')
         uses: nais/deploy/actions/deploy@v1
         env:
           PRINT_PAYLOAD: true
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: ${{ inputs.cluster }}
+          CLUSTER: ${{ env.CLUSTER }}
           RESOURCE: .deploy/naiserator.yaml
-          VARS: .deploy/${{ inputs.cluster }}-${{ inputs.namespace }}.json
+          VARS: .deploy/${{ env.CLUSTER }}-${{ inputs.namespace }}.json
 
-      - name: Oppdater kommentar med deployment status ved feil mot ${{ inputs.cluster }}
+      - name: Oppdater kommentar med deployment status ved feil mot ${{ env.CLUSTER }}
         if: failure()
         uses: actions/github-script@v6
         with:
@@ -65,11 +74,11 @@ jobs:
                             repo: context.issue.repo,
                             issue_number: ${{ inputs.issue-number }} }
             github.rest.issues.createComment({...issue,
-                            body: 'promote til ${{ inputs.cluster }} ${{ inputs.namespace }} feilet'})
+                            body: 'promote til ${{ env.CLUSTER }} ${{ inputs.namespace }} feilet'})
             github.rest.issues.addLabels({...issue,
                             labels: ['deployment-failed']})
 
-      - name: Oppdater kommentar med deployment status mot ${{ inputs.cluster }}
+      - name: Oppdater kommentar med deployment status mot ${{ env.CLUSTER }}
         if: success()
         uses: actions/github-script@v6
         with:
@@ -79,6 +88,6 @@ jobs:
                             repo: context.issue.repo,
                             issue_number: ${{ inputs.issue-number }} }
             github.rest.issues.createComment({...issue,
-                            body: 'promote til ${{ inputs.cluster }} ${{ inputs.namespace }} utført'})
+                            body: 'promote til ${{ env.CLUSTER }} ${{ inputs.namespace }} utført'})
             github.rest.issues.addLabels({...issue,
-                            labels: ['deployment','${{ inputs.cluster }}-${{ inputs.namespace }}']})
+                            labels: ['deployment','${{ env.CLUSTER }}-${{ inputs.namespace }}']})

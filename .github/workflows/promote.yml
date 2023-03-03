@@ -1,16 +1,12 @@
-name: Promote to cluster
+name: Promote to env
 
 on:
   workflow_call:
     inputs:
-      environment:
+      cluster:
         required: true
         type: string
-        description: 'The enviroment to deployed to. Either dev, prod og both'
-      platform:
-        required: true
-        type: string
-        description: 'The platform/zone to deploy to. Either fss eller gcp'
+        description: 'The cluster to deploy to.'
       namespace:
         required: false
         type: string
@@ -22,23 +18,107 @@ on:
         description: 'The deployment issue.'
 
 jobs:
-  promote-dev:
-    name: dev-${{ inputs.platform }}
-    if: contains(inputs.environment, 'dev')
-    uses: navikt/fp-gha-workflows/.github/workflows/promote-helper.yml@rydding
-    with:
-      issue-number: ${{ inputs.issue-number }}
-      namespace: ${{ inputs.namespace }}
-      cluster: dev-${{ inputs.platform }}
-    secrets: inherit
+  promote:
+    name: promote
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Get information from issue
+        id: issue_comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.get( {
+              owner: context.issue.owner,
+              repo: context.issue.repo,
+              issue_number: ${{ inputs.issue-number }} })
+            .then(response => {
+              core.setOutput('sha', response.data.body);
+              core.setOutput('title', response.data.title);
+            });
 
-  promote-prod:
-    name: prod-${{ inputs.platform }}
-    needs: promote-dev
-    if: success() && contains(inputs.environment, 'prod')
-    uses: navikt/fp-gha-workflows/.github/workflows/promote-helper.yml@rydding
-    with:
-      issue-number: ${{ inputs.issue-number }}
-      namespace: ${{ inputs.namespace }}
-      cluster: prod-${{ inputs.platform }}
-    secrets: inherit
+      - name: Setter IMAGE som brukes i deploy filen
+        run: echo "IMAGE=ghcr.io/${{ github.repository }}:$(echo ${{ steps.issue_comment.outputs.title }} | awk '{print $NF}')" >> $GITHUB_ENV
+
+      - name: Checkout ${{ steps.issue_comment.outputs.sha }}
+        uses: actions/checkout@v3.3.0
+        with:
+          ref: ${{ steps.issue_comment.outputs.sha }}
+
+      - name: Deploy to dev
+        if: startsWith(inputs.cluster, 'dev-')
+        id: deploy-dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          PRINT_PAYLOAD: true
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: ${{ inputs.cluster }}
+          RESOURCE: .deploy/naiserator.yaml
+          VARS: .deploy/${{ inputs.cluster }}-${{ inputs.namespace }}.json
+
+      - name: Oppdater kommentar med deployment status ved feil mot dev
+        if: steps.deploy-dev.outcome != 'success' && startsWith(inputs.cluster, 'dev-')
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ inputs.issue-number }} }
+            github.rest.issues.createComment({...issue,
+                            body: 'promote til ${{ inputs.cluster }} ${{ inputs.namespace }} feilet'})
+            github.rest.issues.addLabels({...issue,
+                            labels: ['deployment-failed']})
+
+      - name: Oppdater kommentar med deployment status mot dev
+        if: steps.deploy-dev.outcome == 'success' && startsWith(inputs.cluster, 'dev-')
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ inputs.issue-number }} }
+            github.rest.issues.createComment({...issue,
+                            body: 'promote til ${{ inputs.cluster }} ${{ inputs.namespace }} utført'})
+            github.rest.issues.addLabels({...issue,
+                            labels: ['deployment','${{ inputs.cluster }}-${{ inputs.namespace }}']})
+
+      - name: Deploy to prod
+        if: success() && startsWith(inputs.cluster, 'prod-')
+        id: deploy-prod
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          PRINT_PAYLOAD: true
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: ${{ inputs.cluster }}
+          RESOURCE: .deploy/naiserator.yaml
+          VARS: .deploy/${{ inputs.cluster }}-${{ inputs.namespace }}.json
+
+      - name: Oppdater kommentar med deployment status ved feil mot prod
+        if: steps.deploy-prod.outcome != 'success' && startsWith(inputs.cluster, 'prod-')
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ inputs.issue-number }} }
+            github.rest.issues.createComment({...issue,
+                            body: 'promote til ${{ inputs.cluster }} ${{ inputs.namespace }} feilet'})
+            github.rest.issues.addLabels({...issue,
+                            labels: ['deployment-failed']})
+
+      - name: Oppdater kommentar med deployment status mot prod
+        if: steps.deploy-prod.outcome == 'success' && startsWith(inputs.cluster, 'prod-')
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ inputs.issue-number }} }
+            github.rest.issues.createComment({...issue,
+                            body: 'promote til ${{ inputs.cluster }} ${{ inputs.namespace }} utført'})
+            github.rest.issues.addLabels({...issue,
+                            labels: ['deployment','${{ inputs.cluster }}-${{ inputs.namespace }}']})
