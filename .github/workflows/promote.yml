@@ -23,7 +23,7 @@ on:
 
 jobs:
   promote-dev:
-    name: dev-${{ inputs.platform }}
+    run-name: dev-${{ inputs.platform }}
     if: contains(inputs.environment, 'dev')
     uses: navikt/fp-gha-workflows/.github/workflows/promote-helper.yml@rydding
     with:
@@ -33,7 +33,7 @@ jobs:
     secrets: inherit
 
   promote-prod:
-    name: prod-${{ inputs.platform }}
+    run-name: prod-${{ inputs.platform }}
     needs: promote-dev
     if: success() && contains(inputs.environment, 'prod')
     uses: navikt/fp-gha-workflows/.github/workflows/promote-helper.yml@rydding
