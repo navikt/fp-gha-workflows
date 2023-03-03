@@ -49,10 +49,8 @@ jobs:
         with:
           ref: ${{ steps.issue_comment.outputs.sha }}
 
-      - name: Bestemmer cluster
-        run: |
-          echo "${{ inputs.environment }}-${{ inputs.platform }}"
-          echo "CLUSTER=${{ inputs.environment }}-${{ inputs.platform }}" >> $GITHUB_ENV
+      - name: Utleder cluster ut i fra environment og platform
+        run: echo "CLUSTER=${{ inputs.environment }}-${{ inputs.platform }}" >> $GITHUB_ENV
 
       - name: Deploy to ${{ env.CLUSTER }}
         if: startsWith(env.CLUSTER, 'dev-') || startsWith(env.CLUSTER, 'prod-')
