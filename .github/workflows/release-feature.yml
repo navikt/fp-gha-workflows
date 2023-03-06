@@ -41,6 +41,11 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: 3.8.7
+
       - name: Publish artifacts
         run: |
           mvn -B -s settings.xml versions:set -DnewVersion=${{ inputs.release-version }}
