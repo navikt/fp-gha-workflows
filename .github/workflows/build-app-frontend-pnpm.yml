@@ -92,11 +92,52 @@ jobs:
         if: inputs.build-image
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and push
-        if: inputs.build-image
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            foreldrepenger:
+              - 'app/foreldrepenger/**'
+              - 'packages/**'
+            svangerskapspengesoknad:
+              - 'app/svangerskapspengesoknad/**'
+              - 'packages/**'
+            engangstonad:
+              - 'app/engangstonad/**'
+              - 'packages/**'
+
+      - name: Build and push foreldrepengesoknad
+        if: steps.filter.outputs.foreldrepenger == 'true'
         uses: docker/build-push-action@v4
         with:
           context: .
+          build-args: APP=foreldrepenger
+          platforms: linux/amd64, linux/arm64
+          pull: true
+          push: ${{ inputs.push-image }}
+          tags: ghcr.io/${{ github.repository }}:${{ steps.generate-build-version.outputs.build-version }}, ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push svangerskapspengesoknad
+        if: steps.filter.outputs.svangerskapspengesoknad == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          build-args: APP=svangerskapspengesoknad
+          platforms: linux/amd64, linux/arm64
+          pull: true
+          push: ${{ inputs.push-image }}
+          tags: ghcr.io/${{ github.repository }}:${{ steps.generate-build-version.outputs.build-version }}, ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push engangstonad
+        if: steps.filter.outputs.engangstonad == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          build-args: APP=engangstonad
           platforms: linux/amd64, linux/arm64
           pull: true
           push: ${{ inputs.push-image }}
