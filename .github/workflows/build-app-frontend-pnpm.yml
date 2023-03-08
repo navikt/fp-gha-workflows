@@ -96,7 +96,7 @@ jobs:
         with:
           context: .
           target: foreldrepengesoknad
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64
           pull: true
           push: ${{ inputs.push-image }}
           tags: ghcr.io/${{ github.repository }}/foreldrepengesoknad:latest
@@ -109,7 +109,7 @@ jobs:
         with:
           context: .
           target: svangerskapspengesoknad
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64
           pull: true
           push: ${{ inputs.push-image }}
           tags: ghcr.io/${{ github.repository }}/svangerskapspengesoknad:latest
@@ -122,7 +122,7 @@ jobs:
         with:
           context: .
           target: engangsstonad
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64
           pull: true
           push: ${{ inputs.push-image }}
           tags: ghcr.io/${{ github.repository }}/engangsstonad:latest
