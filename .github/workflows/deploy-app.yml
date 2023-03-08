@@ -3,10 +3,6 @@ name: Deploy
 on:
   workflow_call:
     inputs:
-      image:
-        required: false
-        type: string
-        description: 'Image navn'
       environment:
         required: true
         type: string
@@ -44,14 +40,8 @@ jobs:
               core.setOutput('sha', response.data.body);
               core.setOutput('title', response.data.title);
             });
-
       - name: Setter IMAGE som brukes i deploy filen
-        if: inputs.image == ""
         run: echo "IMAGE=ghcr.io/${{ github.repository }}:$(echo ${{ steps.issue_comment.outputs.title }} | awk '{print $NF}')" >> $GITHUB_ENV
-
-      - name: Setter IMAGE fra inputs
-        if: inputs.image != ""
-        run: echo "IMAGE=${{ inputs.image }}" >> $GITHUB_ENV
 
       - name: Checkout ${{ steps.issue_comment.outputs.sha }}
         uses: actions/checkout@v3.3.0
@@ -84,7 +74,6 @@ jobs:
                             body: 'promote til ${{ env.CLUSTER }} ${{ inputs.namespace }} feilet'})
             github.rest.issues.addLabels({...issue,
                             labels: ['deployment-failed']})
-
       - name: Oppdater kommentar med deployment status mot ${{ env.CLUSTER }}
         if: success()
         uses: actions/github-script@v6

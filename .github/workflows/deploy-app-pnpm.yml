@@ -1,0 +1,48 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        required: true
+        type: string
+        description: 'Image navn'
+      environment:
+        required: true
+        type: string
+        description: 'The enviroment to deployed to. Either dev, prod og both'
+      platform:
+        required: true
+        type: string
+        description: 'The platform/zone to deploy to. Either fss eller gcp'
+      namespace:
+        required: false
+        type: string
+        description: 'The namespace to deploy to.'
+        default: 'teamforeldrepenger'
+
+jobs:
+  promote:
+    name: promote
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Setter IMAGE som brukes i deploy filen
+        run: echo "IMAGE=${{ inputs.image }}" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+        with:
+          ref: turborepo-test
+
+      - name: Utleder cluster ut i fra environment og platform
+        run: echo "CLUSTER=${{ inputs.environment }}-${{ inputs.platform }}" >> $GITHUB_ENV
+
+      - name: Deploy to ${{ env.CLUSTER }}
+        if: startsWith(env.CLUSTER, 'dev-') || startsWith(env.CLUSTER, 'prod-')
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          PRINT_PAYLOAD: true
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: ${{ env.CLUSTER }}
+          RESOURCE: .deploy/naiserator.yaml
+          VARS: .deploy/${{ env.CLUSTER }}-${{ inputs.namespace }}.json
