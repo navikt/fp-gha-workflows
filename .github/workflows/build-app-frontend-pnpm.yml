@@ -53,22 +53,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Installing pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 7.28.0
-
-      - name: Set up NODE med pnpm
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ inputs.node-version }}
-          scope: "@navikt"
-          cache: "pnpm"
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run test
-      - run: pnpm run build
-
       - name: Generate build version
         id: generate-build-version
         run: echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
@@ -96,22 +80,22 @@ jobs:
         id: filter
         with:
           filters: |
-            foreldrepenger:
-              - 'app/foreldrepenger/**'
+            foreldrepengesoknad:
+              - 'app/foreldrepengesoknad/**'
               - 'packages/**'
             svangerskapspengesoknad:
               - 'app/svangerskapspengesoknad/**'
               - 'packages/**'
-            engangstonad:
-              - 'app/engangstonad/**'
+            engangsstonad:
+              - 'app/engangsstonad/**'
               - 'packages/**'
 
       - name: Build and push foreldrepengesoknad
-        if: steps.filter.outputs.foreldrepenger == 'true'
+        if: steps.filter.outputs.foreldrepengesoknad == 'true'
         uses: docker/build-push-action@v4
         with:
           context: .
-          build-args: APP=foreldrepengesoknad
+          target: foreldrepengesoknad
           platforms: linux/amd64, linux/arm64
           pull: true
           push: ${{ inputs.push-image }}
@@ -124,7 +108,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          build-args: APP=svangerskapspengesoknad
+          target: svangerskapspengesoknad
           platforms: linux/amd64, linux/arm64
           pull: true
           push: ${{ inputs.push-image }}
@@ -132,15 +116,15 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push engangstonad
-        if: steps.filter.outputs.engangstonad == 'true'
+      - name: Build and push engangsstonad
+        if: steps.filter.outputs.engangsstonad == 'true'
         uses: docker/build-push-action@v4
         with:
           context: .
-          build-args: APP=engangstonad
+          target: engangsstonad
           platforms: linux/amd64, linux/arm64
           pull: true
           push: ${{ inputs.push-image }}
-          tags: ghcr.io/${{ github.repository }}/engangstonad:latest
+          tags: ghcr.io/${{ github.repository }}/engangsstonad:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
