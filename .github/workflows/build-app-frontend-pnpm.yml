@@ -111,11 +111,11 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          build-args: APP=foreldrepenger
+          build-args: APP=foreldrepengesoknad
           platforms: linux/amd64, linux/arm64
           pull: true
           push: ${{ inputs.push-image }}
-          tags: ghcr.io/${{ github.repository }}:${{ steps.generate-build-version.outputs.build-version }}, ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/${{ github.repository }}/foreldrepengesoknad:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -128,7 +128,7 @@ jobs:
           platforms: linux/amd64, linux/arm64
           pull: true
           push: ${{ inputs.push-image }}
-          tags: ghcr.io/${{ github.repository }}:${{ steps.generate-build-version.outputs.build-version }}, ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/${{ github.repository }}/svangerskapspengesoknad:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -141,6 +141,6 @@ jobs:
           platforms: linux/amd64, linux/arm64
           pull: true
           push: ${{ inputs.push-image }}
-          tags: ghcr.io/${{ github.repository }}:${{ steps.generate-build-version.outputs.build-version }}, ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/${{ github.repository }}/engangstonad:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
