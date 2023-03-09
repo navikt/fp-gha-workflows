@@ -76,55 +76,7 @@ jobs:
         if: inputs.build-image
         uses: docker/setup-buildx-action@v2
 
-      - uses: dorny/paths-filter@v2
-        id: filter
+      - name: Build and push
+        uses: docker/bake-action@v2
         with:
-          filters: |
-            foreldrepengesoknad:
-              - 'app/foreldrepengesoknad/**'
-              - 'packages/**'
-            svangerskapspengesoknad:
-              - 'app/svangerskapspengesoknad/**'
-              - 'packages/**'
-            engangsstonad:
-              - 'app/engangsstonad/**'
-              - 'packages/**'
-
-      - name: Build and push foreldrepengesoknad
-        if: steps.filter.outputs.foreldrepengesoknad == 'true'
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          target: foreldrepengesoknad
-          platforms: linux/amd64
-          pull: true
-          push: ${{ inputs.push-image }}
-          tags: ghcr.io/${{ github.repository }}/foreldrepengesoknad:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push svangerskapspengesoknad
-        if: steps.filter.outputs.svangerskapspengesoknad == 'true'
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          target: svangerskapspengesoknad
-          platforms: linux/amd64
-          pull: true
-          push: ${{ inputs.push-image }}
-          tags: ghcr.io/${{ github.repository }}/svangerskapspengesoknad:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push engangsstonad
-        if: steps.filter.outputs.engangsstonad == 'true'
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          target: engangsstonad
-          platforms: linux/amd64
-          pull: true
-          push: ${{ inputs.push-image }}
-          tags: ghcr.io/${{ github.repository }}/engangsstonad:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          push: true
