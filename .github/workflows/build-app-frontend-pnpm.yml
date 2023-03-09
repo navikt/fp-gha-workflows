@@ -79,4 +79,4 @@ jobs:
       - name: Build and push
         uses: docker/bake-action@v2
         with:
-          push: true
+          push: inputs.push-image
