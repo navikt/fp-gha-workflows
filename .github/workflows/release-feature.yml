@@ -49,4 +49,4 @@ jobs:
       - name: Publish artifacts
         run: |
           mvn -B -s settings.xml versions:set -DnewVersion=${{ inputs.release-version }}
-          mvn -B -s settings.xml -DskipTests clean deploy ${{ inputs.mvn-projects }}
+          mvn -B -s settings.xml -DskipTests clean deploy ${{ inputs.mvn-projects }} -Pdeploy
