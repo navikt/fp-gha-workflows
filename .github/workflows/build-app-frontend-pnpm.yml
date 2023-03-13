@@ -82,7 +82,7 @@ jobs:
       - name: Build and push
         uses: docker/bake-action@v2.3.0
         env: 
-          TAG-PROD: ghcr.io/${{ github.repository }}:${{ steps.generate-build-version.outputs.build-version }}
+          TAG-PROD: ${{ steps.generate-build-version.outputs.build-version }}
         with:
           push: ${{ inputs.push-image }}
           
