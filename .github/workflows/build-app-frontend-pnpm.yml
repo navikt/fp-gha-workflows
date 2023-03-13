@@ -60,6 +60,9 @@ jobs:
       - name: Print build version
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
 
+      - name: Set build version to env variable
+        run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
+
       - name: Login to GitHub Packages Docker Registry
         if: (inputs.build-image && inputs.push-image)
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
@@ -78,6 +81,8 @@ jobs:
 
       - name: Build and push
         uses: docker/bake-action@v2.3.0
+        env: 
+          TAG-PROD: ghcr.io/${{ github.repository }}:${{ steps.generate-build-version.outputs.build-version }}
         with:
           push: ${{ inputs.push-image }}
           
