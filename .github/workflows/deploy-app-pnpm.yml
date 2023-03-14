@@ -7,14 +7,10 @@ on:
         required: true
         type: string
         description: 'Image navn'
-      environment:
+      cluster:
         required: true
         type: string
-        description: 'The enviroment to deployed to. Either dev, prod og both'
-      platform:
-        required: true
-        type: string
-        description: 'The platform/zone to deploy to. Either fss eller gcp'
+        description: 'The cluster to deploy to.'
       namespace:
         required: false
         type: string
@@ -34,15 +30,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Utleder cluster ut i fra environment og platform
-        run: echo "CLUSTER=${{ inputs.environment }}-${{ inputs.platform }}" >> $GITHUB_ENV
-
-      - name: Deploy to ${{ env.CLUSTER }}
-        if: startsWith(env.CLUSTER, 'dev-') || startsWith(env.CLUSTER, 'prod-')
+      - name: Deploy to ${{ inputs.cluster }}
         uses: nais/deploy/actions/deploy@v1
         env:
           PRINT_PAYLOAD: true
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: ${{ env.CLUSTER }}
+          CLUSTER: ${{ inputs.cluster }}
           RESOURCE: .deploy/naiserator.yaml
-          VARS: .deploy/${{ env.CLUSTER }}-${{ inputs.namespace }}.json
+          VARS: .deploy/${{ inputs.cluster }}-${{ inputs.namespace }}.json
