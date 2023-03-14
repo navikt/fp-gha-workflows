@@ -20,7 +20,7 @@ on:
 jobs:
   promote:
     name: promote
-    environment: ${{ matrix.cluster }}:teamforeldrepenger
+    environment: ${{ inputs.cluster }}:teamforeldrepenger
     runs-on: 'ubuntu-latest'
     steps:
       - name: Setter IMAGE som brukes i deploy filen
