@@ -20,6 +20,7 @@ on:
 jobs:
   promote:
     name: promote
+    environment: ${{ matrix.cluster }}:teamforeldrepenger
     runs-on: 'ubuntu-latest'
     steps:
       - name: Setter IMAGE som brukes i deploy filen
@@ -32,7 +33,6 @@ jobs:
 
       - name: Deploy to ${{ inputs.cluster }}
         uses: nais/deploy/actions/deploy@v1
-        environment: ${{ matrix.cluster }}:teamforeldrepenger
         env:
           PRINT_PAYLOAD: true
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
