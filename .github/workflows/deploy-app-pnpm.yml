@@ -32,6 +32,7 @@ jobs:
 
       - name: Deploy to ${{ inputs.cluster }}
         uses: nais/deploy/actions/deploy@v1
+        environment: ${{ matrix.cluster }}:teamforeldrepenger
         env:
           PRINT_PAYLOAD: true
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
