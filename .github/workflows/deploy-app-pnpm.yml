@@ -16,11 +16,15 @@ on:
         type: string
         description: 'The namespace to deploy to.'
         default: 'teamforeldrepenger'
+      app:
+        required: true
+        type: string
+        description: 'The app to deploy.'
 
 jobs:
   promote:
     name: promote
-    environment: ${{ inputs.cluster }}:teamforeldrepenger
+    environment: ${{ inputs.cluster }}:${{ inputs.namespace }}
     runs-on: 'ubuntu-latest'
     steps:
       - name: Setter IMAGE som brukes i deploy filen
@@ -38,4 +42,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ inputs.cluster }}
           RESOURCE: .deploy/naiserator.yaml
-          VARS: .deploy/${{ inputs.cluster }}-${{ inputs.namespace }}.json
+          VARS: .deploy/${{ inputs.app }}/${{ inputs.cluster }}-${{ inputs.app }}.json
