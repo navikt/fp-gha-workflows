@@ -25,7 +25,7 @@ jobs:
     if: github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v3.4.0
 
       - name: Create maven .m2 settings
         uses: whelk-io/maven-settings-xml-action@v21
