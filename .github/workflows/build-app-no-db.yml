@@ -98,6 +98,11 @@ jobs:
       - name: Print build version
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: java
+
       - name: Build artifacts
         run: |
           echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
@@ -111,11 +116,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: java
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
