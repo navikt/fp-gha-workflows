@@ -3,21 +3,16 @@ name: "CodeQL"
 on:
   workflow_call:
     inputs:
-      language:
-        required: false
-        type: string
-        description: "Language to scan for in the repository ('cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby')"
-        default: 'java'
-      use-reader:
-        required: false
-        type: boolean
-        description: Hvilket token skal brukes?
-        default: false
       java-version:
         required: false
         type: string
         description: Java SDK versjon som skal brukes.
         default: '17'
+      use-reader:
+        required: false
+        type: boolean
+        description: Hvilket token skal brukes?
+        default: false
 
 jobs:
   analyze:

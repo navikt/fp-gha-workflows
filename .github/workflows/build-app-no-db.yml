@@ -18,16 +18,11 @@ on:
         type: string
         description: Java SDK versjon som skal brukes.
         default: '17'
-      codeql-scan:
-        required: false
-        type: boolean
-        description: Skal codeql scan brukes?
-        default: true
       sonar-scan:
         required: false
         type: boolean
         description: Skal sonar scan brukes?
-        default: true
+        default: false
       build-image:
         required: false
         type: boolean
@@ -103,12 +98,6 @@ jobs:
       - name: Print build version
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
 
-      - name: Initialize CodeQL
-        if: (inputs.codeql-scan && github.actor != 'dependabot[bot]')
-        uses: github/codeql-action/init@v2
-        with:
-          languages: java
-
       - name: Build artifacts
         run: |
           echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
@@ -122,12 +111,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Perform CodeQL Analysis
-        if: (inputs.codeql-scan && github.actor != 'dependabot[bot]')
-        uses: github/codeql-action/analyze@v2
-        with:
-          category: "/language:java"
 
       - name: Login to GitHub Packages Docker Registry
         if: (inputs.build-image && inputs.push-image)
