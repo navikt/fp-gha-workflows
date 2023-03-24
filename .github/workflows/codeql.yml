@@ -1,0 +1,34 @@
+name: "CodeQL"
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        required: false
+        type: string
+        description: "Language to scan for in the repository ('cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby')"
+        default: 'java'
+
+jobs:
+  analyze:
+    name: Analyze code
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ inputs.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{inputs.language}}"
