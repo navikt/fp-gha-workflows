@@ -112,6 +112,16 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: java
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:java"
+
       - name: Login to GitHub Packages Docker Registry
         if: (inputs.build-image && inputs.push-image)
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
