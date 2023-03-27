@@ -6,26 +6,26 @@ on:
       image:
         required: true
         type: string
-        description: 'Image navn'
+        description: "Image navn"
       cluster:
         required: true
         type: string
-        description: 'The cluster to deploy to.'
+        description: "The cluster to deploy to."
       namespace:
         required: false
         type: string
-        description: 'The namespace to deploy to.'
-        default: 'teamforeldrepenger'
+        description: "The namespace to deploy to."
+        default: "teamforeldrepenger"
       app:
         required: true
         type: string
-        description: 'The app to deploy.'
+        description: "The app to deploy."
 
 jobs:
   promote:
     name: promote
-    environment: ${{ inputs.cluster }}:${{ inputs.namespace }}
-    runs-on: 'ubuntu-latest'
+    environment: ${{ inputs.cluster }}:${{ inputs.app }}
+    runs-on: "ubuntu-latest"
     steps:
       - name: Setter IMAGE som brukes i deploy filen
         run: echo "IMAGE=${{ inputs.image }}" >> $GITHUB_ENV
