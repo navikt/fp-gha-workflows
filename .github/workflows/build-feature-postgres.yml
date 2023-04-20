@@ -38,15 +38,9 @@ on:
         value: ${{ jobs.build-and-test.outputs.build-version }}
 
 jobs:
-  setup-runner:
-    uses: navikt/fp-gha-workflows/.github/workflows/setup-runner.yml@main
-    with:
-      runs-on: ${{ inputs.runs-on }}
-
   build-and-test:
     name: Build and test
-    needs: [setup-runner]
-    runs-on: ${{ needs.setup-runner.outputs.runner }}
+    runs-on: ${{ github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     services:
       postgres:
         image: postgres:12
