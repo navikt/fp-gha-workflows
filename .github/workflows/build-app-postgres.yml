@@ -45,7 +45,7 @@ on:
 jobs:
   build-and-test:
     name: Build and test
-    runs-on: ${{ github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+    runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     services:
       postgres:
         image: postgres:12

@@ -36,7 +36,7 @@ on:
 jobs:
   build-and-test:
     name: Build and test
-    runs-on: ${{ github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+    runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     env:
       TZ: "Europe/Oslo"
     outputs:
