@@ -59,53 +59,23 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     env:
       TZ: "Europe/Oslo"
+      DATABASE_HOST: localhost
+      DATABASE_PORT: ${{ job.services.postgres.ports[5432] }}
     outputs:
-      build-version: ${{ steps.generate-build-version.outputs.build-version }}
+      build-version: ${{ steps.build-and-test.outputs.build-version }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3.3.0
-        # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
+      - uses: actions/checkout@v3.3.0
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
 
-      - name: Create maven .m2 settings
-        uses: whelk-io/maven-settings-xml-action@v21
+      - name: Maven install and test
+        id: build-and-test
+        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@action/cleanup
         with:
-          repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}",
-              "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
-          output_file: settings.xml
-
-      - name: Set up JDK-${{ inputs.java-version }} with cache
-        uses: actions/setup-java@v3
-        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          use-reader: false
           java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Generate build version
-        id: generate-build-version
-        run: |
-          echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
-
-      - name: Print build version
-        run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
-
-      - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build artifacts
-        run: |
-          echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
-          mvn versions:set -DnewVersion="${{ steps.generate-build-version.outputs.build-version }}" -s settings.xml -q -e -B
-          mvn install -s settings.xml ${{ inputs.t-2c }} -q -e -B -Psonar
-        env:
-          DATABASE_HOST: localhost
-          DATABASE_PORT: ${{ job.services.postgres.ports[5432] }}
+          t-2c: ${{ inputs.t-2c }}
 
       - name: Sonar analyse
         if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
@@ -115,25 +85,13 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up QEMU
+      - name: Bygg og push docker image
         if: inputs.build-image
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        if: inputs.build-image
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and push
-        if: inputs.build-image
-        uses: docker/build-push-action@v4
+        uses: ./.github/actions/build-push-docker-image
         with:
-          context: .
-          platforms: linux/amd64, linux/arm64
-          pull: true
-          push: ${{ inputs.push-image }}
-          tags: ghcr.io/${{ github.repository }}:${{ steps.generate-build-version.outputs.build-version }}, ghcr.io/${{ github.repository }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          build-version: ${{ steps.build-and-test.outputs.build-version }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push-image: ${{ inputs.push-image }}
 
       - name: Clean up generated stuff before caching
         run: |

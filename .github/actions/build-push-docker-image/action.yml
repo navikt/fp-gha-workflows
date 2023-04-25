@@ -1,0 +1,54 @@
+name: 'Build and push docker image'
+description: 'Build and push docker image'
+inputs:
+  build-version:
+    description: 'Image tag for the docker image'
+    required: true
+  github-token:
+    description: 'Token to use when signing into ghcr.io'
+    required: true
+  push-image:
+    required: false
+    description: 'Push the docker image to gchr.io (true|false)'
+    default: 'false'
+  bake-action:
+    required: false
+    description: 'Use docker bake action to build and push'
+    default: 'false'
+runs:
+  using: "composite"
+  steps:
+    - name: Login to GitHub Packages Docker Registry
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.github-token }}
+
+    - name: Set up QEMU
+      if: inputs.build-image == 'true'
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      if: inputs.build-image == 'true'
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build and push
+      if: inputs.build-image == 'true' && inputs.bake-action == 'false'
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        platforms: linux/amd64, linux/arm64
+        pull: true
+        push: ${{ inputs.push-image == 'true' }}
+        tags: ghcr.io/${{ github.repository }}:${{ inputs.build-version }}, ghcr.io/${{ github.repository }}:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push with bake
+      if: inputs.build-image == 'true' && inputs.bake-action == 'true'
+      uses: docker/bake-action@v3.0.1
+      env:
+        TAG-PROD: ${{ inputs.build-version }}
+      with:
+        push: ${{ inputs.push-image == 'true' }}

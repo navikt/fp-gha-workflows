@@ -42,45 +42,17 @@ jobs:
           languages: ${{ inputs.language }}
           config-file: ${{ inputs.config-file }}
 
-      - name: Create maven .m2 settings for GITHUB
-        if: inputs.language == 'java' && !inputs.use-reader
-        uses: whelk-io/maven-settings-xml-action@v21
-        with:
-          repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}",
-              "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN}}" }]'
-          output_file: settings.xml
-
-      - name: Create maven .m2 settings for READER
-        if: inputs.language == 'java' && inputs.use-reader
-        uses: whelk-io/maven-settings-xml-action@v21
-        with:
-          repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}",
-              "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
-          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.READER_TOKEN}}" }]'
-          output_file: settings.xml
-
-      - name: Set up JDK-${{ inputs.java-version }} with cache
+      - name: Maven install and test
         if: inputs.language == 'java'
-        uses: actions/setup-java@v3
+        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@action/cleanup
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          reader-token: ${{ secrets.READER_TOKEN }}
+          use-reader: ${{ github.actor != 'dependabot[bot]' }}
           java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
+          t-2c: ${{ inputs.t-2c }}
+          skip-tests: true
 
-      - name: Generate build version
-        if: inputs.language == 'java'
-        id: generate-build-version
-        run: |
-          echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
-
-      - name: Build artifacts
-        if: inputs.language == 'java'
-        run: |
-          echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
-          mvn versions:set -DnewVersion="${{ steps.generate-build-version.outputs.build-version }}" -s settings.xml -q -e -B
-          mvn install -s settings.xml -q -e -B -DskipTests
-    
       - name: Autobuild
         if: inputs.language != 'java'
         uses: github/codeql-action/autobuild@v2

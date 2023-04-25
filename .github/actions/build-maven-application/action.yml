@@ -1,0 +1,72 @@
+name: 'Build and push docker image'
+description: 'Build and push docker image'
+inputs:
+  github-token:
+    description: 'Token to use when signing into ghcr.io'
+    required: true
+  reader-token:
+    description: 'Reader token for private repos'
+    required: false
+  use-reader:
+    description: 'Reader token for private repos'
+    required: false
+    default: 'false'
+  java-version:
+    description: 'Java SDK version to use'
+    required: false
+    default: '17'
+  t-2c:
+    description: 'Thread config to use'
+    required: false
+    default: ''
+  skip-tests:
+    description: 'Skip tests'
+    required: false
+    default: 'false'
+outputs:
+  build-version:
+    description: "Build version"
+    value: ${{ steps.generate-build-version.outputs.build-version }}
+runs:
+  using: "composite"
+  steps:
+    - name: Create maven .m2 settings
+      if: github.actor != 'dependabot[bot]' && inputs.use-reader == 'true'
+      uses: whelk-io/maven-settings-xml-action@v21
+      with:
+        repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}",
+              "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
+        servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ inputs.reader-token }}" }]'
+        output_file: 'settings.xml'
+
+    - name: Create maven .m2 settings for dependabot
+      if: github.actor == 'dependabot[bot]' || inputs.use-reader != 'true'
+      uses: whelk-io/maven-settings-xml-action@v21
+      with:
+        repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}",
+              "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
+        servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ inputs.github-token }}" }]'
+        output_file: 'settings.xml'
+
+    - name: Set up JDK-${{ inputs.java-version }} with cache
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Generate build version
+      id: generate-build-version
+      shell: bash
+      run: echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+
+    - name: Print build version
+      shell: bash
+      run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
+
+    - name: Build artifacts
+      shell: bash
+      run: |
+        echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
+        mvn versions:set -DnewVersion="${{ steps.generate-build-version.outputs.build-version }}" -s settings.xml -q -e -B
+        mvn install -s settings.xml ${{ inputs.t-2c }} -q -e -B -Psonar ${{ (inputs.skip-tests == 'true' && '-DskipTests') || '' }}
