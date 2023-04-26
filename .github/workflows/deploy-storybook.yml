@@ -52,6 +52,7 @@ jobs:
         if: inputs.package-manager == 'yarn'
         run: |
           yarn install --immutable
+          yarn build
           yarn deploy-storybook
 
       - name: Set up NODE med npm
@@ -67,4 +68,5 @@ jobs:
         if: inputs.package-manager == 'npm'
         run: |
           npm ci
+          npm run build
           npm deploy-storybook
