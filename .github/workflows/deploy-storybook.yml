@@ -58,7 +58,7 @@ jobs:
 
       - name: Deploy storybook yarn
         if: inputs.package-manager == 'yarn'
-        run:
+        run: |
           git remote set-url origin https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           yarn storybook-clean-deploy-folder && yarn storybook-build-all && yarn storybook-create-deploy-folder
           yarn storybook-deploy-to-github -- -u "github-actions-bot <support+actions@github.com>"
