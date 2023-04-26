@@ -4,13 +4,6 @@ inputs:
   github-token:
     description: 'Token to use when signing into ghcr.io'
     required: true
-  reader-token:
-    description: 'Reader token for private repos'
-    required: false
-  use-reader:
-    description: 'Reader token for private repos'
-    required: false
-    default: 'false'
   java-version:
     description: 'Java SDK version to use'
     required: false
@@ -31,16 +24,6 @@ runs:
   using: "composite"
   steps:
     - name: Create maven .m2 settings
-      if: github.actor != 'dependabot[bot]' && inputs.use-reader == 'true'
-      uses: whelk-io/maven-settings-xml-action@v21
-      with:
-        repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}",
-              "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
-        servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ inputs.reader-token }}" }]'
-        output_file: 'settings.xml'
-
-    - name: Create maven .m2 settings for dependabot
-      if: github.actor == 'dependabot[bot]' || inputs.use-reader != 'true'
       uses: whelk-io/maven-settings-xml-action@v21
       with:
         repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}",

@@ -73,7 +73,6 @@ jobs:
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@action/cleanup
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          use-reader: false
           java-version: ${{ inputs.java-version }}
           t-2c: ${{ inputs.t-2c }}
 

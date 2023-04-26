@@ -46,9 +46,7 @@ jobs:
         if: inputs.language == 'java'
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@action/cleanup
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          reader-token: ${{ secrets.READER_TOKEN }}
-          use-reader: ${{ github.actor != 'dependabot[bot]' }}
+          github-token: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
           t-2c: ${{ inputs.t-2c }}
           skip-tests: true

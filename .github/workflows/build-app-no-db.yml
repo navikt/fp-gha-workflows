@@ -60,9 +60,7 @@ jobs:
         id: build-and-test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@action/cleanup
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          reader-token: ${{ secrets.READER_TOKEN }}
-          use-reader: ${{ inputs.use-reader }}
+          github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
           t-2c: ${{ inputs.t-2c }}
 
