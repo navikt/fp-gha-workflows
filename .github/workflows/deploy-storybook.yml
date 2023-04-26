@@ -50,12 +50,19 @@ jobs:
             node_modules/.cache/nx
             yarn.lock
 
-      - name: Deploy storybook yarn
+      - name: Yarn install and build
         if: inputs.package-manager == 'yarn'
         run: |
           yarn install --immutable
           yarn build
-          yarn deploy-storybook
+
+      - name: Deploy storybook yarn
+        if: inputs.package-manager == 'yarn'
+        run:
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          yarn deploy-storybook -- -u "github-actions-bot <support+actions@github.com>"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up NODE med npm
         if: inputs.package-manager == 'npm'
