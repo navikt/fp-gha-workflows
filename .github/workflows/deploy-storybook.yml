@@ -60,7 +60,8 @@ jobs:
         if: inputs.package-manager == 'yarn'
         run:
           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          yarn deploy-storybook -- -u "github-actions-bot <support+actions@github.com>"
+          yarn storybook-clean-deploy-folder && yarn storybook-build-all && yarn storybook-create-deploy-folder
+          yarn storybook-deploy-to-github -- -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
