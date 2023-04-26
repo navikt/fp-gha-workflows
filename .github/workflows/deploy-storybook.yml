@@ -18,6 +18,8 @@ on:
         type: string
         description: Node version som brukes.
         default: "18.8.0"
+env:
+  NODE_OPTIONS: '--max_old_space_size=4096'
 
 jobs:
   deploy-storybook:
