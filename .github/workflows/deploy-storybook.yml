@@ -3,6 +3,11 @@ name: Deploy storybook
 on:
   workflow_call:
     inputs:
+      runs-on:
+        required: false
+        type: string
+        description: Miljø versjon som skal brukes til bygg.
+        default: "ubuntu-latest"
       package-manager:
         required: false
         type: string
