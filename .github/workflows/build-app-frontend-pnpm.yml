@@ -54,7 +54,7 @@ jobs:
 
       - name: Bygg og push docker image
         if: inputs.build-image
-        uses: ./.github/actions/build-push-docker-image
+        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@action/cleanup
         with:
           build-version: ${{ steps.generate-build-version.outputs.build-version }}
           github-token: ${{ secrets.GITHUB_TOKEN }}

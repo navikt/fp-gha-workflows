@@ -38,8 +38,8 @@ runs:
               "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
         servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ inputs.reader-token }}" }]'
         output_file: 'settings.xml'
-
     - name: Create maven .m2 settings for dependabot
+
       if: github.actor == 'dependabot[bot]' || inputs.use-reader != 'true'
       uses: whelk-io/maven-settings-xml-action@v21
       with:
