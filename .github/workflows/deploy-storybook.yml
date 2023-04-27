@@ -65,7 +65,7 @@ jobs:
         if: inputs.package-manager == 'yarn'
         run: |
           yarn storybook-clean-deploy-folder && yarn storybook-build-all && yarn storybook-create-deploy-folder
-          yarn storybook-deploy-to-github -- -u "github-actions-bot <support+actions@github.com>"
+          yarn storybook-deploy-to-github -- -u "${{ github.actor }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
