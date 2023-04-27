@@ -56,14 +56,20 @@ jobs:
           yarn install --immutable
           yarn build
 
+      - name: Set remote url
+        run: |
+          git remote set-url origin https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git remote -v
+        env:
+          GITHUB_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
+
       - name: Deploy storybook yarn
         if: inputs.package-manager == 'yarn'
         run: |
-          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           yarn storybook-clean-deploy-folder && yarn storybook-build-all && yarn storybook-create-deploy-folder
           yarn storybook-deploy-to-github -- -u "github-actions-bot <support+actions@github.com>"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up NODE med npm
         if: inputs.package-manager == 'npm'
