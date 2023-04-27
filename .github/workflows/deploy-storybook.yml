@@ -74,13 +74,20 @@ jobs:
           node-version: ${{ inputs.node-version }}
           registry-url: https://npm.pkg.github.com/
           scope: '@navikt'
-          cache: "npm"
+          cache: "pnpm"
+
+      - name: Pnpm install and build
+        if: inputs.package-manager == 'pnpm'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+        env:
+          GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy storybook npm
         if: inputs.package-manager == 'npm'
         run: |
-          npm ci
-          npm run build
-          npm run deploy-storybook -- --ci
+          pnpm storybook-deploy-clean-folder && pnpm storybook-deploy-build-all && pnpm storybook-deploy-create-folder &&  pnpm storybook-deploy-to-github
+          pnpm gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
         env:
           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
