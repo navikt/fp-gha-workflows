@@ -71,7 +71,7 @@ jobs:
       - name: Deploy storybook yarn
         if: inputs.package-manager == 'yarn'
         run: |
-          yarn storybook-deploy-to-github -- -u "github-actions-bot <support+actions@github.com>"
+          yarn gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
