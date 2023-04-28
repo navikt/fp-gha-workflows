@@ -46,7 +46,7 @@ jobs:
         env:
           NPM_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
 
-      - name: Set up NODE med yarn
+      - name: Set up NODE
         if: inputs.package-manager == 'yarn'
         uses: actions/setup-node@v3
         with:
@@ -77,6 +77,13 @@ jobs:
         if: inputs.package-manager == 'pnpm'
         with:
           version: latest
+
+      - name: Set up NODE med npm
+        if: inputs.package-manager == 'pnpm'
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: "pnpm"
 
       - name: Pnpm install and build
         if: inputs.package-manager == 'pnpm'
