@@ -63,12 +63,12 @@ jobs:
           node-version: ${{ inputs.node-version }}
           cache: "pnpm"
 
-      - name: Yarn install and build
+      - name: Yarn install
         if: inputs.package-manager == 'yarn'
         run: |
           yarn install --immutable
 
-      - name: Pnpm install and build
+      - name: Pnpm install
         if: inputs.package-manager == 'pnpm'
         run: |
           pnpm install --frozen-lockfile
