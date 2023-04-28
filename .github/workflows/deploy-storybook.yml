@@ -70,7 +70,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
           registry-url: https://npm.pkg.github.com/
           scope: '@navikt'
-          cache: "pnpm"
+          cache: "npm"
 
       - uses: pnpm/action-setup@v2
         if: inputs.package-manager == 'pnpm'
