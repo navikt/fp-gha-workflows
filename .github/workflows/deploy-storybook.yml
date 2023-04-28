@@ -41,6 +41,11 @@ jobs:
         env:
           NPM_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
 
+      - uses: pnpm/action-setup@v2
+        if: inputs.package-manager == 'pnpm'
+        with:
+          version: latest
+
       - name: Set up NODE med yarn cache
         if: inputs.package-manager == 'yarn'
         uses: actions/setup-node@v3
@@ -50,11 +55,6 @@ jobs:
           cache-dependency-path: |
             node_modules/.cache/nx
             yarn.lock
-
-      - uses: pnpm/action-setup@v2
-        if: inputs.package-manager == 'pnpm'
-        with:
-          version: latest
 
       - name: Set up NODE med pnpm cache
         if: inputs.package-manager == 'pnpm'
