@@ -32,11 +32,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v2
-        if: inputs.package-manager == 'pnpm'
-        with:
-          version: latest
-
       - name: Sette yarn-config
         if: inputs.package-manager == 'yarn'
         run: |
@@ -46,7 +41,7 @@ jobs:
         env:
           NPM_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
 
-      - name: Set up NODE
+      - name: Set up NODE med yarn cache
         if: inputs.package-manager == 'yarn'
         uses: actions/setup-node@v3
         with:
@@ -56,6 +51,18 @@ jobs:
             node_modules/.cache/nx
             yarn.lock
 
+      - uses: pnpm/action-setup@v2
+        if: inputs.package-manager == 'pnpm'
+        with:
+          version: latest
+
+      - name: Set up NODE med pnpm cache
+        if: inputs.package-manager == 'pnpm'
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: "pnpm"
+
       - name: Set remote url med token
         run: git remote set-url origin https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git
 
@@ -63,27 +70,6 @@ jobs:
         if: inputs.package-manager == 'yarn'
         run: |
           yarn install --immutable
-          yarn build
-
-      - name: Deploy storybook yarn
-        if: inputs.package-manager == 'yarn'
-        run: |
-          yarn storybook-clean-deploy-folder && yarn storybook-build-all && yarn storybook-create-deploy-folder
-          yarn gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: pnpm/action-setup@v2
-        if: inputs.package-manager == 'pnpm'
-        with:
-          version: latest
-
-      - name: Set up NODE med npm
-        if: inputs.package-manager == 'pnpm'
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ inputs.node-version }}
-          cache: "pnpm"
 
       - name: Pnpm install and build
         if: inputs.package-manager == 'pnpm'
@@ -92,10 +78,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy storybook npm
-        if: inputs.package-manager == 'pnpm'
+      - name: Deploy storybook
         run: |
-          pnpm storybook-deploy-clean-folder && pnpm storybook-deploy-build-all && pnpm storybook-deploy-create-folder
-          pnpm gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
+          {{ inputs.package-manager }} storybook-clean-deploy-folder && {{ inputs.package-manager }} storybook-build-all && {{ inputs.package-manager }} storybook-create-deploy-folder
+          {{ inputs.package-manager }} gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
         env:
-          GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
