@@ -89,7 +89,6 @@ jobs:
         if: inputs.package-manager == 'pnpm'
         run: |
           pnpm install --frozen-lockfile
-          pnpm build
         env:
           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
 
@@ -100,3 +99,4 @@ jobs:
           pnpm gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
         env:
           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
