@@ -63,9 +63,6 @@ jobs:
           node-version: ${{ inputs.node-version }}
           cache: "pnpm"
 
-      - name: Set remote url med token
-        run: git remote set-url origin https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git
-
       - name: Yarn install and build
         if: inputs.package-manager == 'yarn'
         run: |
@@ -78,9 +75,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy storybook
+      - name: Set remote url med token
+        run: git remote set-url origin https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git
+
+      - name: Deploy storybook yarn
+        if: inputs.package-manager == 'yarn'
         run: |
-          ${{ inputs.package-manager }} storybook-clean-deploy-folder && ${{ inputs.package-manager }} storybook-build-all && ${{ inputs.package-manager }} storybook-create-deploy-folder
-          ${{ inputs.package-manager }} gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
+          yarn storybook-clean-deploy-folder && yarn storybook-build-all && yarn storybook-create-deploy-folder
+          yarn gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy storybook pnpm
+        if: inputs.package-manager == 'pnpm'
+        run: |
+          pnpm storybook-deploy-clean-folder && pnpm storybook-deploy-build-all && pnpm storybook-deploy-create-folder
+          pnpm gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
