@@ -80,7 +80,7 @@ jobs:
 
       - name: Deploy storybook
         run: |
-          {{ inputs.package-manager }} storybook-clean-deploy-folder && {{ inputs.package-manager }} storybook-build-all && {{ inputs.package-manager }} storybook-create-deploy-folder
-          {{ inputs.package-manager }} gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
+          ${{ inputs.package-manager }} storybook-clean-deploy-folder && ${{ inputs.package-manager }} storybook-build-all && ${{ inputs.package-manager }} storybook-create-deploy-folder
+          ${{ inputs.package-manager }} gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
