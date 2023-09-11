@@ -31,7 +31,7 @@ jobs:
     runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
