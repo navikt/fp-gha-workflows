@@ -40,7 +40,7 @@ jobs:
           yarn config set npmScopes.navikt.npmAuthToken $NPM_AUTH_TOKEN
         env:
           NPM_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-      - uses: pnpm/action-setup@0b715c7ebbf3cf2174d1386336c5f6d3d8d5504a # ratchet:pnpm/action-setup@v2
+      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # ratchet:pnpm/action-setup@v2
         if: inputs.package-manager == 'pnpm'
         with:
           version: latest
