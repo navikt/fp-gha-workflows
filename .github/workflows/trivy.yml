@@ -49,6 +49,6 @@ jobs:
           limit-severities-for-sarif: true
       - name: Upload Trivy scan results to GitHub Security tab
         if: always() && inputs.upload-sarif
-        uses: github/codeql-action/upload-sarif@04daf014b50eaf774287bf3f0f1869d4b4c4b913 # ratchet:github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@ddccb873888234080b77e9bc2d4764d5ccaaccf9 # ratchet:github/codeql-action/upload-sarif@v2
         with:
           sarif_file: 'trivy.sarif'
