@@ -6,17 +6,17 @@ on:
         required: false
         type: string
         description: Miljø versjon som skal brukes til bygg.
-        default: 'ubuntu-latest'
+        default: "ubuntu-latest"
       node-version:
         required: false
         type: string
         description: Node version som brukes.
-        default: '18.8.0'
+        default: "18.8.0"
       pnpm-version:
         required: false
         type: string
         description: PNPM version som skal brukes.
-        default: '8'
+        default: "8"
       build-image:
         required: false
         type: boolean
@@ -31,6 +31,21 @@ on:
         required: true
         type: string
         description: Hvilken app skal bygges under ./apps/ mappa
+      bake-action:
+        type: boolean
+        required: false
+        description: "Use docker bake action to build and push"
+        default: false
+      bake-platform:
+        type: string
+        required: false
+        description: Platform to target
+        default: ""
+      bake-target:
+        type: string
+        required: false
+        description: Target for bake file
+        default: ""
     outputs:
       build-version:
         description: "Build version"
@@ -88,7 +103,7 @@ jobs:
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
       - name: Bygg og push docker image
         if: inputs.build-image
-        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main # ratchet:exclude
+        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@bake-refactor # ratchet:exclude
         with:
           build-version: ${{ steps.generate-build-version.outputs.build-version }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -97,3 +112,6 @@ jobs:
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           docker_context: ./apps/${{ inputs.image_suffix }}/
           image_suffix: /${{ inputs.image_suffix }}
+          bake-action: ${{ inputs.bake-action }}
+          bake-platform: ${{ inputs.bake-platform }}
+          bake-target: ${{ inputs.bake-target }}
