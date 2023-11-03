@@ -50,17 +50,6 @@ runs:
         project_id: ${{ inputs.project_id }}
         identity_provider: ${{ inputs.identity_provider }}
         team: ${{ inputs.namespace }}
-    # - name: Setup environment
-    #   if: inputs.bake-action == 'false'
-    #   shell: bash
-    #   run: |
-    #     if [ ! -f "${{ inputs.dockerfile }}" ]; then
-    #       echo "::error ::Dockerfile not found: ${{ inputs.dockerfile }}. Do you need to prepend context or working directory?"
-    #       exit 1
-    #     elif [ ! -d "${{ inputs.docker_context }}" ]; then
-    #       echo "::error ::Docker context not found: ${{ inputs.docker_context }}."
-    #       exit 1
-    #     fi
     - name: Docker meta
       uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175 # ratchet:docker/metadata-action@v4
       id: meta
@@ -81,10 +70,11 @@ runs:
         GITHUB_REF_NAME=${GITHUB_REF_NAME//\//_}
         echo "cache-tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
     # - name: Generate SBOM, attest and sign image
-    #   if: inputs.push-image == 'true' && inputs.bake-action == 'false'
+    #   if: inputs.push-image == 'true'
     #   uses: nais/attest-sign@53b7a991bd5b5a9903cc8434e584345980a31032 # ratchet:nais/attest-sign@v1.1.0
     #   with:
-    #     image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}@${{ steps.build_push.outputs.digest }}
+    #     image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.build_push.outputs.digest }}
+
     - name: Build and push with bake
       uses: docker/bake-action@ad0d2a9712378c502a7d5c590deb0d7a02d2a61d # ratchet:docker/bake-action@v3.0.1
       env:
