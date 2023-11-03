@@ -1,0 +1,79 @@
+name: Build app
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: false
+        type: string
+        description: Miljø versjon som skal brukes til bygg.
+        default: "ubuntu-latest"
+      push-image:
+        required: false
+        type: boolean
+        description: Skal docker image pushes?
+        default: false
+      bake-platform:
+        type: string
+        required: false
+        description: Platform to target
+        default: ""
+      bake-targets:
+        type: string
+        required: false
+        description: List of bake targets (default target used if empty)
+        default: ""
+    outputs:
+      build-version:
+        description: "Build version"
+        value: ${{ jobs.build-and-test.outputs.build-version }}
+jobs:
+  build-and-test:
+    name: Build and test
+    permissions:
+      packages: write
+      id-token: write
+    runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+    env:
+      TZ: "Europe/Oslo"
+    outputs:
+      build-version: ${{ steps.generate-build-version.outputs.build-version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # ratchet:actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # - name: Set up NODE
+      #   uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # ratchet:actions/setup-node@v3
+      #   with:
+      #     node-version: ${{ inputs.node-version }}
+      # - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # ratchet:pnpm/action-setup@v2
+      #   name: Install pnpm
+      #   with:
+      #     version: ${{ inputs.pnpm-version }}
+      #     run_install: false
+      # - name: Get pnpm store directory
+      #   shell: bash
+      #   run: |
+      #     echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      # - uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # ratchet:actions/cache@v3
+      #   name: Setup pnpm cache
+      #   with:
+      #     path: ${{ env.STORE_PATH }}
+      #     key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pnpm-store-
+      - name: Generate build version
+        id: generate-build-version
+        run: echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+      - name: Print build version
+        run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
+      - name: Bygg og push docker image
+        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-bake@bake-refactor # ratchet:exclude
+        with:
+          build-version: ${{ steps.generate-build-version.outputs.build-version }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push-image: ${{ inputs.push-image }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          bake-platform: ${{ inputs.bake-platform }}
+          bake-targets: ${{ inputs.bake-targets }}
