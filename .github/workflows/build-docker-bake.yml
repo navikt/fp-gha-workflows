@@ -17,11 +17,10 @@ on:
         required: false
         description: Platform to target
         default: ""
-      bake-targets:
+      bake-target:
         type: string
-        required: false
-        description: List of bake targets (default target used if empty)
-        default: ""
+        required: true
+        description: Bake target
     outputs:
       build-version:
         description: "Build version"
@@ -76,4 +75,4 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           bake-platform: ${{ inputs.bake-platform }}
-          bake-targets: ${{ inputs.bake-targets }}
+          bake-target: ${{ inputs.bake-target }}

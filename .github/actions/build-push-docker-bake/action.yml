@@ -26,11 +26,10 @@ inputs:
     required: false
     description: Platform to target
     default: ""
-  bake-targets:
+  bake-target:
     type: string
-    required: false
-    description: List of bake targets (default target used if empty)
-    default: ""
+    required: true
+    description: Bake target
 runs:
   using: "composite"
   steps:
@@ -67,8 +66,8 @@ runs:
       id: meta
       with:
         images: |
-          ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}
-          ghcr.io/${{ github.repository }}${{ inputs.image_suffix }}
+          ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}
+          ghcr.io/${{ github.repository }}/${{ inputs.bake-target }}
         tags: |
           type=raw,value=${{ inputs.build-version }}
           # set latest tag for default branch (master)
@@ -91,7 +90,7 @@ runs:
       env:
         CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
       with:
-        targets: ${{ inputs.bake-targets }}
+        targets: ${{ inputs.bake-target }}
         push: ${{ inputs.push-image }}
         files: |
           ./docker-bake.hcl
