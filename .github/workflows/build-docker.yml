@@ -72,7 +72,6 @@ jobs:
         uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main # ratchet:exclude
         with:
           build-version: ${{ steps.generate-build-version.outputs.build-version }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           push-image: ${{ inputs.push-image }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}

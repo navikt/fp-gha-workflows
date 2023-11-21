@@ -4,9 +4,6 @@ inputs:
   build-version:
     description: "Image tag for the docker image"
     required: true
-  github-token:
-    description: "Token to use when signing into ghcr.io"
-    required: true
   project_id:
     required: true
     description: "NAIS project id"
@@ -33,12 +30,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Login to GitHub Packages Docker Registry
-      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ inputs.github-token }}
     - name: Set up QEMU
       uses: docker/setup-qemu-action@2b82ce82d56a2a04d2637cd93a637ae1b359c0a7 # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
@@ -54,9 +45,7 @@ runs:
       uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175 # ratchet:docker/metadata-action@v4
       id: meta
       with:
-        images: |
-          ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}
-          ghcr.io/${{ github.repository }}/${{ inputs.bake-target }}
+        images: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}
         tags: |
           type=raw,value=${{ inputs.build-version }}
           # set latest tag for default branch (master)
