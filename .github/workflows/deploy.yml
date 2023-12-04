@@ -35,6 +35,10 @@ on:
         type: string
         description: 'The suffix of the image to be deployed'
         default: ''
+      branch:
+        required: false
+        type: string
+        description: Alternativ branch å deploye fra
 
 env:
   IMAGE: ${{ inputs.image }} # Brukes i naiserator.yaml
@@ -45,6 +49,8 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # ratchet:actions/checkout@v4
+        with:
+          ref: ${{ (inputs.branch != '' && inputs.branch) || '' }}
       - name: Deploy ${{ inputs.cluster }} fra Github
         if: inputs.gar == 'false'
         uses: nais/deploy/actions/deploy@0bca2c7e607d30fd757a2a23fb7d07b3ff96d540 # ratchet:nais/deploy/actions/deploy@v1
