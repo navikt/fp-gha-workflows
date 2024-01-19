@@ -12,6 +12,11 @@ on:
         type: string
         description: Tråd konfig til maven.
         default: ''
+      skip-tests:
+        type: boolean
+        required: false
+        description: 'Skip tests'
+        default: false
       java-version:
         required: false
         type: string
@@ -32,6 +37,11 @@ on:
         type: boolean
         description: Skal docker image pushes?
         default: false
+      namespace:
+        required: false
+        type: string
+        description: "NAV team"
+        default: "teamforeldrepenger"
     outputs:
       build-version:
         description: "Build version"
@@ -75,6 +85,7 @@ jobs:
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@f55dcebb1b39e92cad839c218a397fa008a11081 # ratchet:navikt/fp-gha-workflows/.github/actions/build-maven-application@main
         with:
           t-2c: ${{ inputs.t-2c }}
+          skip-tests: ${{ inputs.skip-tests }}
       - name: Sonar analyse
         if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
         run: |
@@ -91,6 +102,7 @@ jobs:
           push-image: ${{ inputs.push-image }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          namespace: ${{ inputs.namespace }}
       - name: Clean up generated stuff before caching
         run: |
           rm ~/.m2/repository/no/nav/foreldrepenger -r
