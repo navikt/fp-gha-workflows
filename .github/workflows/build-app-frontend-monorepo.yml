@@ -52,7 +52,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up NODE
-        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # ratchet:actions/setup-node@v3
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # ratchet:actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
       - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # ratchet:pnpm/action-setup@v2
