@@ -29,7 +29,7 @@ jobs:
         run: docker pull ghcr.io/${{ github.repository }}/${{ inputs.build-version }}
       - name: Run Trivy vulnerability scanner non-public repo
         if: inputs.upload-sarif == false
-        uses: aquasecurity/trivy-action@91713af97dc80187565512baba96e4364e983601 # ratchet:aquasecurity/trivy-action@0.16.0
+        uses: aquasecurity/trivy-action@84384bd6e777ef152729993b8145ea352e9dd3ef # ratchet:aquasecurity/trivy-action@0.17.0
         with:
           security-checks: 'vuln'
           image-ref: 'ghcr.io/${{ github.repository }}/${{ inputs.build-version }}'
@@ -39,7 +39,7 @@ jobs:
           limit-severities-for-sarif: true
       - name: Run Trivy vulnerability scanner for container
         if: inputs.upload-sarif
-        uses: aquasecurity/trivy-action@91713af97dc80187565512baba96e4364e983601 # ratchet:aquasecurity/trivy-action@0.16.0
+        uses: aquasecurity/trivy-action@84384bd6e777ef152729993b8145ea352e9dd3ef # ratchet:aquasecurity/trivy-action@0.17.0
         with:
           security-checks: 'vuln'
           image-ref: 'ghcr.io/${{ github.repository }}/${{ inputs.build-version }}'
