@@ -9,6 +9,11 @@ updates:
     open-pull-requests-limit: 10
     registries:
       - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: github-actions
     directory: ".github/actions/build-maven-application"
     schedule:
@@ -18,12 +23,22 @@ updates:
     open-pull-requests-limit: 10
     registries:
       - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: github-actions
     directory: ".github/actions/build-push-docker-bake"
     schedule:
       interval: weekly
       day: monday
       time: "04:00"
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
     open-pull-requests-limit: 10
     registries:
       - github
@@ -36,6 +51,11 @@ updates:
     open-pull-requests-limit: 10
     registries:
       - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: github-actions
     directory: ".github/actions/setup-java-and-maven"
     schedule:
@@ -45,6 +65,11 @@ updates:
     open-pull-requests-limit: 10
     registries:
       - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
 registries:
   github:
     type: git
