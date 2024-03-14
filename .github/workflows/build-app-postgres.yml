@@ -47,6 +47,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
+      pull-requests: read
     runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     services:
       postgres:
