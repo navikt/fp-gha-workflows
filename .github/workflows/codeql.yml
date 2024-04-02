@@ -35,7 +35,7 @@ jobs:
           build-mode: ${{ (github.actor == 'java-kotlin' && 'none') || 'autobuild' }}
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
       - name: Setup java and maven
-        if: inputs.language == 'java'
+        if: inputs.language == 'java-kotlin'
         uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
           github-token: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
