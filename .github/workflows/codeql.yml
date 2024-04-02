@@ -33,9 +33,9 @@ jobs:
         with:
           languages: ${{ inputs.language }}
           build-mode: ${{ (github.actor == 'java-kotlin' && 'none') || 'autobuild' }}
-          github-token: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@8a470fddafa5cbb6266ee11b37ef4d8aae19c571 # ratchet:github/codeql-action/analyze@v2
         with:
           category: "/language:${{ inputs.language }}"
+          github-token: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
