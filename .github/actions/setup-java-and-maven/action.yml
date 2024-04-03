@@ -15,13 +15,18 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Create maven .m2 settings
+      uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d
+      with:
+        repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
+        servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ inputs.github-token }}" }]'
+        output_file: 'settings.xml'
     - name: Set up JDK-${{ inputs.java-version }} with cache
       uses: actions/setup-java@9704b39bf258b59bc04b50fa2dd55e9ed76b47a8 # ratchet:actions/setup-java@v3
       with:
         java-version: ${{ inputs.java-version }}
         distribution: 'temurin'
         cache: 'maven'
-        server-password: ${{ inputs.github-token }}
     - name: Set up Maven
       uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1
       with:
