@@ -40,7 +40,7 @@ runs:
     - name: Set up QEMU
       uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@0d103c3126aa41d772a8362f6aa67afac040f80c # ratchet:docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
       uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e # ratchet:nais/login@v0
       id: login
@@ -68,7 +68,7 @@ runs:
           # set latest tag for default branch (master)
           type=raw,value=latest,enable={{is_default_branch}}
     - name: Bygg og push docker image
-      uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # ratchet:docker/build-push-action@v4
+      uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # ratchet:docker/build-push-action@v4
       id: build_push
       with:
         context: ${{ inputs.docker_context }}
@@ -82,6 +82,6 @@ runs:
         cache-to: type=gha,mode=max
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@00211ae91044294ee8bb41496b7e40ffbf135116 # ratchet:nais/attest-sign@v1.3.5
+      uses: nais/attest-sign@53f544238e21cf86fc779bb89d15d52273b005f2 # ratchet:nais/attest-sign@v1.3.7
       with:
         image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}@${{ steps.build_push.outputs.digest }}
