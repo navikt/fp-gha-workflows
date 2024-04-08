@@ -18,9 +18,9 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # ratchet:actions/checkout@v4
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # ratchet:actions/checkout@v4
       - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -29,7 +29,7 @@ jobs:
         run: docker pull ghcr.io/${{ github.repository }}/${{ inputs.build-version }}
       - name: Run Trivy vulnerability scanner non-public repo
         if: inputs.upload-sarif == false
-        uses: aquasecurity/trivy-action@062f2592684a31eb3aa050cc61e7ca1451cecd3d # ratchet:aquasecurity/trivy-action@0.18.0
+        uses: aquasecurity/trivy-action@d710430a6722f083d3b36b8339ff66b32f22ee55 # ratchet:aquasecurity/trivy-action@0.19.0
         with:
           security-checks: 'vuln'
           image-ref: 'ghcr.io/${{ github.repository }}/${{ inputs.build-version }}'
@@ -39,7 +39,7 @@ jobs:
           limit-severities-for-sarif: true
       - name: Run Trivy vulnerability scanner for container
         if: inputs.upload-sarif
-        uses: aquasecurity/trivy-action@062f2592684a31eb3aa050cc61e7ca1451cecd3d # ratchet:aquasecurity/trivy-action@0.18.0
+        uses: aquasecurity/trivy-action@d710430a6722f083d3b36b8339ff66b32f22ee55 # ratchet:aquasecurity/trivy-action@0.19.0
         with:
           security-checks: 'vuln'
           image-ref: 'ghcr.io/${{ github.repository }}/${{ inputs.build-version }}'
@@ -49,6 +49,6 @@ jobs:
           limit-severities-for-sarif: true
       - name: Upload Trivy scan results to GitHub Security tab
         if: always() && inputs.upload-sarif
-        uses: github/codeql-action/upload-sarif@8a470fddafa5cbb6266ee11b37ef4d8aae19c571 # ratchet:github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@4355270be187e1b672a7a1c7c7bae5afdc1ab94a # ratchet:github/codeql-action/upload-sarif@v2
         with:
           sarif_file: 'trivy.sarif'
