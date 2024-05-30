@@ -36,6 +36,11 @@ on:
         type: boolean
         description: Skal docker image pushes?
         default: false
+      namespace:
+        required: false
+        type: string
+        description: "NAV team"
+        default: "teamforeldrepenger"
     outputs:
       build-version:
         description: "Build version"
@@ -93,6 +98,7 @@ jobs:
           push-image: ${{ inputs.push-image }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          namespace: ${{ inputs.namespace }}
         env:
           DATABASE_HOST: localhost
           DATABASE_PORT: ${{ job.services.postgres.ports[5432] }}
