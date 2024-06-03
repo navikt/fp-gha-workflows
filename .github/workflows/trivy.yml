@@ -20,7 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # ratchet:actions/checkout@v4
       - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -49,6 +49,6 @@ jobs:
           limit-severities-for-sarif: true
       - name: Upload Trivy scan results to GitHub Security tab
         if: always() && inputs.upload-sarif
-        uses: github/codeql-action/upload-sarif@9fdb3e49720b44c48891d036bb502feb25684276 # ratchet:github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@f079b8493333aace61c81488f8bd40919487bd9f # ratchet:github/codeql-action/upload-sarif@v2
         with:
           sarif_file: 'trivy.sarif'
