@@ -11,14 +11,14 @@ on:
         required: false
         type: string
         description: Hvilken package manager en skal bruke (npm|pnpm|yarn)
-        default: 'yarn'
+        default: "yarn"
       node-version:
         required: false
         type: string
         description: Node version som brukes.
         default: "20.12.2"
 env:
-  NODE_OPTIONS: '--max_old_space_size=6144'
+  NODE_OPTIONS: "--max_old_space_size=6144"
 jobs:
   deploy-storybook:
     name: Deploy storybook ${{ inputs.package-manger }}
@@ -43,13 +43,13 @@ jobs:
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # ratchet:pnpm/action-setup@v2
         if: inputs.package-manager == 'pnpm'
         with:
-          version: latest
+          version: 9.1.4
       - name: Set up NODE med yarn cache
         if: inputs.package-manager == 'yarn'
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # ratchet:actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
-          cache: 'yarn'
+          cache: "yarn"
           cache-dependency-path: |
             node_modules/.cache/nx
             yarn.lock
