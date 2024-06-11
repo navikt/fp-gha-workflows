@@ -77,11 +77,11 @@ runs:
       uses: docker/bake-action@7a5dfed3550ca014665af2a27af8fc9d7284b9b3 # ratchet:docker/bake-action@v4.5.0
       env:
         CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
+        NODE_AUTH_TOKEN: ${{ inputs.github-token }}
       with:
         no-cache: ${{ github.actor == 'dependabot[bot]' }}
         targets: ${{ inputs.bake-target }}
         push: ${{ inputs.push-image }}
-        github-token: ${{ inputs.github-token }}
         files: |
           ./docker-bake.hcl
           ${{ steps.meta.outputs.bake-file }}
