@@ -86,4 +86,4 @@ runs:
           ${{ steps.meta.outputs.bake-file }}
         set: |
           *.platform=${{ inputs.bake-platform }}
-          *.secrets="NODE_AUTH_TOKEN=${{ inputs.github-token }}"
+          *.secret.NODE_AUTH_TOKEN=${{ inputs.github-token }}"
