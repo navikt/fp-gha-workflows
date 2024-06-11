@@ -84,7 +84,7 @@ runs:
         files: |
           ./docker-bake.hcl
           ${{ steps.meta.outputs.bake-file }}
-        env:
-          NODE_AUTH_TOKEN: ${{ intputs.github-token }}
         set: |
           *.platform=${{ inputs.bake-platform }}
+          *.secrets: |
+            "NODE_AUTH_TOKEN=${{ inputs.github-token }}"
