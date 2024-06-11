@@ -73,6 +73,9 @@ runs:
     #   with:
     #     image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.build_push.outputs.digest }}
 
+    - name: Authenticate with private NPM package
+      run: echo "//npm.pkg.github.com/:_authToken=${{ inputs.github-token }}" > ~/.npmrc
+
     - name: Build and push with bake
       uses: docker/bake-action@7a5dfed3550ca014665af2a27af8fc9d7284b9b3 # ratchet:docker/bake-action@v4.5.0
       env:
@@ -86,4 +89,3 @@ runs:
           ${{ steps.meta.outputs.bake-file }}
         set: |
           *.platform=${{ inputs.bake-platform }}
-          *.secrets.NODE_AUTH_TOKEN=${{ inputs.github-token }}
