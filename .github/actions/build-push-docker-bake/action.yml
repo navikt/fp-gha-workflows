@@ -81,6 +81,7 @@ runs:
         no-cache: ${{ github.actor == 'dependabot[bot]' }}
         targets: ${{ inputs.bake-target }}
         push: ${{ inputs.push-image }}
+        github-token: ${{ inputs.github-token }}
         files: |
           ./docker-bake.hcl
           ${{ steps.meta.outputs.bake-file }}
