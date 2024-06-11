@@ -74,6 +74,7 @@ runs:
     #     image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.build_push.outputs.digest }}
 
     - name: Authenticate with private NPM package
+      shell: bash
       run: echo "//npm.pkg.github.com/:_authToken=${{ inputs.github-token }}" > ~/.npmrc
 
     - name: Build and push with bake
