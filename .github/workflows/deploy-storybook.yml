@@ -54,11 +54,6 @@ jobs:
             node_modules/.cache/nx
             yarn.lock
 
-      - name: Authenticate with private NPM package
-        if: inputs.package-manager == 'pnpm'
-        shell: bash
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.READER_TOKEN }}" > .npmrc
-
       - name: Set up NODE med pnpm cache
         if: inputs.package-manager == 'pnpm'
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # ratchet:actions/setup-node@v3
@@ -70,13 +65,19 @@ jobs:
         run: |
           yarn install --immutable
           yarn build
+
+
+      - name: Authenticate with private NPM package
+        if: inputs.package-manager == 'pnpm'
+        shell: bash
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.READER_TOKEN }}" > .npmrc
+
       - name: Pnpm install
         if: inputs.package-manager == 'pnpm'
         run: |
           pnpm install --frozen-lockfile
         env:
           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Set remote url med token
         run: git remote set-url origin https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git
       - name: Deploy storybook yarn
@@ -93,4 +94,3 @@ jobs:
           pnpm gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
