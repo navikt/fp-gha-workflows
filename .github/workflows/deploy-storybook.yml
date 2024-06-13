@@ -72,6 +72,7 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
       - name: Set remote url med token
         run: git remote set-url origin https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git
