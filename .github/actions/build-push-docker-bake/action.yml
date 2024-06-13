@@ -28,6 +28,9 @@ inputs:
   github-token:
     description: "Token to use when signing into ghcr.io for cacheing purposes"
     required: true
+  auth-token:
+    description: "Token to use when installing packages from npm"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -77,7 +80,7 @@ runs:
       uses: docker/bake-action@7a5dfed3550ca014665af2a27af8fc9d7284b9b3 # ratchet:docker/bake-action@v4.5.0
       env:
         CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
-        PACKAGES_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+        PACKAGES_AUTH_TOKEN: ${{ inputs.auth-token }}
       with:
         no-cache: ${{ github.actor == 'dependabot[bot]' }}
         targets: ${{ inputs.bake-target }}
