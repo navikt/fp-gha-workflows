@@ -59,6 +59,9 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: "pnpm"
+          registry-url: "https://npm.pkg.github.com"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Yarn install
         if: inputs.package-manager == 'yarn'
         run: |
