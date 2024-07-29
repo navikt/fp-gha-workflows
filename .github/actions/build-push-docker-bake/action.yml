@@ -35,15 +35,15 @@ runs:
   using: "composite"
   steps:
     - name: Login to GitHub Packages Docker Registry # Brukes ifm lagring og henting av cache
-      uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446
+      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ inputs.github-token }}
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # ratchet:docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # ratchet:docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@aa33708b10e362ff993539393ff100fa93ed6a27 # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
       uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e # ratchet:nais/login@v0
       if: inputs.push-image == 'true'
