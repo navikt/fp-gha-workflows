@@ -75,6 +75,8 @@ jobs:
           cd .oracle
           docker compose up --quiet-pull > nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Database opened./q" && kill $$; }' || true
+        env:
+          ORACLE_SID: XE
       - name: Setup java and maven
         uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
