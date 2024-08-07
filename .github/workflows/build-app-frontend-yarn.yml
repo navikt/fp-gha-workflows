@@ -69,10 +69,10 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - name: Bygg server
         run: |
+          cd ./server
           yarn config set npmScopes.navikt.npmRegistryServer "https://npm.pkg.github.com"
           yarn config set npmScopes.navikt.npmAlwaysAuth true
           yarn config set npmScopes.navikt.npmAuthToken ${NODE_AUTH_TOKEN}
-          cd ./server
           yarn install --immutable
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
