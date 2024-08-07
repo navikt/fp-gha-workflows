@@ -54,6 +54,7 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           scope: "@navikt"
+          registry-url: https://npm.pkg.github.com/
           cache: 'yarn'
           cache-dependency-path: |
             node_modules/.cache/nx
