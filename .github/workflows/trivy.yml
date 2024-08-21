@@ -25,7 +25,7 @@ jobs:
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.event.pull_request.user.login }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Henter image fra forrige steg
         run: docker pull ghcr.io/${{ github.repository }}/${{ inputs.build-version }}

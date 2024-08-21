@@ -73,7 +73,7 @@ jobs:
           DATABASE_HOST: localhost
           DATABASE_PORT: ${{ job.services.postgres.ports[5432] }}
       - name: Sonar analyse
-        if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
+        if: (inputs.sonar-scan && github.event.pull_request.user.login != 'dependabot[bot]')
         run: |
           mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
         env:

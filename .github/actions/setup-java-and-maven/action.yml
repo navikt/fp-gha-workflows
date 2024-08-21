@@ -33,7 +33,7 @@ runs:
       uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d
       with:
         repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
-        servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ inputs.github-token }}" }]'
+        servers: '[{ "id": "github", "username": "${{ github.event.pull_request.user.login }}", "password": "${{ inputs.github-token }}" }]'
         output_file: 'settings.xml'
     - name: Set up JDK-${{ inputs.java-version }} with cache
       uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018 # ratchet:actions/setup-java@v3
