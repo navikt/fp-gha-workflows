@@ -82,7 +82,7 @@ runs:
         CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
         PACKAGES_AUTH_TOKEN: ${{ inputs.auth-token }}
       with:
-        no-cache: ${{ github.actor == 'dependabot[bot]' }}
+        no-cache: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
         targets: ${{ inputs.bake-target }}
         push: ${{ inputs.push-image }}
         files: |

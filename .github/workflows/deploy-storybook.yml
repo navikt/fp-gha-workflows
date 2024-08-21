@@ -26,12 +26,18 @@ jobs:
       contents: write
       pages: write
     environment: gh-pages
-    runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+    runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     steps:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
+        id: octo-sts
+        with:
+          scope: ${{ github.repository_owner }}
+          identity: readertoken
       - name: Sette yarn-config
         if: inputs.package-manager == 'yarn'
         run: |
@@ -39,7 +45,7 @@ jobs:
           yarn config set npmScopes.navikt.npmAlwaysAuth true
           yarn config set npmScopes.navikt.npmAuthToken $NPM_AUTH_TOKEN
         env:
-          NPM_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ steps.octo-sts.outputs.token }}
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # ratchet:pnpm/action-setup@v2
         if: inputs.package-manager == 'pnpm'
         with:
@@ -66,11 +72,15 @@ jobs:
           yarn install --immutable
           yarn build
 
-
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
+        id: octo-sts
+        with:
+          scope: ${{ github.repository_owner }}
+          identity: readertoken
       - name: Authenticate with private NPM package
         if: inputs.package-manager == 'pnpm'
         shell: bash
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.READER_TOKEN }}" > .npmrc
+        run: echo "//npm.pkg.github.com/:_authToken=${{ steps.octo-sts.outputs.token }}" > .npmrc
 
       - name: Pnpm install
         if: inputs.package-manager == 'pnpm'
