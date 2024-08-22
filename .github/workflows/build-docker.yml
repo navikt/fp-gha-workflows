@@ -54,7 +54,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+    runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     env:
       TZ: "Europe/Oslo"
     outputs:
@@ -64,6 +64,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Generate build version
         id: generate-build-version
         run: echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT

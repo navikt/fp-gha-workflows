@@ -19,11 +19,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Login to GitHub Packages Docker Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.event.pull_request.user.login }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Henter image fra forrige steg
         run: docker pull ghcr.io/${{ github.repository }}/${{ inputs.build-version }}

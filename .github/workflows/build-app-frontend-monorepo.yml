@@ -41,7 +41,7 @@ jobs:
     permissions:
       packages: write
       id-token: write
-    runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+    runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     env:
       TZ: "Europe/Oslo"
     outputs:
@@ -51,6 +51,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Set up NODE
         uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # ratchet:actions/setup-node@v3
         with:
