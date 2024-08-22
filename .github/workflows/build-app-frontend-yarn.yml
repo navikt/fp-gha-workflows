@@ -65,11 +65,6 @@ jobs:
         run: yarn sentry-release
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
-        id: octo-sts
-        with:
-          scope: ${{ github.repository_owner }}
-          identity: readertoken
       - name: Bygg server
         run: |
           cd ./server
@@ -78,7 +73,7 @@ jobs:
           yarn config set npmScopes.navikt.npmAuthToken ${NODE_AUTH_TOKEN}
           yarn install --immutable
         env:
-          NODE_AUTH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Generate build version
         id: generate-build-version
         run: |

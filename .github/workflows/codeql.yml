@@ -37,9 +37,9 @@ jobs:
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
       - name: Setup java and maven
         if: inputs.language == 'java'
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@security/patch # ratchet:exclude
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ (github.event.pull_request.user.login != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
       - name: Maven install and test
         if: inputs.language == 'java'

@@ -15,25 +15,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
-      if: github.event.pull_request.user.login != 'dependabot[bot]'
-      id: octo-sts
-      with:
-        scope: ${{ github.repository_owner }}
-        identity: readertoken
-    - name: Create maven .m2 setting
-      if: github.event.pull_request.user.login != 'dependabot[bot]'
+    - name: Create maven .m2 settings
       uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d
       with:
         repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
-        servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ steps.octo-sts.outputs.token }}" }]'
-        output_file: 'settings.xml'
-    - name: Create maven .m2 setting github token
-      if: github.event.pull_request.user.login == 'dependabot[bot]'
-      uses: whelk-io/maven-settings-xml-action@9dc09b23833fa9aa7f27b63db287951856f3433d
-      with:
-        repositories: '[{"id": "github", "name": "github", "url": "https://maven.pkg.github.com/${{ github.repository }}", "releases": { "enabled": "true" }, "snapshots": { "enabled": "false" }}]'
-        servers: '[{ "id": "github", "username": "${{ github.event.pull_request.user.login }}", "password": "${{ inputs.github-token }}" }]'
+        servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ inputs.github-token }}" }]'
         output_file: 'settings.xml'
     - name: Set up JDK-${{ inputs.java-version }} with cache
       uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018 # ratchet:actions/setup-java@v3
