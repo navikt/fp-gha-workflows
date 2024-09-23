@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@4dd16135b69a43b6c8efb853346f8437d92d3c93 # ratchet:github/codeql-action/init@v2
+        uses: github/codeql-action/init@294a9d92911152fe08befb9ec03e240add280cb3 # ratchet:github/codeql-action/init@v2
         with:
           languages: ${{ inputs.language }}
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
@@ -47,8 +47,8 @@ jobs:
           skip-tests: true
       - name: Autobuild
         if: inputs.language != 'java'
-        uses: github/codeql-action/autobuild@4dd16135b69a43b6c8efb853346f8437d92d3c93 # ratchet:github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@294a9d92911152fe08befb9ec03e240add280cb3 # ratchet:github/codeql-action/autobuild@v2
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@4dd16135b69a43b6c8efb853346f8437d92d3c93 # ratchet:github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@294a9d92911152fe08befb9ec03e240add280cb3 # ratchet:github/codeql-action/analyze@v2
         with:
           category: "/language:${{ inputs.language }}"
