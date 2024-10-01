@@ -11,14 +11,14 @@ on:
         required: false
         type: string
         description: Hvilken package manager en skal bruke (npm|pnpm|yarn)
-        default: 'yarn'
+        default: "yarn"
       node-version:
         required: false
         type: string
         description: Node version som brukes.
-        default: "18.8.0"
+        default: "20.12.2"
 env:
-  NODE_OPTIONS: '--max_old_space_size=6144'
+  NODE_OPTIONS: "--max_old_space_size=6144"
 jobs:
   deploy-storybook:
     name: Deploy storybook ${{ inputs.package-manger }}
@@ -29,7 +29,7 @@ jobs:
     runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # ratchet:actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Sette yarn-config
@@ -40,22 +40,23 @@ jobs:
           yarn config set npmScopes.navikt.npmAuthToken $NPM_AUTH_TOKEN
         env:
           NPM_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-      - uses: pnpm/action-setup@0b715c7ebbf3cf2174d1386336c5f6d3d8d5504a # ratchet:pnpm/action-setup@v2
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # ratchet:pnpm/action-setup@v2
         if: inputs.package-manager == 'pnpm'
         with:
-          version: latest
+          version: 9.1.4
       - name: Set up NODE med yarn cache
         if: inputs.package-manager == 'yarn'
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # ratchet:actions/setup-node@v3
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # ratchet:actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
-          cache: 'yarn'
+          cache: "yarn"
           cache-dependency-path: |
             node_modules/.cache/nx
             yarn.lock
+
       - name: Set up NODE med pnpm cache
         if: inputs.package-manager == 'pnpm'
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # ratchet:actions/setup-node@v3
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # ratchet:actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
           cache: "pnpm"
@@ -67,6 +68,13 @@ jobs:
         run: |
           yarn install --immutable
           yarn build
+
+
+      - name: Authenticate with private NPM package
+        if: inputs.package-manager == 'pnpm'
+        shell: bash
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.READER_TOKEN }}" > .npmrc
+
       - name: Pnpm install
         if: inputs.package-manager == 'pnpm'
         run: |

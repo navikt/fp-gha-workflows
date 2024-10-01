@@ -10,7 +10,7 @@ on:
         required: false
         type: string
         description: 'Java SDK versjon som skal brukes.'
-        default: '17'
+        default: '21'
       mvn-projects:
         required: false
         type: string
@@ -35,20 +35,21 @@ jobs:
   build:
     name: Release
     permissions:
+      contents: read
       packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # ratchet:actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ inputs.release-branch }}
       - name: Setup java and maven
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@f55dcebb1b39e92cad839c218a397fa008a11081 # ratchet:navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
       - name: Publish artifacts
         run: |
           mvn -B -s settings.xml versions:set -DnewVersion=${{ inputs.release-version }} ${{ inputs.release-file }}
-          mvn -B -s settings.xml -DskipTests clean deploy ${{ inputs.mvn-projects }} ${{ inputs.release-profiles }} ${{ inputs.release-file }}
+          mvn -B -s settings.xml -Dmaven.wagon.http.pool=false -DskipTests clean deploy ${{ inputs.mvn-projects }} ${{ inputs.release-profiles }} ${{ inputs.release-file }}

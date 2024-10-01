@@ -6,39 +6,32 @@ on:
         required: false
         type: string
         description: Miljø versjon som skal brukes til bygg.
-        default: 'ubuntu-latest'
-      node-version:
-        required: false
-        type: string
-        description: Node version som brukes.
-        default: '18.8.0'
-      legacy-peer-deps:
-        required: false
-        type: string
-        description: Skal legge på --legacy-peer-deps ved npm install.
-        default: true
-      build-image:
-        required: false
-        type: boolean
-        description: Skal docker image bygges?
-        default: true
+        default: "ubuntu-latest"
       push-image:
         required: false
         type: boolean
         description: Skal docker image pushes?
         default: false
-      clean-install:
+      branch:
         required: false
-        type: boolean
-        description: Kjøre clean install?
-        default: false
+        type: string
+        description: Alternativ branch å bygge fra
+      bake-platform:
+        type: string
+        required: false
+        description: Platform to target
+        default: "linux/amd64,linux/arm64"
+      bake-target:
+        type: string
+        required: true
+        description: Bake target
     outputs:
       build-version:
         description: "Build version"
         value: ${{ jobs.build-and-test.outputs.build-version }}
 jobs:
   build-and-test:
-    name: Build and test
+    name: Build and test ${{ inputs.bake-target }}
     permissions:
       packages: write
       id-token: write
@@ -51,30 +44,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
         with:
+          ref: ${{ (inputs.branch != '' && inputs.branch) || '' }}
           fetch-depth: 0
-      - name: Set up NODE
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # ratchet:actions/setup-node@v3
-        with:
-          node-version: ${{ inputs.node-version }}
-          registry-url: https://npm.pkg.github.com/
-          scope: '@navikt'
-          cache: "npm"
-      - name: clean install
-        if: inputs.clean-install
-        run: npm ci
-      - run: npm install --legacy-peer-deps
-      - run: npm run jest
-      - run: npm run build
       - name: Generate build version
         id: generate-build-version
-        run: echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+        run: |
+          if [[ '${{ inputs.branch }}' != '' ]]; then
+            echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(git log -1 '--format=format:%H' | cut -c1-7)-branch" >> $GITHUB_OUTPUT
+          else
+            echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+          fi
+
       - name: Print build version
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
       - name: Bygg og push docker image
-        if: inputs.build-image
-        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main # ratchet:exclude
+        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-bake@main # ratchet:exclude
         with:
           build-version: ${{ steps.generate-build-version.outputs.build-version }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auth-token: ${{ secrets.READER_TOKEN }}
           push-image: ${{ inputs.push-image }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          bake-platform: ${{ inputs.bake-platform }}
+          bake-target: ${{ inputs.bake-target }}

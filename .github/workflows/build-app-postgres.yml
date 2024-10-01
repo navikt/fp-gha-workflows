@@ -20,7 +20,7 @@ on:
         required: false
         type: string
         description: Java SDK versjon som skal brukes.
-        default: '17'
+        default: '21'
       sonar-scan:
         required: false
         type: boolean
@@ -36,6 +36,11 @@ on:
         type: boolean
         description: Skal docker image pushes?
         default: false
+      namespace:
+        required: false
+        type: string
+        description: "NAV team"
+        default: "teamforeldrepenger"
     outputs:
       build-version:
         description: "Build version"
@@ -47,10 +52,11 @@ jobs:
       contents: read
       packages: write
       id-token: write
+      pull-requests: read
     runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     services:
       postgres:
-        image: index.docker.io/library/postgres@sha256:d0c68cd506cde10ddd890e77f98339a4f05810ffba99c881061a12b30a0525c9 # ratchet:postgres:15
+        image: index.docker.io/library/postgres@sha256:302de9d3235dbab5e89a87f889663116259eb7bce4aaeaaa6a1117daaa9a4750 # ratchet:postgres:16
         env:
           POSTGRES_USER: ${{ inputs.postgres-user }}
           POSTGRES_PASSWORD: ${{ inputs.postgres-user }}
@@ -64,17 +70,17 @@ jobs:
     outputs:
       build-version: ${{ steps.build-and-test.outputs.build-version }}
     steps:
-      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # ratchet:actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
       - name: Setup java and maven
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@f55dcebb1b39e92cad839c218a397fa008a11081 # ratchet:navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
       - name: Maven install and test
         id: build-and-test
-        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@f55dcebb1b39e92cad839c218a397fa008a11081 # ratchet:navikt/fp-gha-workflows/.github/actions/build-maven-application@main
+        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
         with:
           t-2c: ${{ inputs.t-2c }}
       - name: Sonar analyse
@@ -86,13 +92,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Bygg og push docker image
         if: inputs.build-image
-        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@f55dcebb1b39e92cad839c218a397fa008a11081 # ratchet:navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main
+        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main # ratchet:exclude
         with:
           build-version: ${{ steps.build-and-test.outputs.build-version }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           push-image: ${{ inputs.push-image }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          namespace: ${{ inputs.namespace }}
         env:
           DATABASE_HOST: localhost
           DATABASE_PORT: ${{ job.services.postgres.ports[5432] }}

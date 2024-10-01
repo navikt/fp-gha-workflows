@@ -1,4 +1,4 @@
-name: Build app
+name: Build docker image
 on:
   workflow_call:
     inputs:
@@ -22,25 +22,38 @@ on:
         type: boolean
         description: Skal docker image pushes?
         default: false
-      platform:
+      dockerfile:
+        required: false
+        description: "Dockerfile"
+        type: string
+        default: "Dockerfile"
+      docker_context:
         required: false
         type: string
-        description: Platform to target
-        default: ""
-      cache-tag:
+        description: "Docker context"
+        default: "."
+      docker_platforms:
+        required: false
+        description: "Docker platforms"
+        type: string
+        default: "linux/amd64,linux/arm64"
+      image_suffix:
         required: false
         type: string
-        description: Tag for cache image
-        default: ""
+        description: Hvilken app skal bygges under ./apps/ mappa og legger inn en suffiks til navnet av det generert image
+        default: ''
+
     outputs:
       build-version:
         description: "Build version"
-        value: ${{ jobs.build-and-test.outputs.build-version }}
+        value: ${{ jobs.build.outputs.build-version }}
 jobs:
-  build-and-test:
-    name: Build and test
+  build:
+    name: Build image
     permissions:
+      contents: read
       packages: write
+      id-token: write
     runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     env:
       TZ: "Europe/Oslo"
@@ -48,7 +61,7 @@ jobs:
       build-version: ${{ steps.generate-build-version.outputs.build-version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # ratchet:actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Generate build version
@@ -58,11 +71,13 @@ jobs:
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
       - name: Bygg og push docker image
         if: inputs.build-image
-        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@f55dcebb1b39e92cad839c218a397fa008a11081 # ratchet:navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main
+        uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main # ratchet:exclude
         with:
           build-version: ${{ steps.generate-build-version.outputs.build-version }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           push-image: ${{ inputs.push-image }}
-          bake-action: true
-          bake-platform: ${{ inputs.platform }}
-          bake-cache-tag: ${{ inputs.cache-tag }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          docker_context: ${{ inputs.docker_context }}
+          docker_platforms: ${{ inputs.docker_platforms }}
+          dockerfile: ${{ inputs.dockerfile }}
+          image_suffix: ${{ inputs.image_suffix }}

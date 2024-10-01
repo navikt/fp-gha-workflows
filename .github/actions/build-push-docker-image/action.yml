@@ -4,9 +4,6 @@ inputs:
   build-version:
     description: "Image tag for the docker image"
     required: true
-  github-token:
-    description: "Token to use when signing into ghcr.io"
-    required: true
   project_id:
     required: true
     description: "NAIS project id"
@@ -19,87 +16,72 @@ inputs:
     default: "teamforeldrepenger"
   push-image:
     required: false
-    description: "Push the docker image to gchr.io (true|false)"
+    description: "Push the docker image (true|false)"
     default: "false"
-  bake-action:
+  dockerfile:
+    description: "Dockerfile"
+    required: true
+    default: "Dockerfile"
+  docker_context:
+    description: "Docker context"
     required: false
-    description: "Use docker bake action to build and push"
-    default: "false"
-  bake-platform:
+    default: "."
+  docker_platforms:
+    description: "Docker platforms"
     required: false
-    description: Platform to target
-    default: ""
-  bake-cache-tag:
+    default: "linux/amd64,linux/arm64"
+  image_suffix:
+    description: "Adds a suffiks to the generated docker image name"
     required: false
-    description: Tag for cache image
     default: ""
 runs:
   using: "composite"
   steps:
-    - name: Login to GitHub Packages Docker Registry
-      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ inputs.github-token }}
-
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-
+      uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
+      uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
-      if: inputs.bake-action == 'false'
-      uses: nais/login@v0
+      uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e # ratchet:nais/login@v0
       id: login
       with:
         project_id: ${{ inputs.project_id }}
         identity_provider: ${{ inputs.identity_provider }}
         team: ${{ inputs.namespace }}
-
+    - name: Setup environment
+      shell: bash
+      run: |
+        if [ ! -f "${{ inputs.dockerfile }}" ]; then
+          echo "::error ::Dockerfile not found: ${{ inputs.dockerfile }}. Do you need to prepend context or working directory?"
+          exit 1
+        elif [ ! -d "${{ inputs.docker_context }}" ]; then
+          echo "::error ::Docker context not found: ${{ inputs.docker_context }}."
+          exit 1
+        fi
     - name: Docker meta
-      if: inputs.bake-action == 'false'
-      uses: docker/metadata-action@v4
+      uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # ratchet:docker/metadata-action@v4
       id: meta
       with:
-        images: |
-          ${{ steps.login.outputs.registry }}/${{ github.repository }}
-          ghcr.io/${{ github.repository }}
+        images: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}
         tags: |
           type=raw,value=${{ inputs.build-version }}
-        flavor: |
-          latest=true
-
+          # set latest tag for default branch (master)
+          type=raw,value=latest,enable={{is_default_branch}}
     - name: Bygg og push docker image
-      if: inputs.bake-action == 'false'
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@5cd11c3a4ced054e52742c5fd54dca954e0edd85 # ratchet:docker/build-push-action@v4
       id: build_push
       with:
-        context: .
-        platforms: linux/amd64, linux/arm64
+        context: ${{ inputs.docker_context }}
+        file: ${{ inputs.dockerfile }}
+        platforms: ${{ inputs.docker_platforms }}
         pull: true
         push: ${{ inputs.push-image == 'true' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-
     - name: Generate SBOM, attest and sign image
-      if: (inputs.push-image == 'true' && inputs.bake-action == 'false')
-      uses: nais/attest-sign@v1
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
-        image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}@${{ steps.build_push.outputs.digest }}
-
-    - name: Build and push with bake
-      if: inputs.bake-action == 'true'
-      uses: docker/bake-action@v3.0.1
-      env:
-        TAG: ${{ inputs.bake-platform }}-${{ github.sha }}
-        CACHE_TAG: ${{ inputs.bake-cache-tag }}
-      with:
-        push: ${{ inputs.push-image == 'true' }}
-        set: |
-          *.platform=linux/${{ inputs.bake-platform }}
+        image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}@${{ steps.build_push.outputs.digest }}

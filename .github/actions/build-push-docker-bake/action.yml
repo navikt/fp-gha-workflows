@@ -1,0 +1,93 @@
+name: "Build and push docker images"
+description: "Build and push docker images using docker bake"
+inputs:
+  build-version:
+    description: "Image tag for the docker image"
+    required: true
+  project_id:
+    required: true
+    description: "NAIS project id"
+  identity_provider:
+    required: true
+    description: "NAIS identity provider"
+  namespace:
+    required: false
+    description: "NAV team"
+    default: "teamforeldrepenger"
+  push-image:
+    required: false
+    description: "Push the docker image (true|false)"
+    default: "false"
+  bake-platform:
+    required: false
+    description: Platform to target
+    default: "linux/amd64,linux/arm64"
+  bake-target:
+    required: true
+    description: Bake target
+  github-token:
+    description: "Token to use when signing into ghcr.io for cacheing purposes"
+    required: true
+  auth-token:
+    description: "Token to use when installing packages from npm"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Login to GitHub Packages Docker Registry # Brukes ifm lagring og henting av cache
+      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.github-token }}
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # ratchet:docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # ratchet:docker/setup-buildx-action@v2
+    - name: NAIS login
+      uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e # ratchet:nais/login@v0
+      if: inputs.push-image == 'true'
+      id: login
+      with:
+        project_id: ${{ inputs.project_id }}
+        identity_provider: ${{ inputs.identity_provider }}
+        team: ${{ inputs.namespace }}
+    - name: Docker meta
+      uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # ratchet:docker/metadata-action@v4
+      if: inputs.push-image == 'true'
+      id: meta
+      with:
+        images: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}
+        tags: |
+          type=raw,value=${{ inputs.build-version }}
+          # set latest tag for default branch (master)
+          type=raw,value=latest,enable={{is_default_branch}}
+    - name: Generate cache tags
+      shell: bash
+      id: generate-cache-tags
+      env:
+        GITHUB_REF_NAME: ${{ github.ref_name }}
+      run: |
+        GITHUB_REF_NAME=${GITHUB_REF_NAME//\//_}
+        echo "cache-tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+    # - name: Generate SBOM, attest and sign image
+    #   if: inputs.push-image == 'true'
+    #   uses: nais/attest-sign@53b7a991bd5b5a9903cc8434e584345980a31032 # ratchet:nais/attest-sign@v1.1.0
+    #   with:
+    #     image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.build_push.outputs.digest }}
+
+    - name: Build and push with bake
+      uses: docker/bake-action@76cc8060bdff6d632a465001e4cf300684c5472c # ratchet:docker/bake-action@v5.7.0
+      env:
+        CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
+        PACKAGES_AUTH_TOKEN: ${{ inputs.auth-token }}
+      with:
+        no-cache: ${{ github.actor == 'dependabot[bot]' }}
+        targets: ${{ inputs.bake-target }}
+        push: ${{ inputs.push-image }}
+        files: |
+          ./docker-bake.hcl
+          ${{ steps.meta.outputs.bake-file }}
+        set: |
+          *.platform=${{ inputs.bake-platform }}
+          *.secrets=id=PACKAGES_AUTH_TOKEN

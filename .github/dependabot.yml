@@ -1,9 +1,78 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: "/"
+    directory: ".github/workflows/"
     schedule:
       interval: weekly
       day: monday
       time: "04:00"
     open-pull-requests-limit: 10
+    registries:
+      - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: github-actions
+    directory: ".github/actions/build-maven-application"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+    open-pull-requests-limit: 10
+    registries:
+      - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: github-actions
+    directory: ".github/actions/build-push-docker-bake"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 10
+    registries:
+      - github
+  - package-ecosystem: github-actions
+    directory: ".github/actions/build-push-docker-image"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+    open-pull-requests-limit: 10
+    registries:
+      - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: github-actions
+    directory: ".github/actions/setup-java-and-maven"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+    open-pull-requests-limit: 10
+    registries:
+      - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
+registries:
+  github:
+    type: git
+    url: https://github.com
+    username: x-access-token
+    password: ${{ secrets.READER_TOKEN }} # dependabot secret

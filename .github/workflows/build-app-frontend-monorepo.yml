@@ -12,6 +12,11 @@ on:
         type: string
         description: Node version som brukes.
         default: '18.8.0'
+      pnpm-version:
+        required: false
+        type: string
+        description: PNPM version som skal brukes.
+        default: '8'
       build-image:
         required: false
         type: boolean
@@ -22,6 +27,10 @@ on:
         type: boolean
         description: Skal docker image pushes?
         default: false
+      image_suffix:
+        required: true
+        type: string
+        description: Hvilken app skal bygges under ./apps/ mappa
     outputs:
       build-version:
         description: "Build version"
@@ -42,41 +51,39 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Sette yarn-config
-        run: |
-          yarn config set npmScopes.navikt.npmRegistryServer "https://npm.pkg.github.com"
-          yarn config set npmScopes.navikt.npmAlwaysAuth true
-          yarn config set npmScopes.navikt.npmAuthToken $NPM_AUTH_TOKEN
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-      - name: Set up NODE med yarn
+      - name: Set up NODE
         uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # ratchet:actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
-          cache: 'yarn'
-          cache-dependency-path: |
-            node_modules/.cache/nx
-            yarn.lock
-      - name: Installere dependencies
-        run: yarn install --immutable
-      - name: Build
-        run: yarn build
-      - name: Run linting
-        run: yarn stylelint && yarn eslint:changed && yarn tsc:changed
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # ratchet:pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: ${{ inputs.pnpm-version }}
+          run_install: false
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # ratchet:actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install dependencies
+        working-directory: ./apps/${{ inputs.image_suffix }}
+        run: pnpm install --frozen-lockfile
       - name: Run tests
-        id: run-tests
-        run: yarn test:changed
-      - name: Opprett release med Sentry
-        if: github.ref_name == 'master'
-        run: yarn sentry-release
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      - name: Bygg server
-        run: cd ./server && yarn install --immutable
+        working-directory: ./apps/${{ inputs.image_suffix }}
+        run: pnpm exec turbo test
+      - name: Run build
+        if: inputs.build-image
+        working-directory: ./apps/${{ inputs.image_suffix }}
+        run: pnpm exec turbo build
       - name: Generate build version
         id: generate-build-version
-        run: |
-          echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+        run: echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
       - name: Print build version
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
       - name: Bygg og push docker image
@@ -87,8 +94,5 @@ jobs:
           push-image: ${{ inputs.push-image }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-      - name: Archive code coverage results
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # ratchet:actions/upload-artifact@v3
-        with:
-          name: code-coverage-report
-          path: coverage
+          docker_context: ./apps/${{ inputs.image_suffix }}/
+          image_suffix: /${{ inputs.image_suffix }}

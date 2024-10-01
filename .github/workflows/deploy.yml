@@ -20,39 +20,59 @@ on:
         type: string
         description: 'The namespace to deploy to'
         default: 'false'
+      naiserator_file:
+        required: false
+        type: string
+        description: 'The naiserator.yaml file name in .deploy/ to use'
+        default: 'naiserator.yaml'
+      deploy_context:
+        required: false
+        type: string
+        description: 'The deploy context /'
+        default: ''
+      image_suffix:
+        required: false
+        type: string
+        description: 'The suffix of the image to be deployed'
+        default: ''
+      branch:
+        required: false
+        type: string
+        description: Alternativ branch å deploye fra
+
 env:
   IMAGE: ${{ inputs.image }} # Brukes i naiserator.yaml
 jobs:
   deploy:
     name: deploy
-    environment: ${{ inputs.cluster }}:${{ inputs.namespace }}
+    environment: ${{ inputs.cluster }}:${{ inputs.namespace }}${{ inputs.image_suffix }}
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # ratchet:actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
+        with:
+          ref: ${{ (inputs.branch != '' && inputs.branch) || '' }}
       - name: Deploy ${{ inputs.cluster }} fra Github
         if: inputs.gar == 'false'
-        uses: nais/deploy/actions/deploy@b2c5fbf3fc4d777a36b311da70d9ff429416b552 # ratchet:nais/deploy/actions/deploy@v1
+        uses: nais/deploy/actions/deploy@v2
         env:
           PRINT_PAYLOAD: true
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ inputs.cluster }}
-          RESOURCE: .deploy/naiserator.yaml
+          RESOURCE: .deploy/${{ inputs.naiserator_file }}
           VARS: .deploy/${{ inputs.cluster }}-${{ inputs.namespace }}.json
       - name: Login GAR
-        uses: nais/login@104bca34b70d1d00fe837bcd0689633978eca744 # ratchet:nais/login@v0
+        uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e # ratchet:nais/login@v0
         if: inputs.gar == 'true'
         id: login
         with:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          team: teamforeldrepenger
+          team: ${{ inputs.namespace }}
       - name: Deploy ${{ inputs.cluster }} fra GAR
         if: inputs.gar == 'true'
-        uses: nais/deploy/actions/deploy@b2c5fbf3fc4d777a36b311da70d9ff429416b552 # ratchet:nais/deploy/actions/deploy@v1
+        uses: nais/deploy/actions/deploy@v2
         env:
           PRINT_PAYLOAD: true
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ inputs.cluster }}
-          IMAGE: ${{ steps.login.outputs.registry }}/${{ github.repository }}:${{ inputs.image }}
-          RESOURCE: .deploy/naiserator.yaml
-          VARS: .deploy/${{ inputs.cluster }}-${{ inputs.namespace }}.json
+          IMAGE: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}:${{ inputs.image }}
+          RESOURCE: .deploy/${{ inputs.naiserator_file }}
+          VARS: .deploy${{ inputs.deploy_context }}/${{ inputs.cluster }}-${{ inputs.namespace }}.json
