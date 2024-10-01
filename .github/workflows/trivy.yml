@@ -30,6 +30,8 @@ jobs:
       - name: Run Trivy vulnerability scanner non-public repo
         if: inputs.upload-sarif == false
         uses: aquasecurity/trivy-action@69cbbc0cbbf6a2b0bab8dcf0e9f2d7ead08e87e4 # ratchet:aquasecurity/trivy-action@master
+        env:
+          TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/v2/aquasecurity/trivy-java-db
         with:
           security-checks: 'vuln'
           image-ref: 'ghcr.io/${{ github.repository }}/${{ inputs.build-version }}'
@@ -40,6 +42,8 @@ jobs:
       - name: Run Trivy vulnerability scanner for container
         if: inputs.upload-sarif
         uses: aquasecurity/trivy-action@69cbbc0cbbf6a2b0bab8dcf0e9f2d7ead08e87e4 # ratchet:aquasecurity/trivy-action@master
+        env:
+          TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/v2/aquasecurity/trivy-java-db
         with:
           security-checks: 'vuln'
           image-ref: 'ghcr.io/${{ github.repository }}/${{ inputs.build-version }}'
