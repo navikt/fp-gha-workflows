@@ -82,7 +82,7 @@ runs:
         cache-to: type=gha,mode=max
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@43e5bf0d3128ca21015bdb51ac8435ea4ddfa3c6 # ratchet:nais/attest-sign@v1.5.0
+      uses: nais/attest-sign@5e9450cc8a617286ca2d22859011e078ad1ef583 # ratchet:nais/attest-sign@v1.5.7
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
