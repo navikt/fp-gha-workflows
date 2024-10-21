@@ -94,10 +94,15 @@ runs:
         jq --version
         echo 'Mebabase: ${{ steps.build_push.outputs.metadata }}'
         echo "$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '.${{ inputs.bake-target }}.containerimage.digest')"
+        echo "$(echo '${{ steps.build_push.outputs.metadata }}' | jq '.${{ inputs.bake-target }}.containerimage.digest')"
+        echo '$(echo "${{ steps.build_push.outputs.metadata }}" | jq -r ".${{ inputs.bake-target }}.containerimage.digest")'
         echo "test"
+        echo "$(echo '{ "test": "hello" }' | jq -r '.test')"
+        echo "$(echo '{ "test": "hello" }' | jq '.test')"
+
         echo "$(echo ${{ steps.build_push.outputs.metadata }} | jq -r '.${{ inputs.bake-target }}.containerimage.digest')"
         echo "digest_container=$('${{ steps.build_push.outputs.metadata }}' | jq -r '.${{ inputs.bake-target }}.containerimage.digest')" >> $GITHUB_OUTPUT
-        echo "${digest_container}"
+        echo "${{digest_container}}"
 
 
     - name: Generate SBOM, attest and sign image
