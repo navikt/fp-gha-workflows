@@ -69,7 +69,7 @@ runs:
         GITHUB_REF_NAME: ${{ github.ref_name }}
       run: |
         GITHUB_REF_NAME=${GITHUB_REF_NAME//\//_}
-        echo "cache-tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+        echo "ache-tcag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
     - name: Build and push with bake
       uses: docker/bake-action@2e3d19baedb14545e5d41222653874f25d5b4dfb # ratchet:docker/bake-action@v5.10.0
       id: build_push
@@ -87,10 +87,16 @@ runs:
           *.platform=${{ inputs.bake-platform }}
           *.secrets=id=PACKAGES_AUTH_TOKEN
 
+    - name: Hent digest from docker/bake-action metadata
+      shell: bash
+      id: digest_step
+      run: |
+        echo "digest=$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '${{ inputs.bake-target }}."containerimage.digest"')" >> $GITHUB_OUTPUT
+
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
       uses: nais/attest-sign@43e5bf0d3128ca21015bdb51ac8435ea4ddfa3c6 # ratchet:nais/attest-sign@v1.5.0
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
-        image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '.${{ inputs.bake-target }}."containerimage.digest"')
+        image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.digest_step.outputs.digest }}
