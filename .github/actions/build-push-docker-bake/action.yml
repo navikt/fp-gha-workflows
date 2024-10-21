@@ -91,7 +91,7 @@ runs:
       shell: bash
       id: digest_step
       run: |
-        echo "digest_container=$('${{ steps.build_push.outputs.metadata }}' | jq -r '.${{ inputs.bake-target }}."containerimage.digest"')" >> $GITHUB_OUTPUT
+        echo "digest_container=$('${{ steps.build_push.outputs.metadata }}' | jq -r '.${{ inputs.bake-target }}.\"containerimage.digest\"')" >> $GITHUB_OUTPUT
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
