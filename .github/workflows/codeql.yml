@@ -27,9 +27,9 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # ratchet:actions/checkout@v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # ratchet:actions/checkout@v4
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # ratchet:github/codeql-action/init@v2
+        uses: github/codeql-action/init@f779452ac5af1c261dce0346a8f964149f49322b # ratchet:github/codeql-action/init@v2
         with:
           languages: ${{ inputs.language }}
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
@@ -47,8 +47,8 @@ jobs:
           skip-tests: true
       - name: Autobuild
         if: inputs.language != 'java'
-        uses: github/codeql-action/autobuild@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # ratchet:github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@f779452ac5af1c261dce0346a8f964149f49322b # ratchet:github/codeql-action/autobuild@v2
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # ratchet:github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@f779452ac5af1c261dce0346a8f964149f49322b # ratchet:github/codeql-action/analyze@v2
         with:
           category: "/language:${{ inputs.language }}"
