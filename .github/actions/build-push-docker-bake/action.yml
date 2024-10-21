@@ -93,7 +93,6 @@ runs:
       run: |
         felt = '.${{ inputs.bake-target }}."containerimage.digest"'
         echo '$felt'
-        echo '${{ felt }}'
         echo "digest_container=$('${{ steps.build_push.outputs.metadata }}' | jq -r '$felt'" >> $GITHUB_OUTPUT
 
     - name: Generate SBOM, attest and sign image
