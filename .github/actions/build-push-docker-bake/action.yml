@@ -102,7 +102,6 @@ runs:
 
         echo "$(echo ${{ steps.build_push.outputs.metadata }} | jq -r '.${{ inputs.bake-target }}.containerimage.digest')"
         echo "digest_container=$('${{ steps.build_push.outputs.metadata }}' | jq -r '.${{ inputs.bake-target }}.containerimage.digest')" >> $GITHUB_OUTPUT
-        echo "${{digest_container}}"
 
 
     - name: Generate SBOM, attest and sign image
