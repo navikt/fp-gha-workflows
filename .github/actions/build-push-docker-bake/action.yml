@@ -93,4 +93,4 @@ runs:
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
-        image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.bake-target }}@$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '.containerimage.digest')
+        image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.bake-target }}@$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '${{ inputs.bake-target }}.containerimage.digest')
