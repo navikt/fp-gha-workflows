@@ -18,7 +18,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - name: Checkout code
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # ratchet:actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # ratchet:actions/checkout@v4
       - name: Login to GitHub Packages Docker Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
         with:
@@ -29,7 +29,7 @@ jobs:
         run: docker pull ghcr.io/${{ github.repository }}/${{ inputs.build-version }}
       - name: Run Trivy vulnerability scanner non-public repo
         if: inputs.upload-sarif == false
-        uses: aquasecurity/trivy-action@6e7b7d1fd3e4fef0c5fa8cce1229c54b2c9bd0d8 # ratchet:aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2 # ratchet:aquasecurity/trivy-action@0.28.0
         env:
           TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
         with:
@@ -41,7 +41,7 @@ jobs:
           limit-severities-for-sarif: true
       - name: Run Trivy vulnerability scanner for container
         if: inputs.upload-sarif
-        uses: aquasecurity/trivy-action@6e7b7d1fd3e4fef0c5fa8cce1229c54b2c9bd0d8 # ratchet:aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2 # ratchet:aquasecurity/trivy-action@0.28.0
         env:
           TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
         with:
@@ -53,6 +53,6 @@ jobs:
           limit-severities-for-sarif: true
       - name: Upload Trivy scan results to GitHub Security tab
         if: always() && inputs.upload-sarif
-        uses: github/codeql-action/upload-sarif@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # ratchet:github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@f779452ac5af1c261dce0346a8f964149f49322b # ratchet:github/codeql-action/upload-sarif@v2
         with:
           sarif_file: 'trivy.sarif'
