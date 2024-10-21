@@ -89,8 +89,9 @@ runs:
 
     - name: Hent digest from docker/bake-action metadata
       shell: bash
+      id: digest_step
       run: |
-        echo "DIGEST_CONTAINER=$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '.${{ inputs.bake-target }}.containerimage.digest')" >> $GITHUB_ENV
+        echo "digest_container=$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '.${{ inputs.bake-target }}.containerimage.digest')" >> $GITHUB_OUTPUT
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
@@ -98,4 +99,4 @@ runs:
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
-        image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.bake-target }}@${{ env.DIGEST_CONTAINER }}
+        image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.digest_step.outputs.digest_container }}
