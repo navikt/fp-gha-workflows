@@ -90,7 +90,7 @@ runs:
     - name: Hent digest from docker/bake-action metadata
       shell: bash
       run: |
-        echo "DIGEST_CONTAINER=$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '${{ inputs.bake-target }}.containerimage.digest')" >> $GITHUB_ENV
+        echo "DIGEST_CONTAINER=$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '.${{ inputs.bake-target }}.containerimage.digest')" >> $GITHUB_ENV
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
