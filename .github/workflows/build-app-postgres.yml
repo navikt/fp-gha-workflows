@@ -6,6 +6,11 @@ on:
         required: true
         type: string
         description: Name of the db, user and pass.
+      postgres-port:
+        required: false
+        type: string
+        description: Port som postgres db skal kjøre på under test
+        default: '5432'
       runs-on:
         required: false
         type: string
@@ -58,11 +63,12 @@ jobs:
       postgres:
         image: index.docker.io/library/postgres@sha256:302de9d3235dbab5e89a87f889663116259eb7bce4aaeaaa6a1117daaa9a4750 # ratchet:postgres:16
         env:
+          PGPORT: ${{ inputs.postgres-port }}
           POSTGRES_USER: ${{ inputs.postgres-user }}
           POSTGRES_PASSWORD: ${{ inputs.postgres-user }}
           POSTGRES_DB: ${{ inputs.postgres-user }}
         ports:
-          - 5432:5432
+          - ${{ inputs.postgres-port }}:${{ inputs.postgres-port }}
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     env:
