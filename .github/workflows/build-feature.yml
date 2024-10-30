@@ -51,6 +51,8 @@ jobs:
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
         with:
           t-2c: ${{ inputs.t-2c }}
+        env:
+          TESTCONTAINERS_REUSE_ENABLE: true
       - name: Sonar analyse
         if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
         run: |
