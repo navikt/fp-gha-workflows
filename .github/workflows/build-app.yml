@@ -86,8 +86,6 @@ jobs:
         with:
           t-2c: ${{ inputs.t-2c }}
           skip-tests: ${{ inputs.skip-tests }}
-        env:
-          TESTCONTAINERS_REUSE_ENABLE: true
       - name: Sonar analyse
         if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
         run: |
