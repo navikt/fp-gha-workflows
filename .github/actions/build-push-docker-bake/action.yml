@@ -87,6 +87,21 @@ runs:
           *.platform=${{ inputs.bake-platform }}
           *.secrets=id=PACKAGES_AUTH_TOKEN
 
+    - name: Hent digest from docker/bake-action metadata
+      shell: bash
+      id: digest_step
+      run: |
+        echo "digest=$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '.[]."containerimage.digest"')" >> $GITHUB_OUTPUT
+
+    - name: Generate SBOM, attest and sign image
+      uses: nais/attest-sign@5e9450cc8a617286ca2d22859011e078ad1ef583 # ratchet:nais/attest-sign@v1.5.7
+      env:
+        TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
+        DIGEST: ${{ fromJSON(steps.build_push.outputs.metadata.[${{ inputs.bake-target }}.containerimage.digest }}
+      with:
+        image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.digest_step.outputs.metadata }}
+
+
 #    - name: Hent digest from docker/bake-action metadata
 #      shell: bash
 #      id: digest_step
