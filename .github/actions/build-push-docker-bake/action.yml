@@ -97,7 +97,6 @@ runs:
       uses: nais/attest-sign@5e9450cc8a617286ca2d22859011e078ad1ef583 # ratchet:nais/attest-sign@v1.5.7
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
-        DIGEST: ${{ fromJSON(steps.build_push.outputs.metadata.[${{ inputs.bake-target }}.containerimage.digest }}
       with:
         image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.digest_step.outputs.metadata }}
 
