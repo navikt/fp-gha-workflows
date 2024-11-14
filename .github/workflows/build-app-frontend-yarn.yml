@@ -72,7 +72,7 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - name: Bygg server
-        run: cd ./server && yarn install --immutable
+        run: cd ./server && yarn install --immutable && yarn build
       - name: Generate build version
         id: generate-build-version
         run: |
