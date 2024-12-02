@@ -53,7 +53,7 @@ runs:
         identity_provider: ${{ inputs.identity_provider }}
         team: ${{ inputs.namespace }}
     - name: Docker meta
-      uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # ratchet:docker/metadata-action@v4
+      uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # ratchet:docker/metadata-action@v4
       if: inputs.push-image == 'true'
       id: meta
       with:
@@ -96,7 +96,7 @@ runs:
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@5e9450cc8a617286ca2d22859011e078ad1ef583 # ratchet:nais/attest-sign@v1.5.7
+      uses: nais/attest-sign@cfef603f843889eb22804d1e7a85d5ef39ea0435 # ratchet:nais/attest-sign@v1.5.8
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
