@@ -59,7 +59,7 @@ runs:
           exit 1
         fi
     - name: Docker meta
-      uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # ratchet:docker/metadata-action@v4
+      uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # ratchet:docker/metadata-action@v4
       id: meta
       with:
         images: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}
@@ -68,7 +68,7 @@ runs:
           # set latest tag for default branch (master)
           type=raw,value=latest,enable={{is_default_branch}}
     - name: Bygg og push docker image
-      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # ratchet:docker/build-push-action@v4
+      uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # ratchet:docker/build-push-action@v4
       id: build_push
       with:
         context: ${{ inputs.docker_context }}
@@ -82,7 +82,7 @@ runs:
         cache-to: type=gha,mode=max
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@5e9450cc8a617286ca2d22859011e078ad1ef583 # ratchet:nais/attest-sign@v1.5.7
+      uses: nais/attest-sign@cfef603f843889eb22804d1e7a85d5ef39ea0435 # ratchet:nais/attest-sign@v1.5.8
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
