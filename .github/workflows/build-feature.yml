@@ -34,7 +34,7 @@ on:
 jobs:
   build-and-test:
     name: Build and test
-    runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+    runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     outputs:
       build-version: ${{ steps.build-and-test.outputs.build-version }}
     steps:

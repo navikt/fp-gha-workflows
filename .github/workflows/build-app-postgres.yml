@@ -58,7 +58,7 @@ jobs:
       packages: write
       id-token: write
       pull-requests: read
-    runs-on: ${{ (github.actor == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+    runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     services:
       postgres:
         image: index.docker.io/library/postgres@sha256:302de9d3235dbab5e89a87f889663116259eb7bce4aaeaaa6a1117daaa9a4750 # ratchet:postgres:16
