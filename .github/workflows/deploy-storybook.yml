@@ -66,7 +66,6 @@ jobs:
           yarn install --immutable
           yarn build
 
-
       - name: Authenticate with private NPM package
         if: inputs.package-manager == 'pnpm'
         shell: bash
@@ -91,6 +90,6 @@ jobs:
         if: inputs.package-manager == 'pnpm'
         run: |
           pnpm storybook-deploy-clean-folder && pnpm storybook-deploy-build-all && pnpm storybook-deploy-create-folder
-          pnpm gh-pages -d .storybook-static-build -t true -u "github-actions-bot <support+actions@github.com>"
+          pnpm gh-pages -d .storybook-static-build -t -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
