@@ -41,7 +41,7 @@ runs:
         username: ${{ github.actor }}
         password: ${{ inputs.github-token }}
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # ratchet:docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
@@ -96,7 +96,7 @@ runs:
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@cfef603f843889eb22804d1e7a85d5ef39ea0435 # ratchet:nais/attest-sign@v1.5.8
+      uses: nais/attest-sign@a44c3e2dbe8dc72155949e876158c18589670ade # ratchet:nais/attest-sign@v1.5.9
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
