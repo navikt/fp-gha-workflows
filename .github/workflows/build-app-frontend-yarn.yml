@@ -93,7 +93,7 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Archive code coverage results
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # ratchet:actions/upload-artifact@v4.5.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # ratchet:actions/upload-artifact@v4.6.0
         with:
           name: code-coverage-report
           path: coverage
