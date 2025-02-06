@@ -94,7 +94,7 @@ runs:
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@ae8b1b0e176c927c2e49b95c63425ef635f52949 # ratchet:nais/attest-sign@v1.5.11
+      uses: nais/attest-sign@d5e87dba2f31478c56e8c7f32335208c238e6dea # ratchet:nais/attest-sign@v1.5.12
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
