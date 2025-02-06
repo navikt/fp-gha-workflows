@@ -45,7 +45,7 @@ runs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
-      uses: nais/login@4ce7445c84f09114e481a1d2c164f563e9e2ba8e # ratchet:nais/login@v0
+      uses: nais/login@8ebbba35984d713e500e5d6c4ceec1cf3026e30c # ratchet:nais/login@v0
       id: login
       with:
         project_id: ${{ inputs.project_id }}
