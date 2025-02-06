@@ -64,7 +64,5 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auth-token: ${{ secrets.READER_TOKEN }}
           push-image: ${{ inputs.push-image }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           bake-platform: ${{ inputs.bake-platform }}
           bake-target: ${{ inputs.bake-target }}

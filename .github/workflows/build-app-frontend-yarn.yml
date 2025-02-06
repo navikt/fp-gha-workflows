@@ -90,8 +90,6 @@ jobs:
         with:
           build-version: ${{ steps.generate-build-version.outputs.build-version }}
           push-image: ${{ inputs.push-image }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Archive code coverage results
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # ratchet:actions/upload-artifact@v4.6.0
         with:
