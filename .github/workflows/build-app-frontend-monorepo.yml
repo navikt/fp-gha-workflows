@@ -92,7 +92,5 @@ jobs:
         with:
           build-version: ${{ steps.generate-build-version.outputs.build-version }}
           push-image: ${{ inputs.push-image }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           docker_context: ./apps/${{ inputs.image_suffix }}/
           image_suffix: /${{ inputs.image_suffix }}
