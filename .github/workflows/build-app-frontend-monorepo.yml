@@ -64,7 +64,7 @@ jobs:
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      - uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # ratchet:actions/cache@v3
+      - uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # ratchet:actions/cache@v3
         name: Setup pnpm cache
         with:
           path: ${{ env.STORE_PATH }}
