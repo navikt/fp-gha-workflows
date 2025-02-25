@@ -35,9 +35,9 @@ runs:
         username: ${{ github.actor }}
         password: ${{ inputs.github-token }}
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a # ratchet:docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25 # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # ratchet:docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
       uses: nais/login@8ebbba35984d713e500e5d6c4ceec1cf3026e30c # ratchet:nais/login@v0
       id: login
@@ -61,7 +61,7 @@ runs:
         GITHUB_REF_NAME=${GITHUB_REF_NAME//\//_}
         echo "cache-tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
     - name: Build and push with bake
-      uses: docker/bake-action@7bff531c65a5cda33e52e43950a795b91d450f63 # ratchet:docker/bake-action@v6.3.0
+      uses: docker/bake-action@4f08b22a19b3133912e9acbf7da9bfa25184a173 # ratchet:docker/bake-action@v6.4.0
       id: build_push
       env:
         CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
