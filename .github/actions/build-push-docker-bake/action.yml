@@ -35,16 +35,16 @@ runs:
         username: ${{ github.actor }}
         password: ${{ inputs.github-token }}
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25 # ratchet:docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # ratchet:docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
       uses: nais/login@8ebbba35984d713e500e5d6c4ceec1cf3026e30c # ratchet:nais/login@v0
       id: login
       with:
         team: ${{ inputs.namespace }}
     - name: Docker meta
-      uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # ratchet:docker/metadata-action@v4
+      uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # ratchet:docker/metadata-action@v4
       id: meta
       with:
         images: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}
@@ -61,7 +61,7 @@ runs:
         GITHUB_REF_NAME=${GITHUB_REF_NAME//\//_}
         echo "cache-tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
     - name: Build and push with bake
-      uses: docker/bake-action@4f08b22a19b3133912e9acbf7da9bfa25184a173 # ratchet:docker/bake-action@v6.4.0
+      uses: docker/bake-action@4ba453fbc2db7735392b93edf935aaf9b1e8f747 # ratchet:docker/bake-action@v6.5.0
       id: build_push
       env:
         CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
