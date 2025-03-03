@@ -32,9 +32,9 @@ runs:
   using: "composite"
   steps:
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25 # ratchet:docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # ratchet:docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
       uses: nais/login@8ebbba35984d713e500e5d6c4ceec1cf3026e30c # ratchet:nais/login@v0
       id: login
@@ -51,7 +51,7 @@ runs:
           exit 1
         fi
     - name: Docker meta
-      uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # ratchet:docker/metadata-action@v4
+      uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # ratchet:docker/metadata-action@v4
       id: meta
       with:
         images: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}
@@ -60,7 +60,7 @@ runs:
           # set latest tag for default branch (master)
           type=raw,value=latest,enable={{is_default_branch}}
     - name: Bygg og push docker image
-      uses: docker/build-push-action@0adf9959216b96bec444f325f1e493d4aa344497 # ratchet:docker/build-push-action@v4
+      uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # ratchet:docker/build-push-action@v4
       id: build_push
       with:
         context: ${{ inputs.docker_context }}
