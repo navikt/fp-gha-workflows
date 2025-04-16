@@ -1,0 +1,46 @@
+name: "Sonar Analyse"
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: false
+        type: string
+        description: Java SDK versjon som skal brukes.
+        default: '21'
+      sonar-scan:
+        required: false
+        type: boolean
+        description: Skal sonar scan brukes?
+        default: true
+jobs:
+  analyze:
+    name: Analyze code
+    if: inputs.sonar-scan && github.actor != 'dependabot[bot]'
+    permissions:
+      actions: read
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        with:
+          fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
+
+      - name: Setup java and maven
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          java-version: ${{ inputs.java-version }}
+
+      - name: Download JaCoCo XML
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-xml
+
+      - name: Run Sonar Analysis
+        run: >
+          mvn sonar:sonar
+          -s settings.xml ${{ inputs.t-2c }} -e -q -B
+          -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml
+          -Psonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
