@@ -31,16 +31,16 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
 
-      - name: Download JaCoCo report
+      - name: Download JaCoCo XML
         uses: actions/download-artifact@v4
         with:
-          name: jacoco-report
+          name: jacoco-xml
 
-      - name: Run SonarQube analysis
+      - name: Run Sonar Analysis
         run: >
-          mvn sonar:sonar -s settings.xml ${{ inputs.t-2c }} -e -q -B 
-          -Djacoco.destFile=$(pwd)/target/jacoco.exec 
+          mvn sonar:sonar
+          -s settings.xml ${{ inputs.t-2c }} -e -q -B
+          -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml
           -Psonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
