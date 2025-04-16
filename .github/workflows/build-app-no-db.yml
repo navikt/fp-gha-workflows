@@ -74,13 +74,33 @@ jobs:
           t-2c: ${{ inputs.t-2c }}
         env:
           TESTCONTAINERS_REUSE_ENABLE: true
-      - name: Sonar analyse
+
+      - name: Sonar rapport
         if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
         run: |
-          mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
+          mvn jacoco:report jacoco:report-aggregate -s settings.xml -B
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Jacoco XML (if present)
+        if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
+        run: |
+          if [ -f target/site/jacoco-aggregate/jacoco.xml ]; then
+            echo "Found aggregate report"
+            cp target/site/jacoco-aggregate/jacoco.xml jacoco.xml
+          elif [ -f target/site/jacoco/jacoco.xml ]; then
+            echo "Found standard report"
+            cp target/site/jacoco/jacoco.xml jacoco.xml
+          else
+            echo "Coverage report not found" && exit 1
+          fi
+        shell: bash
+      - name: Upload artifact
+        if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-xml
+          path: jacoco.xml
+
       - name: Bygg og push docker image
         if: inputs.build-image
         uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main # ratchet:exclude
