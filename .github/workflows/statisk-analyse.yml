@@ -59,7 +59,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: built-code
-          path: target/
       - name: Setup java and maven
         uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main
         with:
