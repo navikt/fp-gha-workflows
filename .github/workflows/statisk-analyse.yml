@@ -7,54 +7,46 @@ on:
         type: string
         description: Java SDK versjon som skal brukes.
         default: '21'
+      language:
+        required: false
+        type: string
+        description: Språk som skal scannes
+        default: 'java'
       runs-on:
         required: false
         type: string
         description: Hvilken runner som skal brukes i bygg.
         default: 'ubuntu-latest'
 jobs:
-  codeql:
-    name: CodeQL Analyse
+  statisk-analyse:
+    name: Statisk analyse av kodebasen
+    if: github.actor != 'dependabot[bot]'
     runs-on: ${{ inputs.runs-on }}
     permissions:
       actions: read
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
-      - name: Last ned bygg artefakter
-        uses: actions/download-artifact@v4
-        with:
-          name: built-code
-      - name: Setup java and maven
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          java-version: ${{ inputs.java-version }}
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@45775bd8235c68ba998cffa5171334d58593da47 # ratchet:github/codeql-action/init@v2
         with:
           languages: 'java'
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
-      - name: CodeQL analyse
-        uses: github/codeql-action/analyze@v2
-        with:
-          category: "/language:java"
-  sonar:
-    name: Sonar Analyse
-    runs-on: ${{ inputs.runs-on }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Last ned bygg artefakter
-        uses: actions/download-artifact@v4
-        with:
-          name: built-code
       - name: Setup java and maven
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
-      - name: Sonar analyse
+      - name: Maven install and test
+        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
+        with:
+          skip-tests: true
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@45775bd8235c68ba998cffa5171334d58593da47 # ratchet:github/codeql-action/analyze@v2
+        with:
+          category: "/language:java"
+      - name: Perform Sonar analyse
         run: |
           mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
         env:
