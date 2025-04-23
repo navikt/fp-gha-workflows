@@ -84,3 +84,10 @@ jobs:
       - name: Clean up generated stuff before caching
         run: |
           rm ~/.m2/repository/no/nav/foreldrepenger -r
+      - name: Last opp artefakt
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-code
+          path: clean-project/
+          retention-days: 2
+          include-hidden-files: false
