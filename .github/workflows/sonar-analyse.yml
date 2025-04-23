@@ -31,6 +31,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
 
+      - name: Maven install and test
+        id: build-and-test
+        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
+        with:
+          t-2c: ${{ inputs.t-2c }}
+          skip-tests: true # TODO: Fungere dette eller vil det ikke vå med coverage da?
+
       - name: Download JaCoCo XML
         uses: actions/download-artifact@v4
         with:
