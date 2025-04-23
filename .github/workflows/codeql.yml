@@ -17,11 +17,6 @@ on:
         type: boolean
         description: Hvilket token skal brukes?
         default: false
-      testcontainers_reusable_enable:
-        required: false
-        type: boolean
-        description: Bruk testcontainers?
-        default: false
 jobs:
   statisk-kode-analyse:
     name: Statisk analyse av kodebasen
@@ -48,7 +43,7 @@ jobs:
         if: inputs.language == 'java'
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
         env:
-          TESTCONTAINERS_REUSE_ENABLE: ${{ inputs.testcontainers_reusable_enable }}
+          TESTCONTAINERS_REUSE_ENABLE: true
       - name: Autobuild
         if: inputs.language != 'java'
         uses: github/codeql-action/autobuild@45775bd8235c68ba998cffa5171334d58593da47 # ratchet:github/codeql-action/autobuild@v2

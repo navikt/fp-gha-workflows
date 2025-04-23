@@ -20,6 +20,7 @@ on:
       sonar-scan:
         required: false
         type: boolean
+        deprecationMessage: Brukes ikke lenger. Se codeql.yml action
         description: Skal sonar scan brukes?
         default: true
       build-image:
