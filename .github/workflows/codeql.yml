@@ -17,11 +17,16 @@ on:
         type: boolean
         description: Hvilket token skal brukes?
         default: false
+      runs-on:
+        required: false
+        type: string
+        description: Miljø versjon som skal brukes til bygg.
+        default: 'ubuntu-latest'
 jobs:
   statisk-kode-analyse:
     name: Statisk analyse av kodebasen
     if: github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     permissions:
       actions: read
       contents: read
@@ -42,6 +47,8 @@ jobs:
       - name: Maven install and test
         if: inputs.language == 'java'
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
+        with:
+          t-2c: ${{ inputs.t-2c }}
         env:
           TESTCONTAINERS_REUSE_ENABLE: true
       - name: Autobuild
