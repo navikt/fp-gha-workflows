@@ -57,6 +57,7 @@ jobs:
         with:
           category: "/language:${{ inputs.language }}"
       - name: Perform Sonar Analysis
+        if: inputs.language == 'java'
         run: |
           mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
         env:
