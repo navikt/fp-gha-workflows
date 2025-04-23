@@ -7,16 +7,6 @@ on:
         type: string
         description: Java SDK versjon som skal brukes.
         default: '21'
-      language:
-        required: false
-        type: string
-        description: Språk som skal scannes
-        default: 'java'
-      use-reader:
-        required: false
-        type: boolean
-        description: Hvilket token skal brukes?
-        default: false
       runs-on:
         required: false
         type: string
@@ -39,7 +29,7 @@ jobs:
       - name: Setup java and maven
         uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main
         with:
-          github-token: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
@@ -62,7 +52,7 @@ jobs:
       - name: Setup java and maven
         uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main
         with:
-          github-token: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
       - name: Sonar analyse
         run: |
