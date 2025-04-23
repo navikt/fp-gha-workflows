@@ -22,6 +22,11 @@ on:
         type: string
         description: Miljø versjon som skal brukes til bygg.
         default: 'ubuntu-latest'
+      t-2c:
+        required: false
+        type: string
+        description: Tråd konfig til maven.
+        default: ''
 jobs:
   statisk-kode-analyse:
     name: Statisk analyse av kodebasen
