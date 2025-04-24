@@ -1,4 +1,4 @@
-name: "CodeQL"
+name: "Statisk Kode Analyse"
 on:
   workflow_call:
     inputs:
@@ -17,17 +17,29 @@ on:
         type: boolean
         description: Hvilket token skal brukes?
         default: false
+      runs-on:
+        required: false
+        type: string
+        description: Miljø versjon som skal brukes til bygg.
+        default: 'ubuntu-latest'
+      t-2c:
+        required: false
+        type: string
+        description: Tråd konfig til maven.
+        default: ''
 jobs:
-  analyze:
-    name: Analyze code
+  statisk-kode-analyse:
+    name: Statisk analyse av kodebasen
     if: github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     permissions:
       actions: read
       contents: read
       security-events: write
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        with:
+          fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
       - name: Initialize CodeQL
         uses: github/codeql-action/init@45775bd8235c68ba998cffa5171334d58593da47 # ratchet:github/codeql-action/init@v2
         with:
@@ -37,14 +49,15 @@ jobs:
         if: inputs.language == 'java'
         uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
-          github-token: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
       - name: Maven install and test
         if: inputs.language == 'java'
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
         with:
           t-2c: ${{ inputs.t-2c }}
-          skip-tests: true
+        env:
+          TESTCONTAINERS_REUSE_ENABLE: true
       - name: Autobuild
         if: inputs.language != 'java'
         uses: github/codeql-action/autobuild@45775bd8235c68ba998cffa5171334d58593da47 # ratchet:github/codeql-action/autobuild@v2
@@ -52,3 +65,10 @@ jobs:
         uses: github/codeql-action/analyze@45775bd8235c68ba998cffa5171334d58593da47 # ratchet:github/codeql-action/analyze@v2
         with:
           category: "/language:${{ inputs.language }}"
+      - name: Perform Sonar Analysis
+        if: inputs.language == 'java'
+        run: |
+          mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -20,7 +20,7 @@ on:
       sonar-scan:
         required: false
         type: boolean
-        description: Skal sonar scan brukes?
+        description: Ikke bruk denne... bruk codeql.yml?
         default: true
       build-image:
         required: false
@@ -74,13 +74,6 @@ jobs:
           t-2c: ${{ inputs.t-2c }}
         env:
           TESTCONTAINERS_REUSE_ENABLE: true
-      - name: Sonar analyse
-        if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
-        run: |
-          mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Bygg og push docker image
         if: inputs.build-image
         uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main # ratchet:exclude

@@ -53,13 +53,6 @@ jobs:
           t-2c: ${{ inputs.t-2c }}
         env:
           TESTCONTAINERS_REUSE_ENABLE: true
-      - name: Sonar analyse
-        if: (inputs.sonar-scan && github.actor != 'dependabot[bot]')
-        run: |
-          mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Clean up generated stuff before caching
         run: |
           if [[ -d "~/.m2/repository/no/nav/foreldrepenger" ]]; then
