@@ -56,6 +56,7 @@ jobs:
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
         with:
           t-2c: ${{ inputs.t-2c }}
+          profil: -Psonar
         env:
           TESTCONTAINERS_REUSE_ENABLE: true
       - name: Autobuild
@@ -68,7 +69,7 @@ jobs:
       - name: Perform Sonar Analysis
         if: inputs.language == 'java'
         run: |
-          mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
+          mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
