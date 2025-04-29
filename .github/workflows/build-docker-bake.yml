@@ -44,8 +44,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
         with:
-          ref: ${{ (inputs.branch != '' && inputs.branch) || '' }}
+          ref: ${{ inputs.branch != '' && inputs.branch || 'master' }}
           fetch-depth: 0
+      - name: Print current branch
+        run: |
+          echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
       - name: Generate build version
         id: generate-build-version
         run: |
