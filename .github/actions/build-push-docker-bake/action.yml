@@ -76,7 +76,7 @@ runs:
         push: ${{ inputs.push-image }}
         files: |
           ./docker-bake.hcl
-          cwd://${{ steps.meta.outputs.bake-file }}
+          ${{ steps.meta.outputs.bake-file }}
         set: |
           *.platform=${{ inputs.bake-platform }}
           *.secrets=id=PACKAGES_AUTH_TOKEN
