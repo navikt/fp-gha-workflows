@@ -47,6 +47,7 @@ runs:
       uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # ratchet:docker/metadata-action@v4
       id: meta
       with:
+        context: git
         images: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}
         tags: |
           type=raw,value=${{ inputs.build-version }}
