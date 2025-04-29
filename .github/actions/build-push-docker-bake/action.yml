@@ -68,7 +68,7 @@ runs:
       uses: docker/bake-action@4ba453fbc2db7735392b93edf935aaf9b1e8f747 # ratchet:docker/bake-action@v6.5.0
       id: build_push
       env:
-        CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
+        # CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
         PACKAGES_AUTH_TOKEN: ${{ inputs.auth-token }}
       with:
         no-cache: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
@@ -76,6 +76,7 @@ runs:
         push: ${{ inputs.push-image }}
         files: |
           ./docker-bake.hcl
+          cwd://${{ steps.meta.outputs.bake-file }}
         set: |
           *.platform=${{ inputs.bake-platform }}
           *.secrets=id=PACKAGES_AUTH_TOKEN
