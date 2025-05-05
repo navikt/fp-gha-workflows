@@ -17,6 +17,11 @@ on:
         type: boolean
         description: Hvilket token skal brukes?
         default: false
+      sonar:
+        required: false
+        type: boolean
+        description: Kjøre sonar scan?
+        default: true
       runs-on:
         required: false
         type: string
@@ -67,7 +72,7 @@ jobs:
         with:
           category: "/language:${{ inputs.language }}"
       - name: Perform Sonar Analysis
-        if: inputs.language == 'java'
+        if: inputs.language == 'java' && inputs.sonar
         run: |
           mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
         env:
