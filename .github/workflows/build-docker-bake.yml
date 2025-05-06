@@ -44,7 +44,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
         with:
-          ref: ${{ inputs.branch != '' && inputs.branch || 'master' }}
+          ref: ${{ inputs.branch != '' && inputs.branch || '' }}
           fetch-depth: 0
       - name: Print current branch
         run: |
