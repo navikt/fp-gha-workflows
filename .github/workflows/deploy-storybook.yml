@@ -16,7 +16,7 @@ on:
         required: false
         type: string
         description: Node version som brukes.
-        default: "20.12.2"
+        default: "22"
 env:
   NODE_OPTIONS: "--max_old_space_size=6144"
 jobs:
