@@ -11,7 +11,7 @@ on:
         required: false
         type: string
         description: Node version som brukes.
-        default: '18.8.0'
+        default: '22'
       pnpm-version:
         required: false
         type: string
