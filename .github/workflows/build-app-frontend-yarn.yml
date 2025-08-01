@@ -77,7 +77,7 @@ jobs:
         id: run-tests
         run: yarn test:changed
       - name: Knip it
-        if: inputs.run-knip
+        if: inputs.run-knip == 'true'
         run: yarn knip --no-exit-code --reporter=markdown >> "$GITHUB_STEP_SUMMARY"
       - name: Opprett release med Sentry
         if: github.ref_name == 'master'
