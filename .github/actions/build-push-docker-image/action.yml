@@ -51,7 +51,7 @@ runs:
           exit 1
         fi
     - name: Docker meta
-      uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # ratchet:docker/metadata-action@v4
+      uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # ratchet:docker/metadata-action@v4
       id: meta
       with:
         images: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}
