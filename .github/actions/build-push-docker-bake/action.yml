@@ -29,7 +29,7 @@ runs:
   using: "composite"
   steps:
     - name: Login to GitHub Packages Docker Registry # Brukes ifm lagring og henting av cache
-      uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772
+      uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -92,7 +92,7 @@ runs:
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@732ca5c15025f867888919a990716d5bb0f2f8ea # ratchet:nais/attest-sign@v1.5.16
+      uses: nais/attest-sign@d8722031b9ac2013dff0c640d9f9258a80761afb # ratchet:nais/attest-sign@v1.5.17
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
