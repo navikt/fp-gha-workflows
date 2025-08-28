@@ -1,17 +1,24 @@
 name: "Statisk Kode Analyse"
 on:
   workflow_call:
+    secrets:
+      READER_TOKEN:
+        description: "A token passed from the caller workflow"
+        required: true
+      GITHUB_TOKEN:
+        description: "A token passed from the caller workflow"
+        required: true
     inputs:
       java-version:
         required: false
         type: string
         description: Java SDK versjon som skal brukes.
-        default: '21'
+        default: "21"
       language:
         required: false
         type: string
         description: Språk som skal scannes
-        default: 'java'
+        default: "java"
       use-reader:
         required: false
         type: boolean
@@ -26,12 +33,13 @@ on:
         required: false
         type: string
         description: Miljø versjon som skal brukes til bygg.
-        default: 'ubuntu-latest'
+        default: "ubuntu-latest"
       t-2c:
         required: false
         type: string
         description: Tråd konfig til maven.
-        default: ''
+        default: ""
+
 jobs:
   statisk-kode-analyse:
     name: Statisk analyse av kodebasen
