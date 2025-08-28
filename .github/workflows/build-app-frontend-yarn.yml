@@ -1,17 +1,24 @@
 name: Build app
 on:
   workflow_call:
+    secrets:
+      READER_TOKEN:
+        description: "A token passed from the caller workflow"
+        required: true
+      SENTRY_AUTH_TOKEN:
+        description: "A token passed from the caller workflow"
+        required: true
     inputs:
       runs-on:
         required: false
         type: string
         description: Miljø versjon som skal brukes til bygg.
-        default: 'ubuntu-latest'
+        default: "ubuntu-latest"
       node-version:
         required: false
         type: string
         description: Node version som brukes.
-        default: '22'
+        default: "22"
       build-image:
         required: false
         type: boolean
@@ -63,7 +70,7 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # ratchet:actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
-          cache: 'yarn'
+          cache: "yarn"
           cache-dependency-path: |
             node_modules/.cache/nx
             yarn.lock
