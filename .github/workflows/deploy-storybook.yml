@@ -1,6 +1,13 @@
 name: Deploy storybook
 on:
   workflow_call:
+    secrets:
+      READER_TOKEN:
+        description: "A token passed from the caller workflow"
+        required: true
+      GITHUB_TOKEN:
+        description: "A token passed from the caller workflow"
+        required: true
     inputs:
       runs-on:
         required: false
@@ -17,11 +24,12 @@ on:
         type: string
         description: Node version som brukes.
         default: "22"
+
 env:
   NODE_OPTIONS: "--max_old_space_size=6144"
 jobs:
   deploy-storybook:
-    name: Deploy storybook ${{ inputs.package-manger }}
+    name: Deploy storybook ${{ inputs.package-manager }}
     permissions:
       contents: write
       pages: write
