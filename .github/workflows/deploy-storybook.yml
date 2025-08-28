@@ -5,9 +5,6 @@ on:
       READER_TOKEN:
         description: "A token passed from the caller workflow"
         required: true
-      GITHUB_TOKEN:
-        description: "A token passed from the caller workflow"
-        required: true
     inputs:
       runs-on:
         required: false
