@@ -28,6 +28,9 @@ inputs:
     description: "Adds a suffiks to the generated docker image name"
     required: false
     default: ""
+  build_args:
+    description: "List of build-time variables"
+    required: false
 runs:
   using: "composite"
   steps:
@@ -67,6 +70,7 @@ runs:
         file: ${{ inputs.dockerfile }}
         platforms: ${{ inputs.docker_platforms }}
         pull: true
+        build-args: ${{ inputs.build_args }}
         push: ${{ inputs.push-image == 'true' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
