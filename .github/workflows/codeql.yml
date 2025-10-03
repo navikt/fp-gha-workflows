@@ -10,7 +10,7 @@ on:
         required: false
         type: string
         description: Java SDK versjon som skal brukes.
-        default: "21"
+        default: "25"
       language:
         required: false
         type: string
