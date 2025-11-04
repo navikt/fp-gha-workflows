@@ -88,7 +88,7 @@ runs:
           *.platform=${{ inputs.bake-platform }}
           *.secrets=id=PACKAGES_AUTH_TOKEN
           *.secrets=id=SENTRY_AUTH_TOKEN
-           ${{ inputs.bake-target }}.args=SENTRY_RELEASE=${{ inputs.build-version }}
+           ${{ inputs.bake-target }}.args=["SENTRY_RELEASE=${{ inputs.build-version }}"]
 
     - name: Hent digest from docker/bake-action metadata
       if: inputs.push-image == 'true'
