@@ -75,6 +75,7 @@ runs:
         CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
         PACKAGES_AUTH_TOKEN: ${{ inputs.auth-token }}
         SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
+        SENTRY_RELEASE: ${{ inputs.build-version }}
       with:
         source: .
         no-cache: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
@@ -87,6 +88,7 @@ runs:
           *.platform=${{ inputs.bake-platform }}
           *.secrets=id=PACKAGES_AUTH_TOKEN
           *.secrets=id=SENTRY_AUTH_TOKEN
+          *.args=SENTRY_RELEASE=${{ inputs.build-version }}
 
     - name: Hent digest from docker/bake-action metadata
       if: inputs.push-image == 'true'
