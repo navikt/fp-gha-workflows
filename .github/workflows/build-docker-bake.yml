@@ -5,6 +5,9 @@ on:
       READER_TOKEN:
         description: "A token passed from the caller workflow"
         required: true
+      SENTRY_AUTH_TOKEN:
+        description: "Token used for uploading source maps to sentry"
+        required: true
     inputs:
       runs-on:
         required: false
