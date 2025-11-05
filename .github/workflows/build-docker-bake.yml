@@ -61,13 +61,15 @@ jobs:
         run: |
           TARGET="${{ inputs.bake-target }}"
           TIMESTAMP="$(date +%Y.%m.%d.%H%M%S)"
-          SHORT_SHA="$(git log -1 '--format=format:%H' | cut -c1-7)"
 
           if [[ '${{ inputs.branch }}' != '' ]]; then
+            SHORT_SHA="$(git log -1 '--format=format:%H' | cut -c1-7)"
             echo "build-version=${TARGET}-${TIMESTAMP}-${SHORT_SHA}-branch" >> $GITHUB_OUTPUT
           else
+            SHORT_SHA="$(echo $GITHUB_SHA | cut -c1-7)"
             echo "build-version=${TARGET}-${TIMESTAMP}-${SHORT_SHA}" >> $GITHUB_OUTPUT
           fi
+
 
       - name: Print build version
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
