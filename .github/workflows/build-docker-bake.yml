@@ -59,11 +59,17 @@ jobs:
       - name: Generate build version
         id: generate-build-version
         run: |
+          TARGET="${{ inputs.bake-target }}"
+          TIMESTAMP="$(date +%Y.%m.%d.%H%M%S)"
+
           if [[ '${{ inputs.branch }}' != '' ]]; then
-            echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(git log -1 '--format=format:%H' | cut -c1-7)-branch" >> $GITHUB_OUTPUT
+            SHORT_SHA="$(git log -1 '--format=format:%H' | cut -c1-7)"
+            echo "build-version=${TARGET}-${TIMESTAMP}-${SHORT_SHA}-branch" >> $GITHUB_OUTPUT
           else
-            echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+            SHORT_SHA="$(echo $GITHUB_SHA | cut -c1-7)"
+            echo "build-version=${TARGET}-${TIMESTAMP}-${SHORT_SHA}" >> $GITHUB_OUTPUT
           fi
+
 
       - name: Print build version
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
