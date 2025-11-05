@@ -5,6 +5,9 @@ on:
       READER_TOKEN:
         description: "A token passed from the caller workflow"
         required: true
+      SENTRY_AUTH_TOKEN:
+        description: "Token used for uploading source maps to sentry"
+        required: true
     inputs:
       runs-on:
         required: false
@@ -70,6 +73,7 @@ jobs:
           build-version: ${{ steps.generate-build-version.outputs.build-version }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auth-token: ${{ secrets.READER_TOKEN }}
+          sentry-auth-token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           push-image: ${{ inputs.push-image }}
           bake-platform: ${{ inputs.bake-platform }}
           bake-target: ${{ inputs.bake-target }}
