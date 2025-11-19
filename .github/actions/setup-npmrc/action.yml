@@ -1,0 +1,15 @@
+name: Setup npm config
+description: Konfigurerer npm auth config for å hente `@navikt/*`-pakker i github package registry
+inputs:
+  npmAuthToken:
+    description: Token med `packages:read` for navikt organisasjonen
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup npmrc
+      shell: bash
+      run: |
+        echo "@navikt:registry=https://npm.pkg.github.com" > .npmrc
+        echo "//npm.pkg.github.com/:_authToken=${{ inputs.npmAuthToken }}" >> .npmrc
