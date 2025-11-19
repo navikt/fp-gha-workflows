@@ -33,48 +33,32 @@ jobs:
     environment: gh-pages
     runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Sette yarn-config
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
+
+      - uses: ./.github/actions/setup-yarnrc
         if: inputs.package-manager == 'yarn'
-        run: |
-          yarn config set npmScopes.navikt.npmRegistryServer "https://npm.pkg.github.com"
-          yarn config set npmScopes.navikt.npmAlwaysAuth true
-          yarn config set npmScopes.navikt.npmAuthToken $NPM_AUTH_TOKEN
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN }}
+
+      - uses: ./.github/actions/setup-npmrc
+        if: inputs.package-manager == 'pnpm'
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN }}
+
       - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v2
         if: inputs.package-manager == 'pnpm'
         with:
           version: 10.18.3
-      - name: Set up NODE med yarn cache
-        if: inputs.package-manager == 'yarn'
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # ratchet:actions/setup-node@v3
-        with:
-          node-version: ${{ inputs.node-version }}
-          cache: "yarn"
-          cache-dependency-path: |
-            node_modules/.cache/nx
-            yarn.lock
 
-      - name: Set up NODE med pnpm cache
-        if: inputs.package-manager == 'pnpm'
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # ratchet:actions/setup-node@v3
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # ratchet:actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
-          cache: "pnpm"
+          cache: ${{ inputs.package-manager }}
+
       - name: Yarn install
         if: inputs.package-manager == 'yarn'
         run: |
           yarn install --immutable
-          yarn build
-
-      - name: Authenticate with private NPM package
-        if: inputs.package-manager == 'pnpm'
-        shell: bash
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.READER_TOKEN }}" > .npmrc
 
       - name: Pnpm install
         if: inputs.package-manager == 'pnpm'
@@ -82,8 +66,10 @@ jobs:
           pnpm install --frozen-lockfile
         env:
           GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
+
       - name: Set remote url med token
         run: git remote set-url origin https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git
+
       - name: Deploy storybook yarn
         if: inputs.package-manager == 'yarn'
         run: |
@@ -91,6 +77,7 @@ jobs:
           yarn gh-pages -d .storybook-static-build -t -u "github-actions-bot <support+actions@github.com>"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Deploy storybook pnpm
         if: inputs.package-manager == 'pnpm'
         run: |
