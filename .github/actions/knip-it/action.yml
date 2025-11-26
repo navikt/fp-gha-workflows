@@ -4,13 +4,10 @@ inputs:
     description: Token med `packages:read` for navikt organisasjonen
     required: true
   package-manager:
-    required: false
-    type: string
+    required: true
     description: Hvilken package manager en skal bruke (pnpm|yarn)
-    default: "yarn"
   node-version:
     required: false
-    type: string
     description: Node version som brukes.
     default: "22"
   github-token:
@@ -19,7 +16,6 @@ inputs:
 
 runs:
   using: composite
-  timeout-minutes: 30
 
   steps:
     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
@@ -46,37 +42,43 @@ runs:
 
     - name: Yarn install
       if: inputs.package-manager == 'yarn'
+      shell: bash
       run: |
         yarn install --immutable
 
     - name: Pnpm install
       if: inputs.package-manager == 'pnpm'
+      shell: bash
       run: |
         pnpm install --frozen-lockfile
 
     - name: Run knip
       if: inputs.package-manager == 'yarn'
+      shell: bash
       run: |
         yarn knip --no-exit-code --reporter=markdown > knip-report.md
-        cat knip-report.md > $GITHUB_STEP_SUMMARY    
+        cat knip-report.md > $GITHUB_STEP_SUMMARY
 
     - name: Run knip
       if: inputs.package-manager == 'pnpm'
+      shell: bash
       run: |
         pnpm knip --no-exit-code --reporter=markdown > knip-report.md
         cat knip-report.md > $GITHUB_STEP_SUMMARY
 
     - name: Delete previous comments from knip
+      shell: bash
       continue-on-error: true
       run: gh pr comment ${{ github.event.pull_request.number }} --delete-last --yes
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
 
     - name: Post knip report
+      shell: bash
       run: |
         number_of_words=$(wc -w < knip-report.md)
         if [ $number_of_words -gt 3 ]; then        
           gh pr comment ${{ github.event.pull_request.number }} --body-file knip-report.md
         fi
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
