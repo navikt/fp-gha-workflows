@@ -1,17 +1,17 @@
 name: Kjør knip
 inputs:
-  npmAuthToken:
-    description: Token med `packages:read` for navikt organisasjonen
+  npm-auth-token:
+    description: Token med `packages:read` for navikt organisasjonen.
     required: true
   package-manager:
     required: true
-    description: Hvilken package manager en skal brukes (pnpm|yarn)
+    description: Hvilken package manager en skal brukes (pnpm|yarn).
   node-version:
     required: false
-    description: Node version som brukes
+    description: Node version som brukes.
     default: "22"
   github-token:
-    description: Token som skal brukes for å publisere en PR kommentar
+    description: Token som skal brukes for å publisere en PR kommentar.
     required: true
 
 runs:
@@ -53,17 +53,16 @@ runs:
         pnpm install --frozen-lockfile
 
     - name: Run knip
-      if: inputs.package-manager == 'yarn'
       shell: bash
       run: |
-        yarn knip --no-exit-code --reporter=markdown > knip-report.md
-        cat knip-report.md > $GITHUB_STEP_SUMMARY
-
-    - name: Run knip
-      if: inputs.package-manager == 'pnpm'
-      shell: bash
-      run: |
-        pnpm knip --no-exit-code --reporter=markdown > knip-report.md
+        if [ "${{ inputs.package-manager }}" = "yarn" ]; then
+          yarn knip --no-exit-code --reporter=markdown > knip-report.md
+        elif [ "${{ inputs.package-manager }}" = "pnpm" ]; then
+          pnpm knip --no-exit-code --reporter=markdown > knip-report.md
+        else
+          echo "Unsupported package manager: ${{ inputs.package-manager }}"
+          exit 1
+        fi
         cat knip-report.md > $GITHUB_STEP_SUMMARY
 
     - name: Delete previous comments from knip
