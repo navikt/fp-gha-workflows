@@ -9,17 +9,17 @@ on:
       runs-on:
         required: false
         type: string
-        description: Miljø versjon som skal brukes til bygg
+        description: Miljø versjon som skal brukes til bygg.
         default: "ubuntu-latest"
       package-manager:
         required: false
         type: string
-        description: Hvilken package manager en skal brukes (pnpm|yarn)
+        description: Hvilken package manager en skal brukes (pnpm|yarn).
         default: "yarn"
       node-version:
         required: false
         type: string
-        description: Node version som brukes
+        description: Node version som brukes.
         default: "22"
 
 env:
