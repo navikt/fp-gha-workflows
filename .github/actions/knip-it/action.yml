@@ -5,13 +5,13 @@ inputs:
     required: true
   package-manager:
     required: true
-    description: Hvilken package manager en skal bruke (pnpm|yarn)
+    description: Hvilken package manager en skal brukes (pnpm|yarn)
   node-version:
     required: false
-    description: Node version som brukes.
+    description: Node version som brukes
     default: "22"
   github-token:
-    description: Token to use when adding comment to PR
+    description: Token som skal brukes for å publisere en PR kommentar
     required: true
 
 runs:
