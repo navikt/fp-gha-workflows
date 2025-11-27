@@ -1,4 +1,5 @@
 name: Kjør knip
+description: Kjører knip for å finne ubrukt kode og eksporter
 inputs:
   npm-auth-token:
     description: Token med `packages:read` for navikt organisasjonen.
@@ -63,16 +64,17 @@ runs:
           echo "Unsupported package manager: ${{ inputs.package-manager }}"
           exit 1
         fi
-        cat knip-report.md > $GITHUB_STEP_SUMMARY
 
-    - name: Delete previous comments from knip
+    - name: Slett forrige kommentar fra Knip
+      if: github.event.pull_request.number
       shell: bash
       continue-on-error: true
       run: gh pr comment ${{ github.event.pull_request.number }} --delete-last --yes
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
 
-    - name: Post knip report
+    - name: Post Knip rapport
+      if: github.event.pull_request.number
       shell: bash
       run: |
         number_of_words=$(wc -w < knip-report.md)
@@ -81,3 +83,7 @@ runs:
         fi
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
+
+    - name: Oppsummer Knip rapport
+      shell: bash
+      run: cat knip-report.md >> $GITHUB_STEP_SUMMARY
