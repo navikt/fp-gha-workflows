@@ -23,12 +23,12 @@ runs:
     - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main
       if: inputs.package-manager == 'yarn'
       with:
-        npmAuthToken: ${{ inputs.npmAuthToken }}
+        npmAuthToken: ${{ inputs.npm-auth-token }}
 
     - uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
       if: inputs.package-manager == 'pnpm'
       with:
-        npmAuthToken: ${{ inputs.npmAuthToken }}
+        npmAuthToken: ${{ inputs.npm-auth-token }}
 
     - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v2
       if: inputs.package-manager == 'pnpm'
