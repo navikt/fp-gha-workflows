@@ -35,7 +35,7 @@ runs:
   using: "composite"
   steps:
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # ratchet:docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
@@ -78,7 +78,7 @@ runs:
         cache-to: type=gha,mode=max
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@381d4cf8d769dac9bca014287449cfe812dc79b6 # ratchet:nais/attest-sign@v1.5.20
+      uses: nais/attest-sign@e832aa0c77880b1725fc67b63c65a4374b658892 # ratchet:nais/attest-sign@v1.5.22
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
