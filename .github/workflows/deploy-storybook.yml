@@ -14,7 +14,7 @@ on:
       package-manager:
         required: false
         type: string
-        description: Hvilken package manager en skal bruke (npm|pnpm|yarn)
+        description: Package manager som skal brukes (pnpm|yarn).
         default: "yarn"
       node-version:
         required: false
@@ -64,8 +64,6 @@ jobs:
         if: inputs.package-manager == 'pnpm'
         run: |
           pnpm install --frozen-lockfile
-        env:
-          GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
 
       - name: Set remote url med token
         run: git remote set-url origin https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git
