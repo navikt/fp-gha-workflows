@@ -5,19 +5,18 @@ inputs:
     description: Token med `packages:read` for navikt organisasjonen.
     required: true
   package-manager:
+    description: Package manager som skal brukes (pnpm|yarn).
     required: true
-    description: Hvilken package manager en skal brukes (pnpm|yarn).
   node-version:
-    required: false
     description: Node version som brukes.
     default: "22"
+    required: false
   github-token:
     description: Token som skal brukes for å publisere en PR kommentar.
     required: true
 
 runs:
   using: composite
-
   steps:
     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
 

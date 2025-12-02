@@ -14,7 +14,7 @@ on:
       package-manager:
         required: false
         type: string
-        description: Hvilken package manager en skal brukes (pnpm|yarn).
+        description: Package manager som skal brukes (pnpm|yarn).
         default: "yarn"
       node-version:
         required: false
