@@ -38,7 +38,7 @@ runs:
         username: ${{ github.actor }}
         password: ${{ inputs.github-token }}
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # ratchet:docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # ratchet:docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # ratchet:docker/setup-buildx-action@v2
     - name: NAIS login
@@ -47,7 +47,7 @@ runs:
       with:
         team: ${{ inputs.namespace }}
     - name: Docker meta
-      uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # ratchet:docker/metadata-action@v4
+      uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # ratchet:docker/metadata-action@v4
       id: meta
       with:
         context: git
@@ -69,7 +69,7 @@ runs:
       run: |
         echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
     - name: Build and push with bake
-      uses: docker/bake-action@3acf805d94d93a86cce4ca44798a76464a75b88c # ratchet:docker/bake-action@v6.9.0
+      uses: docker/bake-action@5be5f02ff8819ecd3092ea6b2e6261c31774f2b4 # ratchet:docker/bake-action@v6.10.0
       id: build_push
       env:
         CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
@@ -99,7 +99,7 @@ runs:
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@381d4cf8d769dac9bca014287449cfe812dc79b6 # ratchet:nais/attest-sign@v1.5.20
+      uses: nais/attest-sign@e832aa0c77880b1725fc67b63c65a4374b658892 # ratchet:nais/attest-sign@v1.5.22
       env:
         TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
       with:
