@@ -26,7 +26,7 @@ runs:
       with:
         java-version: ${{ inputs.java-version }}
         distribution: 'temurin'
-    #    cache: 'maven'
+        cache: 'maven'
     - name: Check Maven Version
       shell: bash
       run: mvn -version
