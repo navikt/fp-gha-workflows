@@ -70,7 +70,7 @@ jobs:
       - name: Clean up mockito before build
         continue-on-error: true
         run: |
-          rm ~/.m2/repository/org/mockito -r
+          rm -r ~/.m2/repository/org/mockito
       - name: Maven install and test
         id: build-and-test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
@@ -87,4 +87,4 @@ jobs:
           namespace: ${{ inputs.namespace }}
       - name: Clean up generated stuff before caching
         run: |
-          rm ~/.m2/repository/no/nav/foreldrepenger -r
+          rm -r ~/.m2/repository/no/nav/foreldrepenger
