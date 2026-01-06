@@ -30,8 +30,7 @@ runs:
     - name: Check Maven Version
       shell: bash
       run: mvn -version
-# Denne trenges ikke lenger siden default maven er på 3.9.11 nå
-#    - name: Set up Maven
-#      uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1
-#      with:
-#        maven-version: ${{ inputs.maven-version }}
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1
+      with:
+        maven-version: ${{ inputs.maven-version }}
