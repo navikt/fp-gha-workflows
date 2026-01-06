@@ -67,11 +67,11 @@ jobs:
         with:
           github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
-      - name: Clean up mockito before build
-        shell: bash
-        continue-on-error: true
-        run: |
-          rm -r ~/.m2/repository/org/mockito/
+#      - name: Clean up mockito before build
+#        shell: bash
+#        continue-on-error: true
+#        run: |
+#          rm -r ~/.m2/repository/org/mockito/
       - name: Maven install and test
         id: build-and-test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
@@ -87,5 +87,6 @@ jobs:
           push-image: ${{ inputs.push-image }}
           namespace: ${{ inputs.namespace }}
       - name: Clean up generated stuff before caching
+        shell: bash
         run: |
           rm -r ~/.m2/repository/no/nav/foreldrepenger
