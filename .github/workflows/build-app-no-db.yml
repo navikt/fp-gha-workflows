@@ -70,7 +70,7 @@ jobs:
       - name: Clean up mockito before build
         continue-on-error: true
         run: |
-          rm -r ~/.m2/repository/org/mockito
+          rm -r ~/.m2/repository/org/mockito/
       - name: Maven install and test
         id: build-and-test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
