@@ -68,6 +68,7 @@ jobs:
           github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
       - name: Clean up mockito before build
+        continue-on-error: true
         run: |
           rm ~/.m2/repository/org/mockito -r
       - name: Maven install and test
