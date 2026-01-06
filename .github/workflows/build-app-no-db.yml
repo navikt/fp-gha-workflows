@@ -67,6 +67,9 @@ jobs:
         with:
           github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
+      - name: Clean up mockito before build
+        run: |
+          rm ~/.m2/repository/org/mockito -r
       - name: Maven install and test
         id: build-and-test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
