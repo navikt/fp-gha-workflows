@@ -31,6 +31,10 @@ on:
         type: string
         description: 'Hvilken pom.xml fil skal releases. Default empty.'
         default: ''
+      working-directory:
+        required: false
+        default: .
+        type: string
 jobs:
   build:
     name: Release
@@ -49,7 +53,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
+          working-directory: ${{ inputs.working-directory }}
       - name: Publish artifacts
+        working-directory: ${{ inputs.working-directory }}
         run: |
           mvn -B -s settings.xml versions:set -DnewVersion=${{ inputs.release-version }} ${{ inputs.release-file }}
           mvn -B -s settings.xml -Dmaven.wagon.http.pool=false -DskipTests clean deploy ${{ inputs.mvn-projects }} ${{ inputs.release-profiles }} ${{ inputs.release-file }}
