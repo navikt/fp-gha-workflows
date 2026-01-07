@@ -16,9 +16,6 @@ inputs:
     description: 'Working directory to perform maven in'
     required: false
     default: .
-defaults:
-  run:
-    working-directory: ${{ inputs.working-directory }}
 runs:
   using: "composite"
   steps:
