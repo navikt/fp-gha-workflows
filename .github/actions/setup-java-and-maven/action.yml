@@ -31,3 +31,4 @@ runs:
         java-version: ${{ inputs.java-version }}
         distribution: 'temurin'
         cache: 'maven'
+        cache-dependency-path: ${{ inputs.working-directory }}**/pom.xml
