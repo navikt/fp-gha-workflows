@@ -13,10 +13,17 @@ inputs:
     description: 'Maven profile to use (f.eks. sonar spesifisers -Psonar'
     required: false
     default: ''
+  working-directory:
+    description: 'Working directory to perform maven in'
+    required: false
+    default: .
 outputs:
   build-version:
     description: "Build version"
     value: ${{ steps.generate-build-version.outputs.build-version }}
+defaults:
+  run:
+    working-directory: ${{ inputs.working-directory }}
 runs:
   using: "composite"
   steps:
