@@ -23,9 +23,6 @@ outputs:
     value: ${{ steps.generate-build-version.outputs.build-version }}
 runs:
   using: "composite"
-  defaults:
-    run:
-      working-directory: ${{ inputs.working-directory }}
   steps:
     - name: Generate build version
       id: generate-build-version
@@ -36,6 +33,7 @@ runs:
       run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
     - name: Build artifacts
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: |
         echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
         mvn versions:set -DnewVersion="${{ steps.generate-build-version.outputs.build-version }}" -s settings.xml -q -e -B
