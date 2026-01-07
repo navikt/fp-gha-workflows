@@ -46,14 +46,14 @@ jobs:
         with:
           fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
       - name: Setup java and maven
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@working-dir # ratchet:exclude
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
           github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
           working-directory: ${{ inputs.working-directory }}
       - name: Maven install and test
         id: build-and-test
-        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@working-dir # ratchet:exclude
+        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
         with:
           t-2c: ${{ inputs.t-2c }}
           working-directory: ${{ inputs.working-directory }}
