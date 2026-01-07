@@ -23,7 +23,9 @@ outputs:
     value: ${{ steps.generate-build-version.outputs.build-version }}
 runs:
   using: "composite"
-  working-directory: ${{ inputs.working-directory }}
+  defaults:
+    run:
+      working-directory: ${{ inputs.working-directory }}
   steps:
     - name: Generate build version
       id: generate-build-version
