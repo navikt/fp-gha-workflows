@@ -1,0 +1,73 @@
+name: Deploy storybook
+on:
+  workflow_call:
+    secrets:
+      READER_TOKEN:
+        description: "A token passed from the caller workflow"
+        required: true
+    inputs:
+      package-manager:
+        required: true
+        type: string
+        description: Package manager som skal brukes (pnpm|yarn).
+
+jobs:
+  deploy-storybook:
+    name: Deploy storybook ${{ inputs.package-manager }}
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    runs-on: 'ubuntu-latest'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5 #TODO: ratchet
+
+      - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main
+        if: inputs.package-manager == 'yarn'
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN }}
+
+      - uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
+        if: inputs.package-manager == 'pnpm'
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN }}
+
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v2
+        if: inputs.package-manager == 'pnpm'
+        with:
+          version: 10.28.0
+
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v3
+        with:
+          node-version: 22.17.1
+          cache: ${{ inputs.package-manager }}
+
+      - name: Yarn install
+        if: inputs.package-manager == 'yarn'
+        run: |
+          yarn install --immutable
+
+      - name: Pnpm install
+        if: inputs.package-manager == 'pnpm'
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Bygg Storybook
+        if: inputs.package-manager == 'yarn'
+        run: yarn build:storybook
+
+      - name: Bygg Storybook
+        if: inputs.package-manager == 'pnpm'
+        run: pnpm build:storybook
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./.storybook-static-build
+
+      - uses: actions/deploy-pages@v4
+        id: deployment
