@@ -6,80 +6,93 @@ on:
         description: "A token passed from the caller workflow"
         required: true
     inputs:
-      runs-on:
-        required: false
-        type: string
-        description: Miljø versjon som skal brukes til bygg.
-        default: "ubuntu-latest"
       package-manager:
-        required: false
+        required: true
         type: string
-        description: Package manager som skal brukes (pnpm|yarn).
-        default: "yarn"
-      node-version:
-        required: false
+        description: Package manager som skal brukes (pnpm|yarn)
+      cache:
+        required: true
         type: string
-        description: Node version som brukes.
-        default: "22"
+        description: Cache som skal brukes (turbo/lerna). Lerna er ikke implementert
 
-env:
-  NODE_OPTIONS: "--max_old_space_size=6144"
 jobs:
   deploy-storybook:
     name: Deploy storybook ${{ inputs.package-manager }}
     permissions:
       contents: write
       pages: write
-    environment: gh-pages
-    runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+      id-token: write
+    runs-on: 'ubuntu-latest'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v4
+      # Trinn 1: Sjekk ut repository
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v6
 
-      - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main
-        if: inputs.package-manager == 'yarn'
+      # Trinn 2: Sett opp Node.js
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v6
         with:
-          npmAuthToken: ${{ secrets.READER_TOKEN }}
-
-      - uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
-        if: inputs.package-manager == 'pnpm'
-        with:
-          npmAuthToken: ${{ secrets.READER_TOKEN }}
-
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v2
-        if: inputs.package-manager == 'pnpm'
-        with:
-          version: 10.28.0
-
-      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v3
-        with:
-          node-version: ${{ inputs.node-version }}
+          node-version: 22.17.1
           cache: ${{ inputs.package-manager }}
 
-      - name: Yarn install
+      # Trinn 3: Håndter caching for turbo builds
+      - name: Cache turbo build setup
+        if: inputs.cache == 'turbo'
+        id: hent-cache
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # ratchet:actions/cache/restore@v5
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      # Trinn 4: Sett opp og installer avhengigheter for Yarn
+      - name: Sett opp Yarn
+        if: inputs.package-manager == 'yarn'
+        uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main # ratchet:navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN }}
+      - name: Installer avhengigheter med Yarn
         if: inputs.package-manager == 'yarn'
         run: |
           yarn install --immutable
+      - name: Bygg Storybook med Yarn
+        if: inputs.package-manager == 'yarn'
+        run: yarn build:storybook
 
-      - name: Pnpm install
+      # Trinn 4: Sett opp og installer avhengigheter for Pnpm
+      - name: Sett opp Pnpm
+        if: inputs.package-manager == 'pnpm'
+        uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main # ratchet:navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN }}
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
+        if: inputs.package-manager == 'pnpm'
+        with:
+          version: 10.28.0
+      - name: Installer avhengigheter med Pnpm
         if: inputs.package-manager == 'pnpm'
         run: |
           pnpm install --frozen-lockfile
-
-      - name: Set remote url med token
-        run: git remote set-url origin https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git
-
-      - name: Deploy storybook yarn
-        if: inputs.package-manager == 'yarn'
-        run: |
-          yarn storybook-clean-deploy-folder && yarn storybook-build-all && yarn storybook-create-deploy-folder
-          yarn gh-pages -d .storybook-static-build -t -u "github-actions-bot <support+actions@github.com>"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Deploy storybook pnpm
+      - name: Bygg Storybook med Pnpm
         if: inputs.package-manager == 'pnpm'
-        run: |
-          pnpm storybook-deploy-clean-folder && pnpm storybook-deploy-build-all && pnpm storybook-deploy-create-folder
-          pnpm gh-pages -d .storybook-static-build -t -u "github-actions-bot <support+actions@github.com>"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm build:storybook
+
+      # Trinn 5: Konfigurer og deploy til GitHub Pages
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # ratchet:actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # ratchet:actions/upload-pages-artifact@v4
+        with:
+          path: ./.storybook-static-build
+
+      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # ratchet:actions/deploy-pages@v4
+        id: deployment
+
+      # Trinn 6: Lagre turbo cache
+      - name: Lagre turbo cache
+        if: always() && inputs.cache == 'turbo' && steps.hent-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # ratchet:actions/cache/save@v5
+        with:
+          key: ${{ steps.hent-cache.outputs.cache-primary-key }}
+          path: .turbo
