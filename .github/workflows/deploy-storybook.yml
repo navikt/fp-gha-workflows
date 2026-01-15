@@ -29,6 +29,11 @@ jobs:
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v6
 
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v6
+        with:
+          node-version: 22.17.1
+          cache: ${{ inputs.package-manager }}
+
       - name: Cache turbo build setup
         if: inputs.cache == 'turbo'
         id: hent-cache
@@ -43,36 +48,26 @@ jobs:
         if: inputs.package-manager == 'yarn'
         with:
           npmAuthToken: ${{ secrets.READER_TOKEN }}
+      - name: Yarn install
+        if: inputs.package-manager == 'yarn'
+        run: |
+          yarn install --immutable
+      - name: Bygg Storybook
+        if: inputs.package-manager == 'yarn'
+        run: yarn build:storybook
 
       - uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main # ratchet:navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
         if: inputs.package-manager == 'pnpm'
         with:
           npmAuthToken: ${{ secrets.READER_TOKEN }}
-
       - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
         if: inputs.package-manager == 'pnpm'
         with:
           version: 10.28.0
-
-      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v6
-        with:
-          node-version: 22.17.1
-          cache: ${{ inputs.package-manager }}
-
-      - name: Yarn install
-        if: inputs.package-manager == 'yarn'
-        run: |
-          yarn install --immutable
-
       - name: Pnpm install
         if: inputs.package-manager == 'pnpm'
         run: |
           pnpm install --frozen-lockfile
-
-      - name: Bygg Storybook
-        if: inputs.package-manager == 'yarn'
-        run: yarn build:storybook
-
       - name: Bygg Storybook
         if: inputs.package-manager == 'pnpm'
         run: pnpm build:storybook
