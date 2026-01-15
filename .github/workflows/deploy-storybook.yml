@@ -30,12 +30,22 @@ jobs:
       # Trinn 1: Sjekk ut repository
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v6
 
-        # Trinn 2: Sett opp Node.js (hvis pnpm må denne settes opp først)
-      - name: Sett opp Pnpm
-        if: inputs.package-manager == 'pnpm'
-        uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main # ratchet:navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
+      # Trinn 2 Sett opp yarn/pnpm + node
+      - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main
+        if: inputs.package-manager == 'yarn'
         with:
           npmAuthToken: ${{ secrets.READER_TOKEN }}
+
+      - uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
+        if: inputs.package-manager == 'pnpm'
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN }}
+
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
+        if: inputs.package-manager == 'pnpm'
+        with:
+          version: 10.28.0
+
       - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v6
         with:
           node-version: 22.17.1
@@ -52,12 +62,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
 
-      # Trinn 4: Sett opp og installer avhengigheter for Yarn
-      - name: Sett opp Yarn
-        if: inputs.package-manager == 'yarn'
-        uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main # ratchet:navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main
-        with:
-          npmAuthToken: ${{ secrets.READER_TOKEN }}
+      # Trinn 4: yarn install+build
       - name: Installer avhengigheter med Yarn
         if: inputs.package-manager == 'yarn'
         run: |
@@ -66,11 +71,7 @@ jobs:
         if: inputs.package-manager == 'yarn'
         run: yarn build:storybook
 
-      # Trinn 4: Sett opp og installer avhengigheter for Pnpm
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
-        if: inputs.package-manager == 'pnpm'
-        with:
-          version: 10.28.0
+      # Trinn 4: pnpm install+build
       - name: Installer avhengigheter med Pnpm
         if: inputs.package-manager == 'pnpm'
         run: |
