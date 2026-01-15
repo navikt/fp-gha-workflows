@@ -30,7 +30,12 @@ jobs:
       # Trinn 1: Sjekk ut repository
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v6
 
-      # Trinn 2: Sett opp Node.js
+        # Trinn 2: Sett opp Node.js (hvis pnpm må denne settes opp først)
+      - name: Sett opp Pnpm
+        if: inputs.package-manager == 'pnpm'
+        uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main # ratchet:navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN }}
       - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v6
         with:
           node-version: 22.17.1
@@ -62,11 +67,6 @@ jobs:
         run: yarn build:storybook
 
       # Trinn 4: Sett opp og installer avhengigheter for Pnpm
-      - name: Sett opp Pnpm
-        if: inputs.package-manager == 'pnpm'
-        uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main # ratchet:navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
-        with:
-          npmAuthToken: ${{ secrets.READER_TOKEN }}
       - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
         if: inputs.package-manager == 'pnpm'
         with:
