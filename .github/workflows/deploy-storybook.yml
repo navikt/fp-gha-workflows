@@ -59,7 +59,8 @@ jobs:
         with:
           path: .turbo
           key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: ""
+          restore-keys: |
+            ${{ runner.os }}-turbo-
 
       # Trinn 4: yarn install+build
       - name: Installer avhengigheter med Yarn
