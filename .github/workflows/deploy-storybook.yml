@@ -92,7 +92,7 @@ jobs:
 
       # Trinn 6: Lagre turbo cache
       - name: Lagre turbo cache
-        if: always() && inputs.cache == 'turbo' && steps.hent-cache.outputs.cache-hit != 'true'
+        if: inputs.cache == 'turbo' && steps.hent-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # ratchet:actions/cache/save@v5
         with:
           key: ${{ steps.hent-cache.outputs.cache-primary-key }}
