@@ -5,7 +5,7 @@ on:
       branch-name:
         required: true
         type: string
-        description: Navn på branchen som skal slettes
+        description: Navn på branchen som skal slettes (IKKE main/master)
   workflow_call:
     secrets:
       GITHUB_TOKEN:
@@ -26,13 +26,26 @@ jobs:
       deployments: write
     runs-on: "ubuntu-latest"
     steps:
-      # Trinn 1: Sjekk ut repository (gh-pages branch)
+      # Trinn 1: Sjekk at vi ikke sletter main/master
+      - name: Sjekk at branch ikke er main/master
+        run: |
+          BRANCH_NAME="${{ inputs.branch-name }}"
+
+          if [ "$BRANCH_NAME" = "main" ] || [ "$BRANCH_NAME" = "master" ]; then
+            echo "❌ Kan ikke slette deployment for main/master branches!"
+            echo "Disse er rot-deployments som skal forbli."
+            exit 1
+          fi
+
+          echo "✅ Branch '$BRANCH_NAME' er OK for cleanup"
+
+      # Trinn 2: Sjekk ut repository (gh-pages branch)
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6
         with:
           ref: gh-pages
           token: ${{ secrets.GITHUB_TOKEN || github.token }}
 
-      # Trinn 2: Konverter branch navn til URL-vennlig format
+      # Trinn 3: Konverter branch navn til URL-vennlig format
       - name: Sett branch navn
         id: branch-info
         run: |

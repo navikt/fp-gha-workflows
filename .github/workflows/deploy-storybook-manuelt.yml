@@ -21,7 +21,7 @@ on:
       branch-name:
         required: false
         type: string
-        description: Navn på branchen som deployes (bruker current branch hvis tom)
+        description: Navn på branchen som deployes (ikke main/master - bruker current branch hvis tom)
   workflow_call:
     secrets:
       READER_TOKEN:
@@ -46,15 +46,26 @@ jobs:
     name: Deploy storybook for branch
     permissions:
       contents: write
-      pages: write
-      id-token: write
     runs-on: "ubuntu-latest"
-    environment:
-      name: github-pages-branch
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       # Trinn 1: Sjekk ut repository
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6
+
+      # Trinn 1.5: Sjekk at vi ikke deployer main/master
+      - name: Sjekk at branch ikke er main/master
+        run: |
+          BRANCH_NAME="${{ inputs.branch-name }}"
+          if [ -z "$BRANCH_NAME" ]; then
+            BRANCH_NAME="${GITHUB_REF_NAME}"
+          fi
+
+          if [ "$BRANCH_NAME" = "main" ] || [ "$BRANCH_NAME" = "master" ]; then
+            echo "❌ Denne workflow-en skal ikke brukes for main/master branches!"
+            echo "Bruk den vanlige deploy-storybook.yml workflowen for main/master."
+            exit 1
+          fi
+
+          echo "✅ Branch '$BRANCH_NAME' er OK for branch-deploy"
 
       # Trinn 2 Sett opp yarn/pnpm + node
       - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main
@@ -119,51 +130,17 @@ jobs:
           echo "safe-branch=${SAFE_BRANCH}" >> $GITHUB_OUTPUT
           echo "Deployer til branch: ${SAFE_BRANCH}"
 
-      # Trinn 6: Flytt storybook til branch-spesifikk mappe
-      - name: Organiser filer for branch-deploy
-        run: |
-          mkdir -p deploy-temp/${{ steps.branch-info.outputs.safe-branch }}
-          mv ./.storybook-static-build/* deploy-temp/${{ steps.branch-info.outputs.safe-branch }}/
-
-          # Lag index.html på rot-nivå som viser tilgjengelige branches
-          cat > deploy-temp/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>Storybook Branches</title>
-            <style>
-              body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
-              h1 { color: #333; }
-              .branch { 
-                padding: 10px; 
-                margin: 10px 0; 
-                background: #f5f5f5; 
-                border-radius: 4px;
-              }
-              a { color: #0066cc; text-decoration: none; }
-              a:hover { text-decoration: underline; }
-            </style>
-          </head>
-          <body>
-            <h1>Storybook Deploy - Branch: ${{ steps.branch-info.outputs.safe-branch }}</h1>
-            <div class="branch">
-              <a href="./${{ steps.branch-info.outputs.safe-branch }}/">📖 Se Storybook for ${{ steps.branch-info.outputs.safe-branch }}</a>
-            </div>
-          </body>
-          </html>
-          EOF
-
-      # Trinn 7: Konfigurer og deploy til GitHub Pages
-      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # ratchet:actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@7b1a764d45c48632c6b24a0339c27f5614fb0b # ratchet:actions/upload-pages-artifact@v4
+      # Trinn 6: Deploy til GitHub Pages (uten å slette eksisterende innhold)
+      - name: Deploy til GitHub Pages
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # ratchet:peaceiris/actions-gh-pages@v4
         with:
-          path: ./deploy-temp
+          github_token: ${{ secrets.GITHUB_TOKEN || github.token }}
+          publish_dir: ./.storybook-static-build
+          destination_dir: ${{ steps.branch-info.outputs.safe-branch }}
+          keep_files: true # VIKTIG: Behold eksisterende filer (beskytter main/master)
+          commit_message: "🚀 Deploy storybook for branch: ${{ inputs.branch-name }}"
 
-      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # ratchet:actions/deploy-pages@v4
-        id: deployment
-
-      # Trinn 8: Lagre turbo cache
+      # Trinn 7: Lagre turbo cache
       - name: Lagre turbo cache
         if: always() && inputs.cache == 'turbo' && steps.hent-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # ratchet:actions/cache/save@v5
@@ -171,7 +148,9 @@ jobs:
           key: ${{ steps.hent-cache.outputs.cache-primary-key }}
           path: .turbo
 
-      # Trinn 9: Gi tilbakemelding om URL
+      # Trinn 8: Gi tilbakemelding om URL
       - name: Deployment info
         run: |
-          echo "✅ Storybook deployet til: ${{ steps.deployment.outputs.page_url }}${{ steps.branch-info.outputs.safe-branch }}/"
+          REPO_NAME="${{ github.repository }}"
+          REPO_SHORT="${REPO_NAME#*/}"
+          echo "✅ Storybook deployet til: https://${{ github.repository_owner }}.github.io/${REPO_SHORT}/${{ steps.branch-info.outputs.safe-branch }}/"
