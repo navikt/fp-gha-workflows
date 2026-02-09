@@ -55,7 +55,7 @@ jobs:
       - name: Cache turbo build setup
         if: inputs.cache == 'turbo'
         id: hent-cache
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # ratchet:actions/cache/restore@v5
+        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # ratchet:actions/cache/restore@v5
         with:
           path: .turbo
           key: ${{ runner.os }}-turbo-${{ github.sha }}
@@ -93,7 +93,7 @@ jobs:
       # Trinn 6: Lagre turbo cache
       - name: Lagre turbo cache
         if: always() && inputs.cache == 'turbo' && steps.hent-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # ratchet:actions/cache/save@v5
+        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # ratchet:actions/cache/save@v5
         with:
           key: ${{ steps.hent-cache.outputs.cache-primary-key }}
           path: .turbo
