@@ -1,0 +1,156 @@
+name: Deploy storybook manuelt
+on:
+  workflow_dispatch:
+    inputs:
+      package-manager:
+        required: true
+        type: choice
+        description: Package manager som skal brukes
+        options:
+          - pnpm
+          - yarn
+        default: pnpm
+      cache:
+        required: true
+        type: choice
+        description: Cache som skal brukes
+        options:
+          - turbo
+          - lerna
+        default: turbo
+      branch-name:
+        required: false
+        type: string
+        description: Navn på branchen som deployes (ikke main/master - bruker current branch hvis tom)
+  workflow_call:
+    secrets:
+      READER_TOKEN:
+        description: "A token passed from the caller workflow"
+        required: true
+    inputs:
+      package-manager:
+        required: true
+        type: string
+        description: Package manager som skal brukes (pnpm|yarn)
+      cache:
+        required: true
+        type: string
+        description: Cache som skal brukes (turbo/lerna). Lerna er ikke implementert
+      branch-name:
+        required: false
+        type: string
+        description: Navn på branchen som deployes (brukes i URL)
+
+jobs:
+  deploy-storybook-branch:
+    name: Deploy storybook for branch
+    permissions:
+      contents: write
+    runs-on: "ubuntu-latest"
+    steps:
+      # Trinn 1: Sjekk ut repository
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6
+
+      # Trinn 1.5: Sjekk at vi ikke deployer main/master
+      - name: Sjekk at branch ikke er main/master
+        run: |
+          BRANCH_NAME="${{ inputs.branch-name }}"
+          if [ -z "$BRANCH_NAME" ]; then
+            BRANCH_NAME="${GITHUB_REF_NAME}"
+          fi
+
+          if [ "$BRANCH_NAME" = "main" ] || [ "$BRANCH_NAME" = "master" ]; then
+            echo "❌ Denne workflow-en skal ikke brukes for main/master branches!"
+            echo "Bruk den vanlige deploy-storybook.yml workflowen for main/master."
+            exit 1
+          fi
+
+          echo "✅ Branch '$BRANCH_NAME' er OK for branch-deploy"
+
+      # Trinn 2 Sett opp yarn/pnpm + node
+      - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main
+        if: inputs.package-manager == 'yarn'
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main
+        if: inputs.package-manager == 'pnpm'
+        with:
+          npmAuthToken: ${{ secrets.READER_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
+        if: inputs.package-manager == 'pnpm'
+        with:
+          version: 10.28.0
+
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # ratchet:actions/setup-node@v6
+        with:
+          node-version: 22.17.1
+          cache: ${{ inputs.package-manager }}
+
+      # Trinn 3: Håndter caching for turbo builds
+      - name: Cache turbo build setup
+        if: inputs.cache == 'turbo'
+        id: hent-cache
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # ratchet:actions/cache/restore@v5
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      # Trinn 4: yarn install+build
+      - name: Installer avhengigheter med Yarn
+        if: inputs.package-manager == 'yarn'
+        run: |
+          yarn install --immutable
+      - name: Bygg Storybook med Yarn
+        if: inputs.package-manager == 'yarn'
+        run: yarn build:storybook
+
+      # Trinn 4: pnpm install+build
+      - name: Installer avhengigheter med Pnpm
+        if: inputs.package-manager == 'pnpm'
+        run: |
+          pnpm install --frozen-lockfile
+      - name: Bygg Storybook med Pnpm
+        if: inputs.package-manager == 'pnpm'
+        run: pnpm build:storybook
+
+      # Trinn 5: Bestem branch navn for URL
+      - name: Sett branch navn
+        id: branch-info
+        run: |
+          BRANCH_NAME="${{ inputs.branch-name }}"
+          if [ -z "$BRANCH_NAME" ]; then
+            BRANCH_NAME="${GITHUB_REF_NAME}"
+          fi
+          # Fjern spesialtegn og gjør om til URL-vennlig format
+          SAFE_BRANCH=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9-]/-/g' | tr '[:upper:]' '[:lower:]')
+          echo "safe-branch=${SAFE_BRANCH}" >> $GITHUB_OUTPUT
+          echo "Deployer til branch: ${SAFE_BRANCH}"
+
+      # Trinn 6: Deploy til GitHub Pages (uten å slette eksisterende innhold)
+      - name: Deploy til GitHub Pages
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # ratchet:peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN || github.token }}
+          publish_dir: ./.storybook-static-build
+          destination_dir: ${{ steps.branch-info.outputs.safe-branch }}
+          keep_files: true # VIKTIG: Behold eksisterende filer (beskytter main/master)
+          commit_message: "🚀 Deploy storybook for branch: ${{ inputs.branch-name }}"
+
+      # Trinn 7: Lagre turbo cache
+      - name: Lagre turbo cache
+        if: always() && inputs.cache == 'turbo' && steps.hent-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # ratchet:actions/cache/save@v5
+        with:
+          key: ${{ steps.hent-cache.outputs.cache-primary-key }}
+          path: .turbo
+
+      # Trinn 8: Gi tilbakemelding om URL
+      - name: Deployment info
+        run: |
+          REPO_NAME="${{ github.repository }}"
+          REPO_SHORT="${REPO_NAME#*/}"
+          echo "✅ Storybook deployet til: https://${{ github.repository_owner }}.github.io/${REPO_SHORT}/${{ steps.branch-info.outputs.safe-branch }}/"
