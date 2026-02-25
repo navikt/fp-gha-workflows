@@ -77,6 +77,8 @@ jobs:
         with:
           t-2c: ${{ inputs.t-2c }}
         env:
+          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
           TESTCONTAINERS_REUSE_ENABLE: true
       - name: Bygg og push docker image
         if: inputs.build-image
