@@ -49,7 +49,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.release-branch }}
       - name: Setup java and maven
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@chore/setup-maven # ratchet:exclude
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
@@ -57,5 +57,5 @@ jobs:
       - name: Publish artifacts
         working-directory: ${{ inputs.working-directory }}
         run: |
-          mvn -B -s settings.xml versions:set -DnewVersion=${{ inputs.release-version }} ${{ inputs.release-file }}
-          mvn -B -s settings.xml -Dmaven.wagon.http.pool=false -DskipTests clean deploy ${{ inputs.mvn-projects }} ${{ inputs.release-profiles }} ${{ inputs.release-file }}
+          mvn -B versions:set -DnewVersion=${{ inputs.release-version }} ${{ inputs.release-file }}
+          mvn -B -Dmaven.wagon.http.pool=false -DskipTests clean deploy ${{ inputs.mvn-projects }} ${{ inputs.release-profiles }} ${{ inputs.release-file }}

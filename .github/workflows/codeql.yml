@@ -57,7 +57,7 @@ jobs:
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
       - name: Setup java and maven
         if: inputs.language == 'java'
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@chore/setup-maven # ratchet:exclude
         with:
           github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
@@ -79,7 +79,7 @@ jobs:
       - name: Perform Sonar Analysis
         if: inputs.language == 'java' && inputs.sonar
         run: |
-          mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
+          mvn jacoco:report jacoco:report-aggregate sonar:sonar ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
