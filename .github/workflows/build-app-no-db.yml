@@ -67,6 +67,10 @@ jobs:
         with:
           github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
+      - name: Print settingsxml
+        shell: bash
+        run: |
+          cat ~/.m2/settings.xml
       - name: Maven install and test
         id: build-and-test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@chore/setup-maven # ratchet:exclude
