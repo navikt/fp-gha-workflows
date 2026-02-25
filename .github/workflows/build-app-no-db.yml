@@ -50,9 +50,9 @@ jobs:
   build-and-test:
     name: Build and test
     permissions:
-      contents: "read"
-      packages: "write"
-      id-token: "write"
+      contents: read
+      packages: write
+      id-token: write
     runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     env:
       TZ: "Europe/Oslo"
