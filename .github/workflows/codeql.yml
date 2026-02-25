@@ -55,12 +55,13 @@ jobs:
         with:
           languages: ${{ inputs.language }}
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
-      - name: Setup java and maven
+      - name: Set up JDK-${{ inputs.java-version }} with cache
         if: inputs.language == 'java'
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@chore/setup-maven # ratchet:exclude
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
         with:
-          github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
+          distribution: 'temurin'
+          cache: 'maven'
       - name: Maven install and test
         if: inputs.language == 'java'
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@chore/setup-maven # ratchet:exclude
@@ -68,7 +69,8 @@ jobs:
           t-2c: ${{ inputs.t-2c }}
           profil: -Psonar
         env:
-          TESTCONTAINERS_REUSE_ENABLE: true
+          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
       - name: Autobuild
         if: inputs.language != 'java'
         uses: github/codeql-action/autobuild@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # ratchet:github/codeql-action/autobuild@v2

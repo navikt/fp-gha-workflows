@@ -5,10 +5,6 @@ inputs:
     description: 'Thread config to use'
     required: false
     default: ''
-  skip-tests:
-    description: 'Skip tests'
-    required: false
-    default: 'false'
   profil:
     description: 'Maven profile to use (f.eks. sonar spesifisers -Psonar'
     required: false

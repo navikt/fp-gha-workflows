@@ -45,11 +45,12 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
-      - name: Setup java and maven
-        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@chore/setup-maven # ratchet:exclude
+      - name: Set up JDK-${{ inputs.java-version }} with cache
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
         with:
-          github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
+          distribution: 'temurin'
+          cache: 'maven'
       - name: Maven install and test
         id: build-and-test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@chore/setup-maven # ratchet:exclude
@@ -57,7 +58,8 @@ jobs:
           t-2c: ${{ inputs.t-2c }}
           working-directory: ${{ inputs.working-directory }}
         env:
-          TESTCONTAINERS_REUSE_ENABLE: true
+          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
       - name: Clean up generated stuff before caching
         run: |
           if [[ -d "~/.m2/repository/no/nav/foreldrepenger" ]]; then
