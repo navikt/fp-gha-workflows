@@ -13,8 +13,9 @@ runs:
   steps:
     - name: Set up JDK-${{ inputs.java-version }} with cache
       uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
       with:
         java-version: ${{ inputs.java-version }}
         distribution: 'temurin'
         cache: 'maven'
-        server-password: ${{ inputs.github-token }}
