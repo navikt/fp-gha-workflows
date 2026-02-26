@@ -64,7 +64,7 @@ jobs:
           cache: 'maven'
       - name: Maven install and test
         if: inputs.language == 'java'
-        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@chore/setup-maven # ratchet:exclude
+        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
         with:
           t-2c: ${{ inputs.t-2c }}
           profil: -Psonar
