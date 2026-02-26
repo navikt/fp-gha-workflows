@@ -48,14 +48,14 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ inputs.release-branch }}
-      - name: Set up JDK-${{ inputs.java-version }} with cache
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+      - name: Setup java and maven
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
+          working-directory: ${{ inputs.working-directory }}
       - name: Publish artifacts
         working-directory: ${{ inputs.working-directory }}
         run: |
-          mvn -B versions:set -DnewVersion=${{ inputs.release-version }} ${{ inputs.release-file }}
-          mvn -B -Dmaven.wagon.http.pool=false -DskipTests clean deploy ${{ inputs.mvn-projects }} ${{ inputs.release-profiles }} ${{ inputs.release-file }}
+          mvn -B -s settings.xml versions:set -DnewVersion=${{ inputs.release-version }} ${{ inputs.release-file }}
+          mvn -B -s settings.xml -Dmaven.wagon.http.pool=false -DskipTests clean deploy ${{ inputs.mvn-projects }} ${{ inputs.release-profiles }} ${{ inputs.release-file }}
