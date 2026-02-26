@@ -27,7 +27,7 @@ jobs:
       - name: Print build version
         shell: bash
         run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
-      - name: Build artifacts
+      - name: Build artifactsM
         shell: bash
         run: |
           echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
@@ -39,3 +39,6 @@ jobs:
         uses: advanced-security/maven-dependency-submission-action@b275d12641ac2d2108b2cbb7598b154ad2f2cee8
         with:
           maven-args: -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
