@@ -38,5 +38,5 @@ jobs:
       - name: Submit Dependency Snapshot to Github Security
         uses: advanced-security/maven-dependency-submission-action@b275d12641ac2d2108b2cbb7598b154ad2f2cee8
         with:
-          settings-file: ~/.m2/settings.xml
+          settings-file: settings.xml
           maven-args: -DskipTests
