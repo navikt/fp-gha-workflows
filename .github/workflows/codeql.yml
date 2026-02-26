@@ -55,13 +55,12 @@ jobs:
         with:
           languages: ${{ inputs.language }}
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
-      - name: Set up JDK-${{ inputs.java-version }} with cache
+      - name: Setup java and maven
         if: inputs.language == 'java'
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        uses: navikt/fp-gha-workflows/.github/actions/setup-java-and-maven@main # ratchet:exclude
         with:
+          github-token: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
       - name: Maven install and test
         if: inputs.language == 'java'
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
@@ -69,8 +68,7 @@ jobs:
           t-2c: ${{ inputs.t-2c }}
           profil: -Psonar
         env:
-          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
+          TESTCONTAINERS_REUSE_ENABLE: true
       - name: Autobuild
         if: inputs.language != 'java'
         uses: github/codeql-action/autobuild@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # ratchet:github/codeql-action/autobuild@v2
@@ -81,8 +79,7 @@ jobs:
       - name: Perform Sonar Analysis
         if: inputs.language == 'java' && inputs.sonar
         run: |
-          mvn jacoco:report jacoco:report-aggregate sonar:sonar ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
+          mvn jacoco:report jacoco:report-aggregate sonar:sonar -s settings.xml ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
