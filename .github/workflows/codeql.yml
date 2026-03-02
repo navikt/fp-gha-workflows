@@ -51,7 +51,7 @@ jobs:
         with:
           fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # ratchet:github/codeql-action/init@v2
+        uses: github/codeql-action/init@89a39a4e59826350b863aa6b6252a07ad50cf83e # ratchet:github/codeql-action/init@v2
         with:
           languages: ${{ inputs.language }}
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
@@ -73,9 +73,9 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
       - name: Autobuild
         if: inputs.language != 'java'
-        uses: github/codeql-action/autobuild@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # ratchet:github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@89a39a4e59826350b863aa6b6252a07ad50cf83e # ratchet:github/codeql-action/autobuild@v2
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # ratchet:github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@89a39a4e59826350b863aa6b6252a07ad50cf83e # ratchet:github/codeql-action/analyze@v2
         with:
           category: "/language:${{ inputs.language }}"
       - name: Perform Sonar Analysis
