@@ -17,11 +17,6 @@ on:
         type: string
         description: Java SDK versjon som skal brukes.
         default: '25'
-      sonar-scan:
-        required: false
-        type: boolean
-        description: Skal sonar scan brukes?
-        default: true
       use-reader:
         required: false
         type: boolean
@@ -31,10 +26,7 @@ on:
         required: false
         default: .
         type: string
-    outputs:
-      build-version:
-        description: "Build version"
-        value: ${{ jobs.build-and-test.outputs.build-version }}
+
 jobs:
   build-and-test:
     name: Build and test
@@ -51,12 +43,10 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: 'maven'
-      - name: Maven install and test
-        id: build-and-test
-        uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
-        with:
-          t-2c: ${{ inputs.t-2c }}
-          working-directory: ${{ inputs.working-directory }}
+      - name: Maven verify
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
+        run: mvn verify -e -B ${{ inputs.t-2c }}
         env:
           GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}

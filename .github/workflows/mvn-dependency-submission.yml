@@ -10,6 +10,9 @@ on:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+      GITHUB_ACTOR: ${{ github.actor }}
     permissions:
       contents: write
     steps:
@@ -32,13 +35,7 @@ jobs:
         run: |
           echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
           mvn versions:set -DnewVersion="${{ steps.generate-build-version.outputs.build-version }}" -q -e -B
-        env:
-          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
       - name: Submit Dependency Snapshot to Github Security
         uses: advanced-security/maven-dependency-submission-action@b275d12641ac2d2108b2cbb7598b154ad2f2cee8
         with:
           maven-args: -DskipTests
-        env:
-          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
