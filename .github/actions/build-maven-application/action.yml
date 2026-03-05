@@ -23,6 +23,11 @@ runs:
     - name: Print build version
       shell: bash
       run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
+    - name: Enable reuse av testcontainers
+      shell: bash
+      run: |
+        mkdir -p ~/.testcontainers
+        echo "testcontainers.reuse.enable=true" >> ~/.testcontainers.properties
     - name: Build artifacts
       shell: bash
       run: |
