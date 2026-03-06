@@ -23,14 +23,11 @@ runs:
     - name: Print build version
       shell: bash
       run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
-    - name: Enable reuse av testcontainers
-      shell: bash
-      run: |
-        mkdir -p ~/.testcontainers
-        echo "testcontainers.reuse.enable=true" >> ~/.testcontainers.properties
     - name: Build artifacts
       shell: bash
       run: |
         echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
         mvn versions:set -DnewVersion="${{ steps.generate-build-version.outputs.build-version }}" -q -e -B
         mvn install ${{ inputs.t-2c }} -ntp -e -B ${{ inputs.profil }} ${{ (inputs.skip-tests == 'true' && '-DskipTests') || '' }}
+      env:
+        TESTCONTAINERS_REUSE_ENABLE: true
