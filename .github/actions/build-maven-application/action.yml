@@ -4,7 +4,7 @@ inputs:
   t-2c:
     description: 'Thread config to use'
     required: false
-    default: '-T'
+    default: ''
   profil:
     description: 'Maven profile to use (f.eks. sonar spesifisers -Psonar'
     required: false
