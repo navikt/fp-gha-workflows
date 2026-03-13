@@ -79,6 +79,6 @@ runs:
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@474e76fc1ff67f6dc837015f4e1f0e14269a8a63 # ratchet:nais/attest-sign@v2.0.3
+      uses: nais/attest-sign@9f718bc53c1379a59982d425d1e7456f632af881 # ratchet:nais/attest-sign@v2.0.4
       with:
         image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}@${{ steps.build_push.outputs.digest }}
