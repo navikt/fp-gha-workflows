@@ -2,26 +2,11 @@ name: Build app
 on:
   workflow_call:
     inputs:
-      runs-on:
-        required: false
-        type: string
-        description: Miljø versjon som skal brukes til bygg.
-        default: 'ubuntu-latest'
-      t-2c:
-        required: false
-        type: string
-        description: Tråd konfig til maven.
-        default: ''
       java-version:
         required: false
         type: string
         description: Java SDK versjon som skal brukes.
         default: '25'
-      use-reader:
-        required: false
-        type: boolean
-        description: Hvilket token skal brukes?
-        default: false
       working-directory:
         required: false
         default: .
@@ -30,7 +15,7 @@ on:
 jobs:
   build-and-test:
     name: Build and test
-    runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
+    runs-on: ubuntu-latest
     outputs:
       build-version: ${{ steps.build-and-test.outputs.build-version }}
     steps:
@@ -46,9 +31,9 @@ jobs:
       - name: Maven verify
         shell: bash
         working-directory: ${{ inputs.working-directory }}
-        run: mvn verify -ntp -e -B ${{ inputs.t-2c }}
+        run: mvn verify -ntp -e -B
         env:
-          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
       - name: Clean up generated stuff before caching
         run: |
