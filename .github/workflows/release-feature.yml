@@ -16,21 +16,6 @@ on:
         type: string
         description: 'Comma-delimited list of specified reactor projects to build instead of all projects.'
         default: ''
-      release-profiles:
-        required: false
-        type: string
-        description: 'Profiles which should be used when releasing an artifact.'
-        default: '-Pdeploy'
-      release-branch:
-        required: false
-        type: string
-        description: 'Hvilken branch skal releases. Default master.'
-        default: 'master'
-      release-file:
-        required: false
-        type: string
-        description: 'Hvilken pom.xml fil skal releases. Default empty.'
-        default: ''
       working-directory:
         required: false
         default: .
@@ -47,7 +32,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ inputs.release-branch }}
+          ref: master
       - name: Set up JDK-${{ inputs.java-version }} with cache
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
         with:
@@ -57,8 +42,8 @@ jobs:
       - name: Publish artifacts
         working-directory: ${{ inputs.working-directory }}
         run: |
-          mvn -B versions:set -DnewVersion=${{ inputs.release-version }} ${{ inputs.release-file }}
-          mvn -B -Dmaven.wagon.http.pool=false -DskipTests clean deploy ${{ inputs.mvn-projects }} ${{ inputs.release-profiles }} ${{ inputs.release-file }}
+          mvn -B versions:set -DnewVersion=${{ inputs.release-version }}
+          mvn -B -Dmaven.wagon.http.pool=false -DskipTests clean deploy ${{ inputs.mvn-projects }} -Pdeploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
