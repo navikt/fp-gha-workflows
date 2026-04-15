@@ -41,7 +41,7 @@ jobs:
         with:
           npmAuthToken: ${{ secrets.READER_TOKEN }}
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # ratchet:pnpm/action-setup@v4
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # ratchet:pnpm/action-setup@v5
         if: inputs.package-manager == 'pnpm'
         with:
           version: 10.28.0
@@ -83,7 +83,7 @@ jobs:
       # Trinn 5: Konfigurer og deploy til GitHub Pages
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # ratchet:actions/configure-pages@v6.0.0
 
-      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # ratchet:actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # ratchet:actions/upload-pages-artifact@v5
         with:
           path: ./.storybook-static-build
 
