@@ -63,7 +63,7 @@ runs:
           # set latest tag for default branch (master)
           type=raw,value=latest,enable={{is_default_branch}}
     - name: Bygg og push docker image
-      uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # ratchet:docker/build-push-action@v4
+      uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # ratchet:docker/build-push-action@v4
       id: build_push
       with:
         context: ${{ inputs.docker_context }}
@@ -79,6 +79,6 @@ runs:
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@518e541b5bd2eaff9ed7cb7fd305ec940b66fdaa # ratchet:nais/attest-sign@v2.0.5
+      uses: nais/attest-sign@d8ec1989b5d1eb59809b050149713002f3de8e2d # ratchet:nais/attest-sign@v2.0.6
       with:
         image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}@${{ steps.build_push.outputs.digest }}
