@@ -69,7 +69,7 @@ runs:
       run: |
         echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
     - name: Build and push with bake
-      uses: docker/bake-action@82490499d2e5613fcead7e128237ef0b0ea210f7 # ratchet:docker/bake-action@v7.0.0
+      uses: docker/bake-action@a66e1c87e2eca0503c343edf1d208c716d54b8a8 # ratchet:docker/bake-action@v7.1.0
       id: build_push
       env:
         CACHE_TAG: ${{ steps.generate-cache-tags.outputs.cache-tag }}
@@ -99,6 +99,6 @@ runs:
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@518e541b5bd2eaff9ed7cb7fd305ec940b66fdaa # ratchet:nais/attest-sign@v2.0.5
+      uses: nais/attest-sign@d8ec1989b5d1eb59809b050149713002f3de8e2d # ratchet:nais/attest-sign@v2.0.6
       with:
         image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.digest_step.outputs.digest }}
