@@ -1,0 +1,110 @@
+name: Cleanup storybook branch
+on:
+  workflow_dispatch:
+    inputs:
+      branch-name:
+        required: true
+        type: string
+        description: Navn på branchen som skal slettes (IKKE main/master)
+  workflow_call:
+    secrets:
+      GITHUB_TOKEN:
+        description: "Token for å kunne slette branch-deployments"
+        required: true
+    inputs:
+      branch-name:
+        required: true
+        type: string
+        description: Navn på branchen som er slettet
+
+jobs:
+  cleanup-deployment:
+    name: Rydd opp branch deployment
+    permissions:
+      contents: write
+      pages: write
+      deployments: write
+    runs-on: "ubuntu-latest"
+    steps:
+      # Trinn 1: Sjekk at vi ikke sletter main/master
+      - name: Sjekk at branch ikke er main/master
+        run: |
+          BRANCH_NAME="${{ inputs.branch-name }}"
+
+          if [ "$BRANCH_NAME" = "main" ] || [ "$BRANCH_NAME" = "master" ]; then
+            echo "❌ Kan ikke slette deployment for main/master branches!"
+            echo "Disse er rot-deployments som skal forbli."
+            exit 1
+          fi
+
+          echo "✅ Branch '$BRANCH_NAME' er OK for cleanup"
+
+      # Trinn 2: Sjekk ut repository (gh-pages branch)
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6
+        with:
+          ref: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN || github.token }}
+
+      # Trinn 3: Konverter branch navn til URL-vennlig format
+      - name: Sett branch navn
+        id: branch-info
+        run: |
+          BRANCH_NAME="${{ inputs.branch-name }}"
+          # Fjern spesialtegn og gjør om til URL-vennlig format
+          SAFE_BRANCH=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9-]/-/g' | tr '[:upper:]' '[:lower:]')
+          echo "safe-branch=${SAFE_BRANCH}" >> $GITHUB_OUTPUT
+          echo "Sletter deployment for branch: ${SAFE_BRANCH}"
+
+      # Trinn 3: Slett branch-mappen fra gh-pages
+      - name: Slett branch-mappe
+        run: |
+          if [ -d "${{ steps.branch-info.outputs.safe-branch }}" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            
+            rm -rf "${{ steps.branch-info.outputs.safe-branch }}"
+            git add .
+            git commit -m "🗑️ Fjern storybook for slettet branch: ${{ inputs.branch-name }}"
+            git push
+            
+            echo "✅ Slettet mappe: ${{ steps.branch-info.outputs.safe-branch }}"
+          else
+            echo "ℹ️ Ingen mappe funnet for branch: ${{ steps.branch-info.outputs.safe-branch }}"
+          fi
+
+      # Trinn 4: Slett gamle deployments fra GitHub
+      - name: Slett gamle deployments
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # ratchet:actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN || github.token }}
+          script: |
+            const branchName = '${{ inputs.branch-name }}';
+
+            // Hent alle deployments
+            const deployments = await github.rest.repos.listDeployments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: branchName
+            });
+
+            // Slett hver deployment
+            for (const deployment of deployments.data) {
+              // Sett deployment til inactive først
+              await github.rest.repos.createDeploymentStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: deployment.id,
+                state: 'inactive'
+              });
+              
+              // Så slett deployment
+              await github.rest.repos.deleteDeployment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: deployment.id
+              });
+              
+              console.log(`Slettet deployment: ${deployment.id}`);
+            }
+
+            console.log(`✅ Ryddet opp ${deployments.data.length} deployment(s) for branch: ${branchName}`);
