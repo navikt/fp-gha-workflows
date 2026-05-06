@@ -17,22 +17,6 @@ updates:
           - "minor"
           - "patch"
   - package-ecosystem: github-actions
-    directory: ".github/codeql"
-    schedule:
-      interval: weekly
-      day: monday
-      time: "04:00"
-    cooldown:
-      default-days: 7
-    open-pull-requests-limit: 10
-    registries:
-      - github
-    groups:
-      minor-deps:
-        update-types:
-          - "minor"
-          - "patch"
-  - package-ecosystem: github-actions
     directory: ".github/actions/build-maven-application"
     schedule:
       interval: weekly
