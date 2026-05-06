@@ -41,12 +41,12 @@ jobs:
         with:
           npmAuthToken: ${{ secrets.READER_TOKEN }}
 
-      - uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # ratchet:pnpm/action-setup@v6.0.1
+      - uses: pnpm/action-setup@903f9c1a6ebcba6cf41d87230be49611ac97822e # ratchet:pnpm/action-setup@v6.0.3
         if: inputs.package-manager == 'pnpm'
         with:
           version: 10.33.1
 
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # ratchet:actions/setup-node@v6
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # ratchet:actions/setup-node@v6
         with:
           node-version: 22.17.1
           cache: ${{ inputs.package-manager }}
