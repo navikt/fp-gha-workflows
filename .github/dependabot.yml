@@ -1,7 +1,23 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: ".github/workflows/"
+    directory: ".github/workflows"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
+    registries:
+      - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: github-actions
+    directory: ".github/codeql"
     schedule:
       interval: weekly
       day: monday
@@ -49,6 +65,22 @@ updates:
           - "minor"
           - "patch"
   - package-ecosystem: github-actions
+    directory: ".github/actions/build-push-docker-image"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
+    registries:
+      - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: github-actions
     directory: ".github/actions/knip-it"
     schedule:
       interval: weekly
@@ -65,7 +97,23 @@ updates:
           - "minor"
           - "patch"
   - package-ecosystem: github-actions
-    directory: ".github/actions/build-push-docker-image"
+    directory: ".github/actions/setup-npmrc"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
+    registries:
+      - github
+    groups:
+      minor-deps:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: github-actions
+    directory: ".github/actions/setup-yarnrc"
     schedule:
       interval: weekly
       day: monday
