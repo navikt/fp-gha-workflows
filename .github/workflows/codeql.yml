@@ -47,17 +47,17 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6.0.2
         with:
           fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # ratchet:github/codeql-action/init@v3
+        uses: github/codeql-action/init@e46ed2cbd01164d986452f91f178727624ae40d7 # ratchet:github/codeql-action/init@v4.35.3
         with:
           languages: ${{ inputs.language }}
-          config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main
+          config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main # ratchet:exclude
       - name: Set up JDK-${{ inputs.java-version }} with cache
         if: inputs.language == 'java'
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # ratchet:actions/setup-java@v5.2.0
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
@@ -73,9 +73,9 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
       - name: Autobuild
         if: inputs.language != 'java'
-        uses: github/codeql-action/autobuild@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # ratchet:github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@e46ed2cbd01164d986452f91f178727624ae40d7 # ratchet:github/codeql-action/autobuild@v4.35.3
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # ratchet:github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@e46ed2cbd01164d986452f91f178727624ae40d7 # ratchet:github/codeql-action/analyze@v4.35.3
         with:
           category: "/language:${{ inputs.language }}"
       - name: Perform Sonar Analysis
