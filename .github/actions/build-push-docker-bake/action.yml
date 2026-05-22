@@ -94,8 +94,10 @@ runs:
       if: inputs.push-image == 'true'
       shell: bash
       id: digest_step
+      env:
+        BAKE_METADATA: ${{ steps.build_push.outputs.metadata }}
       run: |
-        echo "digest=$(echo '${{ steps.build_push.outputs.metadata }}' | jq -r '.[]."containerimage.digest"')" >> $GITHUB_OUTPUT
+        echo "digest=$(echo "$BAKE_METADATA" | jq -r '.[]."containerimage.digest"')" >> $GITHUB_OUTPUT
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
