@@ -58,7 +58,7 @@ runs:
         if [ "${{ inputs.package-manager }}" = "yarn" ]; then
           yarn knip --no-exit-code --reporter=markdown > knip-report.md
         elif [ "${{ inputs.package-manager }}" = "pnpm" ]; then
-          pnpm knip --no-exit-code --reporter=markdown > knip-report.md
+          pnpm exec knip --no-exit-code --reporter=markdown > knip-report.md
         else
           echo "Unsupported package manager: ${{ inputs.package-manager }}"
           exit 1
