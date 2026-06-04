@@ -1,32 +1,32 @@
-# fp-gha-workflows — Copilot instructions
+# fp-gha-workflows
 
-Hub: `navikt/fp-context` (read first) · Space: `navikt/TeamForeldrepenger`.
-Only repo-specific deltas below.
+Reusable GitHub workflows and composite actions for Team Foreldrepenger repositories.
+
+## Shared context
+
+- Source of truth for cross-cutting workflow policy: `navikt/fp-context`
+- Copilot Space: `navikt/TeamForeldrepenger`
+
+Only repo-specific deltas belong here.
 
 ## Scope
-Reusable workflows + composite actions for ~all 40+ fp-repos.
-Exceptions w/ own CI: `fp-autotest`, `fp-iac`, `fp-baseimages`.
-Changes here propagate cluster-wide → keep inputs backward-compatible; flag breaking changes in PR.
+- Reusable workflows and composite actions for most Team Foreldrepenger repos.
+- Notable repos with independent CI setups: `fp-autotest`, `fp-iac`, `fp-baseimages`.
+- Changes here fan out broadly. Keep inputs backward-compatible and flag breaking changes clearly in PRs.
 
 ## Layout
 - `.github/workflows/` — `workflow_call` workflows (`build-*`, `release-*`, `deploy*`, `codeql`, ...)
 - `.github/actions/` — composite actions
 - `.github/codeql/` — shared CodeQL config
-- `.github/dependabot.yml` — `github-actions` ecosystem
-
-## `uses:` pinning
-Canonical policy: [`fp-context/operations/ci-cd.md#workflow-pinning--ratchet-policy`](https://github.com/navikt/fp-context/blob/main/operations/ci-cd.md#workflow-pinning--ratchet-policy). Applies to every workflow file here and in all fp-repos. Dependabot (`github-actions` ecosystem) honors the ratchet comments.
+- `.github/dependabot.yml` - local dependabot configuration
 
 ## Conventions
-- Composite steps: `shell: bash`, quote vars.
-- Set `permissions:` explicitly, least-privilege.
-- New inputs need `default:`; don't change semantics of existing inputs.
-- Default bumps (java/node/runner) are intentional — they fan out on next run.
-- Keep naming patterns `build-*` / `release-*` / `deploy*`.
-- Norwegian (bokmål) prose ok; identifiers English.
-
-## Policy home
-Pinning rules are cluster-wide; canonical home is `navikt/fp-context` — update there when policy changes, not here.
+- Version pinning as of `fp-context/operations/ci-cd.md#workflow-pinning--ratchet-policy`
+- Use explicit `permissions:` with least privilege
+- Composite steps use `shell: bash` and quoted variables
+- New inputs need defaults; do not silently change semantics of existing inputs
+- Keep naming patterns `build-*`, `release-*`, and `deploy*`
+- Default version bumps for Java, Node, or runner images fan out to consumers on their next run
 
 ## Catalog
-Reusable workflows and composite actions are catalogued in [`README.md`](../README.md).
+Reusable workflows and composite actions are cataloged in `README.md`.
