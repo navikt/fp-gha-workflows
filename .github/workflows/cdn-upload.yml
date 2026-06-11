@@ -47,5 +47,6 @@ jobs:
         with:
           team: teamforeldrepenger
           source: ./cdn-dist
+          source_keep_parent_name: false
           destination: ${{ inputs.destination }}
       - run: 'echo "uploaded file ${{ steps.upload.outputs.uploaded }}"'
