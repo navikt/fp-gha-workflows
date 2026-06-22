@@ -18,7 +18,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6.0.2
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # ratchet:actions/checkout@v6.0.3
 
     - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main # ratchet:exclude
       if: inputs.package-manager == 'yarn'
@@ -30,7 +30,7 @@ runs:
       with:
         npmAuthToken: ${{ inputs.npm-auth-token }}
 
-    - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # ratchet:pnpm/action-setup@v6.0.8
+    - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # ratchet:pnpm/action-setup@v6.0.9
       if: inputs.package-manager == 'pnpm'
       with:
         version: 10.33.1
