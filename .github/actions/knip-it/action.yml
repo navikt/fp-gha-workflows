@@ -9,7 +9,7 @@ inputs:
     required: true
   node-version:
     description: Node version som brukes.
-    default: "22"
+    default: "26"
     required: false
   github-token:
     description: Token som skal brukes for å publisere en PR kommentar.
