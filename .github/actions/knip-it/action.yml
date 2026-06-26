@@ -50,17 +50,15 @@ runs:
       run: |
         pnpm install --frozen-lockfile
 
-    - name: Run Knip
+    - name: Run Knip (yarn)
+      if: inputs.package-manager == 'yarn'
       shell: bash
-      run: |
-        if [ "${{ inputs.package-manager }}" = "yarn" ]; then
-          yarn knip --no-exit-code --reporter=markdown > knip-report.md
-        elif [ "${{ inputs.package-manager }}" = "pnpm" ]; then
-          pnpm exec knip --no-exit-code --reporter=markdown > knip-report.md
-        else
-          echo "Unsupported package manager: ${{ inputs.package-manager }}"
-          exit 1
-        fi
+      run: yarn knip --no-exit-code --reporter=markdown > knip-report.md
+
+    - name: Run Knip (pnpm)
+      if: inputs.package-manager == 'pnpm'
+      shell: bash
+      run: pnpm exec knip --no-exit-code --reporter=markdown > knip-report.md
 
     - name: Slett forrige kommentar fra Knip
       if: github.event.pull_request.number
