@@ -51,16 +51,20 @@ runs:
         pnpm install --frozen-lockfile
 
     - name: Run Knip
+      id: knip
       shell: bash
       run: |
+        set +e
         if [ "${{ inputs.package-manager }}" = "yarn" ]; then
-          yarn knip --no-exit-code --reporter=markdown > knip-report.md
+          yarn knip --reporter=markdown > knip-report.md
         elif [ "${{ inputs.package-manager }}" = "pnpm" ]; then
-          pnpm exec knip --no-exit-code --reporter=markdown > knip-report.md
+          pnpm exec knip --reporter=markdown > knip-report.md
         else
           echo "Unsupported package manager: ${{ inputs.package-manager }}"
           exit 1
         fi
+        echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+        exit 0
 
     - name: Slett forrige kommentar fra Knip
       if: github.event.pull_request.number
@@ -84,3 +88,10 @@ runs:
     - name: Oppsummer Knip rapport
       shell: bash
       run: cat knip-report.md >> $GITHUB_STEP_SUMMARY
+
+    - name: Feil bygg dersom Knip fant problemer
+      if: steps.knip.outputs.exit_code != '0'
+      shell: bash
+      run: |
+        echo "::error::Knip fant ubrukt kode/eksporter/avhengigheter. Se rapporten over (steg 'Oppsummer Knip rapport') eller PR-kommentaren for detaljer."
+        exit 1
