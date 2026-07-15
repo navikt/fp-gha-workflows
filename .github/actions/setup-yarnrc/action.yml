@@ -1,5 +1,5 @@
 name: Setup yarn config
-description: Konfigurerer yarn auth config for å hente `@navikt/*`-pakker i github package registry
+description: Konfigurerer yarn auth config for å hente `@navikt/*` og `@nais/*`-pakker i github package registry
 inputs:
   npmAuthToken:
     description: Token med `packages:read` for navikt organisasjonen
@@ -14,3 +14,6 @@ runs:
         yarn config set npmScopes.navikt.npmRegistryServer "https://npm.pkg.github.com"
         yarn config set npmScopes.navikt.npmAlwaysAuth true
         yarn config set npmScopes.navikt.npmAuthToken ${{ inputs.npmAuthToken }}
+        yarn config set npmScopes.nais.npmRegistryServer "https://npm.pkg.github.com"
+        yarn config set npmScopes.nais.npmAlwaysAuth true
+        yarn config set npmScopes.nais.npmAuthToken ${{ inputs.npmAuthToken }}
