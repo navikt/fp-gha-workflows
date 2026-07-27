@@ -23,11 +23,6 @@ on:
         required: false
         type: string
         description: Alternativ branch å bygge fra
-      bake-platform:
-        type: string
-        required: false
-        description: Platform to target
-        default: "linux/amd64,linux/arm64"
       bake-target:
         type: string
         required: true
@@ -81,5 +76,5 @@ jobs:
           auth-token: ${{ secrets.READER_TOKEN }}
           sentry-auth-token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           push-image: ${{ inputs.push-image }}
-          bake-platform: ${{ inputs.bake-platform }}
+          bake-platform: "linux/amd64,linux/arm64"
           bake-target: ${{ inputs.bake-target }}
