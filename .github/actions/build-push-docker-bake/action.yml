@@ -32,7 +32,7 @@ runs:
   using: "composite"
   steps:
     - name: Login to GitHub Packages Docker Registry # Brukes ifm lagring og henting av cache
-      uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # ratchet:docker/login-action@v4.4.0
+      uses: docker/login-action@371161bbe7024a29a25c5e19bfcbc0804fe9ad2c # ratchet:docker/login-action@v4.5.2
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -101,6 +101,6 @@ runs:
 
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
-      uses: nais/attest-sign@v2.0.14 # ratchet:exclude
+      uses: nais/attest-sign@v2.0.15 # ratchet:exclude
       with:
         image_ref: ${{ steps.login.outputs.registry }}/${{ github.repository }}/${{ inputs.bake-target }}@${{ steps.digest_step.outputs.digest }}
