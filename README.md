@@ -17,7 +17,6 @@ Triggered via `workflow_call`.
 | Workflow | Purpose | Key inputs |
 |----------|---------|------------|
 | `build-app-no-db.yml` | Maven build + optional Docker image build/push, no DB | `java-version`, `build-image`, `push-image`, `use-reader` |
-| `build-docker-bake.yml` | Maven build + Docker Bake multi-platform image + tests | `bake-target` (req), `bake-platform`, `push-image` |
 | `build-feature.yml` | Build feature branch (no deploy) | `java-version`, `t-2c`, `use-reader`, `working-directory` |
 | `codeql.yml` | CodeQL static analysis (+ optional Sonar) | `language`, `sonar`, `java-version` |
 | `deploy.yml` | Deploy image to a NAIS cluster | `image` (req), `cluster` (req), `namespace`, `naiserator_file`, `gar` |
@@ -34,7 +33,6 @@ Reusable steps for use inside any workflow.
 |--------|---------|------------|
 | `build-maven-application` | Maven install with cache + build-version output | `t-2c`, `profil` |
 | `build-push-docker-image` | Build + push a Docker image | `build-version` (req), `dockerfile`, `push-image` |
-| `build-push-docker-bake` | Build + push via Docker Bake (multi-arch) | `build-version` (req), `bake-target` (req), `github-token` (req) |
 | `knip-it` | Frontend unused-export detection (Knip) | `npm-auth-token` (req), `package-manager` (req), `github-token` (req) |
 | `setup-npmrc` | npm registry config for `@navikt/*` packages | `npmAuthToken` (req) |
 | `setup-yarnrc` | Yarn registry config for `@navikt/*` packages | `npmAuthToken` (req) |
@@ -52,9 +50,9 @@ Reference reusable workflows with `@main # ratchet:exclude`:
 ```yaml
 jobs:
   build:
-    uses: navikt/fp-gha-workflows/.github/workflows/build-docker-bake.yml@main # ratchet:exclude
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main # ratchet:exclude
     with:
-      bake-target: app
+      build-image: true
       push-image: true
     secrets: inherit
 ```
