@@ -17,7 +17,6 @@ Triggered via `workflow_call`.
 | Workflow | Purpose | Key inputs |
 |----------|---------|------------|
 | `build-app-no-db.yml` | Maven build + optional Docker image build/push, no DB | `java-version`, `build-image`, `push-image`, `use-reader` |
-| `build-docker-bake.yml` | Maven build + Docker Bake multi-platform image + tests | `bake-target` (req), `bake-platform`, `push-image` |
 | `build-feature.yml` | Build feature branch (no deploy) | `java-version`, `t-2c`, `use-reader`, `working-directory` |
 | `codeql.yml` | CodeQL static analysis (+ optional Sonar) | `language`, `sonar`, `java-version` |
 | `deploy.yml` | Deploy image to a NAIS cluster | `image` (req), `cluster` (req), `namespace`, `naiserator_file`, `gar` |
@@ -52,9 +51,9 @@ Reference reusable workflows with `@main # ratchet:exclude`:
 ```yaml
 jobs:
   build:
-    uses: navikt/fp-gha-workflows/.github/workflows/build-docker-bake.yml@main # ratchet:exclude
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main # ratchet:exclude
     with:
-      bake-target: app
+      build-image: true
       push-image: true
     secrets: inherit
 ```
