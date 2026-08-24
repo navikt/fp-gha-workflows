@@ -79,7 +79,7 @@ jobs:
       - name: Installer avhengigheter med Pnpm
         if: inputs.package-manager == 'pnpm'
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Bygg Storybook med Pnpm
