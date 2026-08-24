@@ -33,9 +33,8 @@ Reusable steps for use inside any workflow.
 |--------|---------|------------|
 | `build-maven-application` | Maven install with cache + build-version output | `t-2c`, `profil` |
 | `build-push-docker-image` | Build + push a Docker image | `build-version` (req), `dockerfile`, `push-image` |
-| `knip-it` | Frontend unused-export detection (Knip) | `npm-auth-token` (req), `package-manager` (req), `github-token` (req) |
-| `setup-npmrc` | npm registry config for `@navikt/*` packages | `npmAuthToken` (req) |
-| `setup-yarnrc` | Yarn registry config for `@navikt/*` packages | `npmAuthToken` (req) |
+| `knip-it` | Frontend unused-export detection (Knip) | `package-manager` (req) |
+| `setup-yarnrc` | Yarn registry config for `@navikt/*` packages | — |
 
 ## Shared config
 

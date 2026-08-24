@@ -1,5 +1,12 @@
 name: Kjør Knip
-description: Kjører Knip for å finne ubrukt kode og eksporter
+description: |-
+  Kjører Knip for å finne ubrukt kode og eksporter. Actionen autentiserer med den
+  innebygde `github.token`, så den kallende jobben MÅ sette
+  ```
+  permissions: 
+    packages: read # for å hente `@navikt`/`@nais`-pakker
+    pull-requests: write # for å poste Knip-rapporten som PR-kommentar
+  ```
 inputs:
   package-manager:
     description: Package manager som skal brukes (pnpm|yarn).
@@ -8,11 +15,6 @@ inputs:
     description: Node version som brukes.
     default: "26"
     required: false
-  github-token:
-    description: "Token med `packages:read` og tilgang til å publisere en PR-kommentar. Default er `GITHUB_TOKEN` – kallende jobb må sette `permissions: { packages: read, pull-requests: write }`."
-    required: false
-    default: ${{ github.token }}
-    deprecationMessage: "Ikke send inn en PAT/READER_TOKEN. La feltet stå tomt så brukes `GITHUB_TOKEN` (krever `permissions: { packages: read, pull-requests: write }`)."
 
 runs:
   using: composite
@@ -21,8 +23,6 @@ runs:
 
     - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main # ratchet:exclude
       if: inputs.package-manager == 'yarn'
-      with:
-        npmAuthToken: ${{ inputs.github-token }}
 
     - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # ratchet:pnpm/action-setup@v6.0.10
       if: inputs.package-manager == 'pnpm'
@@ -45,19 +45,21 @@ runs:
       shell: bash
       run: pnpm install --frozen-lockfile --ignore-scripts
       env:
-        NODE_AUTH_TOKEN: ${{ inputs.github-token }}
+        NODE_AUTH_TOKEN: ${{ github.token }}
 
     - name: Run Knip
       id: knip
       shell: bash
+      env:
+        PACKAGE_MANAGER: ${{ inputs.package-manager }}
       run: |
         set +e
-        if [ "${{ inputs.package-manager }}" = "yarn" ]; then
+        if [ "$PACKAGE_MANAGER" = "yarn" ]; then
           yarn knip --reporter=markdown > knip-report.md
-        elif [ "${{ inputs.package-manager }}" = "pnpm" ]; then
+        elif [ "$PACKAGE_MANAGER" = "pnpm" ]; then
           pnpm exec knip --reporter=markdown > knip-report.md
         else
-          echo "Unsupported package manager: ${{ inputs.package-manager }}"
+          echo "Unsupported package manager: $PACKAGE_MANAGER"
           exit 1
         fi
         echo "exit_code=$?" >> "$GITHUB_OUTPUT"
@@ -69,7 +71,7 @@ runs:
       continue-on-error: true
       run: gh pr comment ${{ github.event.pull_request.number }} --delete-last --yes
       env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_TOKEN: ${{ github.token }}
 
     - name: Post Knip rapport
       if: github.event.pull_request.number
@@ -80,7 +82,7 @@ runs:
           gh pr comment ${{ github.event.pull_request.number }} --body-file knip-report.md
         fi
       env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_TOKEN: ${{ github.token }}
 
     - name: Oppsummer Knip rapport
       shell: bash

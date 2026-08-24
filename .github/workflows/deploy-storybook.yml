@@ -1,10 +1,13 @@
 name: Deploy storybook
+# Autentiserer mot npm.pkg.github.com med den innebygde GITHUB_TOKEN.
+# Kallende jobb må gi følgende permissions:
+#   permissions:
+#     contents: read    # checkout
+#     packages: read    # lese @navikt-pakker fra GitHub Packages
+#     pages: write      # deploy til GitHub Pages
+#     id-token: write   # OIDC for deploy-pages
 on:
   workflow_call:
-    secrets:
-      READER_TOKEN:
-        description: "Utdatert: la stå tom så brukes GITHUB_TOKEN. Kallende jobb må da ha `permissions: { packages: read }`."
-        required: false
     inputs:
       package-manager:
         required: true
@@ -24,10 +27,10 @@ jobs:
   deploy-storybook:
     name: Deploy storybook ${{ inputs.package-manager }}
     permissions:
-      contents: write
+      contents: read
+      packages: read
       pages: write
       id-token: write
-      packages: read
     runs-on: "ubuntu-latest"
     environment:
       name: github-pages
@@ -39,13 +42,6 @@ jobs:
       # Trinn 2 Sett opp yarn/pnpm + node
       - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main # ratchet:exclude
         if: inputs.package-manager == 'yarn'
-        with:
-          npmAuthToken: ${{ secrets.READER_TOKEN || github.token }}
-
-      - uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main # ratchet:exclude
-        if: inputs.package-manager == 'pnpm'
-        with:
-          npmAuthToken: ${{ secrets.READER_TOKEN || github.token }}
 
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # ratchet:pnpm/action-setup@v6.0.10
         if: inputs.package-manager == 'pnpm'
@@ -54,6 +50,8 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: ${{ inputs.package-manager }}
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@navikt'
 
       # Trinn 3: Håndter caching for turbo builds
       - name: Cache turbo build setup
@@ -79,7 +77,9 @@ jobs:
       - name: Installer avhengigheter med Pnpm
         if: inputs.package-manager == 'pnpm'
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Bygg Storybook med Pnpm
         if: inputs.package-manager == 'pnpm'
         run: pnpm build:storybook
