@@ -50,14 +50,16 @@ runs:
     - name: Run Knip
       id: knip
       shell: bash
+      env:
+        PACKAGE_MANAGER: ${{ inputs.package-manager }}
       run: |
         set +e
-        if [ "${{ inputs.package-manager }}" = "yarn" ]; then
+        if [ "$PACKAGE_MANAGER" = "yarn" ]; then
           yarn knip --reporter=markdown > knip-report.md
-        elif [ "${{ inputs.package-manager }}" = "pnpm" ]; then
+        elif [ "$PACKAGE_MANAGER" = "pnpm" ]; then
           pnpm exec knip --reporter=markdown > knip-report.md
         else
-          echo "Unsupported package manager: ${{ inputs.package-manager }}"
+          echo "Unsupported package manager: $PACKAGE_MANAGER"
           exit 1
         fi
         echo "exit_code=$?" >> "$GITHUB_OUTPUT"
