@@ -2,7 +2,7 @@ name: Deploy storybook
 # Autentiserer mot npm.pkg.github.com med den innebygde GITHUB_TOKEN.
 # Kallende jobb må gi følgende permissions:
 #   permissions:
-#     contents: write   # deploy til GitHub Pages
+#     contents: read    # checkout
 #     pages: write      # deploy til GitHub Pages
 #     id-token: write   # OIDC for deploy-pages
 #     packages: read    # lese @navikt-pakker fra GitHub Packages
@@ -27,7 +27,7 @@ jobs:
   deploy-storybook:
     name: Deploy storybook ${{ inputs.package-manager }}
     permissions:
-      contents: write
+      contents: read
       pages: write
       id-token: write
       packages: read
