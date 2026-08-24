@@ -3,9 +3,9 @@ name: Deploy storybook
 # Kallende jobb må gi følgende permissions:
 #   permissions:
 #     contents: read    # checkout
+#     packages: read    # lese @navikt-pakker fra GitHub Packages
 #     pages: write      # deploy til GitHub Pages
 #     id-token: write   # OIDC for deploy-pages
-#     packages: read    # lese @navikt-pakker fra GitHub Packages
 on:
   workflow_call:
     inputs:
@@ -28,9 +28,9 @@ jobs:
     name: Deploy storybook ${{ inputs.package-manager }}
     permissions:
       contents: read
+      packages: read
       pages: write
       id-token: write
-      packages: read
     runs-on: "ubuntu-latest"
     environment:
       name: github-pages
