@@ -1,6 +1,5 @@
-# Bruk `GITHUB_TOKEN` med `permissions: { packages: read }` i den kallende jobben for å hente pakker.
 name: Setup yarn config
-description: Konfigurerer yarn auth config for å hente `@navikt/*` og `@nais/*`-pakker i github package registry
+description: "Konfigurerer yarn auth config for å hente `@navikt/*` og `@nais/*`-pakker i github package registry. Bruk `GITHUB_TOKEN` med `permissions: { packages: read }` i den kallende jobben for å hente pakker."
 
 runs:
   using: composite
