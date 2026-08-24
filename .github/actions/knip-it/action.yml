@@ -27,11 +27,6 @@ runs:
       with:
         npmAuthToken: ${{ inputs.npm-auth-token }}
 
-    - uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main # ratchet:exclude
-      if: inputs.package-manager == 'pnpm'
-      with:
-        npmAuthToken: ${{ inputs.npm-auth-token }}
-
     - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # ratchet:pnpm/action-setup@v6.0.10
       if: inputs.package-manager == 'pnpm'
 
@@ -39,6 +34,8 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ inputs.package-manager }}
+        registry-url: 'https://npm.pkg.github.com'
+        scope: '@navikt'
 
     - name: Yarn install
       if: inputs.package-manager == 'yarn'
@@ -49,8 +46,9 @@ runs:
     - name: Pnpm install
       if: inputs.package-manager == 'pnpm'
       shell: bash
-      run: |
-        pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile --ignore-scripts
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm-auth-token }}
 
     - name: Run Knip
       id: knip
