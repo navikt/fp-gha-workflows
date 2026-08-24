@@ -1,10 +1,13 @@
 name: Deploy storybook
+# Autentiserer mot npm.pkg.github.com med den innebygde GITHUB_TOKEN.
+# Kallende jobb må gi følgende permissions:
+#   permissions:
+#     contents: write   # deploy til GitHub Pages
+#     pages: write      # deploy til GitHub Pages
+#     id-token: write   # OIDC for deploy-pages
+#     packages: read    # lese @navikt-pakker fra GitHub Packages
 on:
   workflow_call:
-    secrets:
-      READER_TOKEN:
-        description: "Utdatert: la stå tom så brukes GITHUB_TOKEN. Kallende jobb må da ha `permissions: { packages: read }`."
-        required: false
     inputs:
       package-manager:
         required: true
@@ -40,7 +43,7 @@ jobs:
       - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main # ratchet:exclude
         if: inputs.package-manager == 'yarn'
         with:
-          npmAuthToken: ${{ secrets.READER_TOKEN || github.token }}
+          npmAuthToken: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # ratchet:pnpm/action-setup@v6.0.10
         if: inputs.package-manager == 'pnpm'
@@ -78,7 +81,7 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN || github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Bygg Storybook med Pnpm
         if: inputs.package-manager == 'pnpm'
         run: pnpm build:storybook
