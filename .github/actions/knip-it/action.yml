@@ -1,5 +1,12 @@
 name: Kjør Knip
-description: "Kjører Knip for å finne ubrukt kode og eksporter. Krever `permissions: { packages: read, pull-requests: write }` i den kallende jobben: packages:read for å hente @navikt/@nais-pakker, pull-requests:write for å poste Knip-rapporten som PR-kommentar."
+description: |-
+  Kjører Knip for å finne ubrukt kode og eksporter. Actionen autentiserer med den
+  innebygde `github.token`, så den kallende jobben MÅ sette
+  ```
+  permissions: 
+    packages: read # for å hente `@navikt`/`@nais`-pakker
+    pull-requests: write # for å poste Knip-rapporten som PR-kommentar
+  ```
 inputs:
   package-manager:
     description: Package manager som skal brukes (pnpm|yarn).
