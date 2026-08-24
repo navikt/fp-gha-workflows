@@ -3,8 +3,8 @@ on:
   workflow_call:
     secrets:
       READER_TOKEN:
-        description: "A token passed from the caller workflow"
-        required: true
+        description: "Utdatert: la stå tom så brukes GITHUB_TOKEN. Kallende jobb må da ha `permissions: { packages: read }`."
+        required: false
     inputs:
       package-manager:
         required: true
@@ -27,6 +27,7 @@ jobs:
       contents: write
       pages: write
       id-token: write
+      packages: read
     runs-on: "ubuntu-latest"
     environment:
       name: github-pages
@@ -39,12 +40,12 @@ jobs:
       - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main # ratchet:exclude
         if: inputs.package-manager == 'yarn'
         with:
-          npmAuthToken: ${{ secrets.READER_TOKEN }}
+          npmAuthToken: ${{ secrets.READER_TOKEN || github.token }}
 
       - uses: navikt/fp-gha-workflows/.github/actions/setup-npmrc@main # ratchet:exclude
         if: inputs.package-manager == 'pnpm'
         with:
-          npmAuthToken: ${{ secrets.READER_TOKEN }}
+          npmAuthToken: ${{ secrets.READER_TOKEN || github.token }}
 
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # ratchet:pnpm/action-setup@v6.0.10
         if: inputs.package-manager == 'pnpm'
