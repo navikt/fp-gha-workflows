@@ -1,9 +1,11 @@
+# Bruk `GITHUB_TOKEN` med `permissions: { packages: read }` i den kallende jobben for å hente pakker.
 name: Setup yarn config
 description: Konfigurerer yarn auth config for å hente `@navikt/*` og `@nais/*`-pakker i github package registry
 inputs:
   npmAuthToken:
     description: Token med `packages:read` for navikt organisasjonen
     required: true
+    deprecationMessage: "Bruk `GITHUB_TOKEN` med `permissions: { packages: read }` i stedet for en PAT/READER_TOKEN."
 
 runs:
   using: composite
