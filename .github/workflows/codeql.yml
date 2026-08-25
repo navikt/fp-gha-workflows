@@ -7,10 +7,6 @@ name: "Statisk Kode Analyse"
 #     actions: read           # kun strengt nødvendig for private repoer (CodeQL leser workflow-run status)
 on:
   workflow_call:
-    secrets:
-      READER_TOKEN:
-        description: "UTFASING: Token sendt fra kallende workflow. Denne secret-en fases ut og vil bli fjernet i en fremtidig versjon. Bruk GITHUB_TOKEN i stedet."
-        required: false
     inputs:
       java-version:
         required: false
@@ -25,7 +21,7 @@ on:
       use-reader:
         required: false
         type: boolean
-        description: Hvilket token skal brukes?
+        description: Hvilket token skal brukes? READER_TOKEN må sendes inn eksplisitt hvis true.
         default: false
       sonar:
         required: false
@@ -87,8 +83,9 @@ jobs:
       - name: Perform Sonar Analysis
         if: inputs.language == 'java' && inputs.sonar
         run: |
-          mvn jacoco:report jacoco:report-aggregate sonar:sonar ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
+          mvn jacoco:report jacoco:report-aggregate sonar:sonar ${T_2C} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
         env:
+          T_2C: ${{ inputs.t-2c }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
