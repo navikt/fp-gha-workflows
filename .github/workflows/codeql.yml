@@ -1,4 +1,10 @@
 name: "Statisk Kode Analyse"
+# Autentiserer med den innebygde GITHUB_TOKEN (READER_TOKEN er utfasing, se under).
+# Permissions settes i job-blokken under. Kallende jobb må gi følgende permissions:
+#   permissions:
+#     contents: read          # checkout av koden
+#     security-events: write  # laste opp CodeQL/SARIF-resultater til Code scanning
+#     actions: read           # kun strengt nødvendig for private repoer (CodeQL leser workflow-run status)
 on:
   workflow_call:
     secrets:
