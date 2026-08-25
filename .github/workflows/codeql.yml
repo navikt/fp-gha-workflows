@@ -1,10 +1,12 @@
 name: "Statisk Kode Analyse"
+# Autentiserer med den innebygde GITHUB_TOKEN (READER_TOKEN er utfasing, se under).
+# Permissions settes i job-blokken under. Kallende jobb må gi følgende permissions:
+#   permissions:
+#     contents: read          # checkout av koden
+#     security-events: write  # laste opp CodeQL/SARIF-resultater til Code scanning
+#     actions: read           # kun strengt nødvendig for private repoer (CodeQL leser workflow-run status)
 on:
   workflow_call:
-    secrets:
-      READER_TOKEN:
-        description: "A token passed from the caller workflow"
-        required: true
     inputs:
       java-version:
         required: false
@@ -19,7 +21,7 @@ on:
       use-reader:
         required: false
         type: boolean
-        description: Hvilket token skal brukes?
+        description: Hvilket token skal brukes? READER_TOKEN må sendes inn eksplisitt hvis true.
         default: false
       sonar:
         required: false
@@ -49,7 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
         with:
-          fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
+          fetch-depth: 0 # full historikk trengs for korrekt Sonar blame/nykode-analyse (og tilgjengeliggjør tags)
       - name: Initialize CodeQL
         uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # ratchet:github/codeql-action/init@v4.37.7
         with:
@@ -81,8 +83,9 @@ jobs:
       - name: Perform Sonar Analysis
         if: inputs.language == 'java' && inputs.sonar
         run: |
-          mvn jacoco:report jacoco:report-aggregate sonar:sonar ${{ inputs.t-2c }} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
+          mvn jacoco:report jacoco:report-aggregate sonar:sonar ${T_2C} -e -q -B -Djacoco.destFile=$(pwd)/target/jacoco.exec -Psonar
         env:
+          T_2C: ${{ inputs.t-2c }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
