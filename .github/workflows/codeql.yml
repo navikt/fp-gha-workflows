@@ -7,6 +7,10 @@ name: "Statisk Kode Analyse"
 #     actions: read           # kun strengt nødvendig for private repoer (CodeQL leser workflow-run status)
 on:
   workflow_call:
+    secrets:
+      SONAR_TOKEN:
+        description: "Token for autentisering mot SonarQube Cloud. Kreves når `sonar: true` (default)."
+        required: false
     inputs:
       java-version:
         required: false
