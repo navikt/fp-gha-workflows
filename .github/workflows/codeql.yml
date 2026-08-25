@@ -9,7 +9,7 @@ on:
   workflow_call:
     secrets:
       READER_TOKEN:
-        description: "DEPRECATED: A token passed from the caller workflow. Denne secret-en er utfasing og vil bli fjernet i en fremtidig versjon. Bruk GITHUB_TOKEN i stedet."
+        description: "UTFASING: Token sendt fra kallende workflow. Denne secret-en fases ut og vil bli fjernet i en fremtidig versjon. Bruk GITHUB_TOKEN i stedet."
         required: false
     inputs:
       java-version:
