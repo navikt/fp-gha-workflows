@@ -7,6 +7,10 @@ name: "Statisk Kode Analyse"
 #     actions: read           # kun strengt nødvendig for private repoer (CodeQL leser workflow-run status)
 on:
   workflow_call:
+    secrets:
+      SONAR_TOKEN:
+        description: "Token for autentisering mot SonarQube Cloud. Kreves når `sonar: true` (default)."
+        required: false
     inputs:
       java-version:
         required: false
@@ -49,6 +53,22 @@ jobs:
       contents: read
       security-events: write
     steps:
+      - name: Sjekk påkrevde secrets
+        if: inputs.language == 'java'
+        env:
+          SONAR: ${{ inputs.sonar }}
+          USE_READER: ${{ inputs.use-reader }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          READER_TOKEN: ${{ secrets.READER_TOKEN }}
+        run: |
+          if [[ "$SONAR" == "true" && -z "$SONAR_TOKEN" ]]; then
+            echo "::error::SONAR_TOKEN må være satt når sonar: true. Legg til secreten i kallende repo (eller sett sonar: false)."
+            exit 1
+          fi
+          if [[ "$USE_READER" == "true" && -z "$READER_TOKEN" ]]; then
+            echo "::error::READER_TOKEN må være satt når use-reader: true. Send inn secreten fra kallende workflow (eller sett use-reader: false)."
+            exit 1
+          fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # full historikk trengs for korrekt Sonar blame/nykode-analyse (og tilgjengeliggjør tags)
