@@ -1,4 +1,5 @@
 name: Release feature
+# Gjenbrukbar workflow: setter release-versjon og publiserer (`mvn deploy`) artefakter.
 on:
   workflow_call:
     inputs:
@@ -39,8 +40,8 @@ jobs:
   build:
     name: Release
     permissions:
-      contents: read
-      packages: write
+      contents: read    # checkout av koden
+      packages: write   # publisere Maven-artefakter til GitHub Packages (`mvn deploy`)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

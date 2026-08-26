@@ -1,12 +1,13 @@
 name: Release draft update
+# Gjenbrukbar workflow: oppdaterer utkast til release notes med release-drafter.
 on:
   workflow_call:
 jobs:
   update_release_draft:
     name: Release draft
     permissions:
-      contents: write
-      pull-requests: read
+      contents: write        # opprette/oppdatere release-draft (GitHub Releases)
+      pull-requests: read    # lese merged PR-er for å generere release notes
     runs-on: ubuntu-latest
     steps:
       - uses: release-drafter/release-drafter@34d80673e067bdc0c24568d3af899c216adcfaa9 # ratchet:release-drafter/release-drafter@v7.7.0

@@ -1,4 +1,7 @@
 name: Upload assets to CDN
+# Gjenbrukbar workflow: henter bygde assets fra et Docker-image og laster dem opp til NAIS CDN.
+# Ingen checkout og ingen skrivetilgang til repoet trengs, derfor ingen contents-permission.
+# Bruker ingen secrets.
 on:
   workflow_call:
     inputs:
@@ -25,8 +28,7 @@ jobs:
     name: Upload assets to CDN
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      id-token: write
+      id-token: write   # OIDC mot NAIS for `nais/login` og `cdn-upload`
     steps:
       - name: Login GAR
         uses: nais/login@40b72a35a18ddf2ad74b632461139ab838cc2a2f # ratchet:nais/login@v0
