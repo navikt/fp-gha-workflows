@@ -2,6 +2,7 @@ name: Release draft update
 # Gjenbrukbar workflow: oppdaterer utkast til release notes med release-drafter.
 on:
   workflow_call:
+
 jobs:
   update_release_draft:
     name: Release draft

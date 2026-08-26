@@ -7,36 +7,50 @@ on:
         required: false
         type: string
         description: Java SDK versjon som skal brukes.
-        default: '25'
+        default: "25"
+
 jobs:
   scan:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_ACTOR: ${{ github.actor }}
     permissions:
       contents: write   # submitte dependency snapshot via Dependency Submission API
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
       - name: Set up JDK-${{ inputs.java-version }} with cache
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # ratchet:actions/setup-java@v5.7.0
         with:
           java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: "temurin"
+          cache: "maven"
+
       - name: Generate build version
         id: generate-build-version
         shell: bash
         run: echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+
       - name: Print build version
         shell: bash
-        run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
-      - name: Build artifactsM
+        env:
+          BUILD_VERSION: ${{ steps.generate-build-version.outputs.build-version }}
+        run: echo "Generated build-version is $BUILD_VERSION"
+
+      - name: Build artifacts
         shell: bash
+        env:
+          BUILD_VERSION: ${{ steps.generate-build-version.outputs.build-version }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_ACTOR: ${{ github.actor }}
         run: |
-          echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
-          mvn versions:set -DnewVersion="${{ steps.generate-build-version.outputs.build-version }}" -q -e -B
+          echo "Building artifacts $BUILD_VERSION"
+          mvn versions:set -DnewVersion="$BUILD_VERSION" -q -e -B
+
       - name: Submit Dependency Snapshot to Github Security
         uses: advanced-security/maven-dependency-submission-action@b275d12641ac2d2108b2cbb7598b154ad2f2cee8 # ratchet:advanced-security/maven-dependency-submission-action@v5.0.0
         with:
           maven-args: -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_ACTOR: ${{ github.actor }}

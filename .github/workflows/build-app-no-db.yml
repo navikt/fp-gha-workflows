@@ -7,17 +7,17 @@ on:
         required: false
         type: string
         description: Miljø versjon som skal brukes til bygg.
-        default: 'ubuntu-latest'
+        default: "ubuntu-latest"
       t-2c:
         required: false
         type: string
         description: Tråd konfig til maven.
-        default: ''
+        default: ""
       java-version:
         required: false
         type: string
         description: Java SDK versjon som skal brukes.
-        default: '25'
+        default: "25"
       build-image:
         required: false
         type: boolean
@@ -28,16 +28,11 @@ on:
         type: boolean
         description: Skal docker image pushes?
         default: false
-      use-reader:
-        required: false
-        type: boolean
-        description: Hvilket token skal brukes?
-        default: false
       namespace:
         required: false
         type: string
-        description: 'The namespace to push images to'
-        default: 'teamforeldrepenger'
+        description: "The namespace to push images to"
+        default: "teamforeldrepenger"
     outputs:
       build-version:
         description: "Build version"
@@ -58,20 +53,21 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
+          persist-credentials: false
+
       - name: Set up JDK-${{ inputs.java-version }} with cache
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # ratchet:actions/setup-java@v5.7.0
         with:
           java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: "temurin"
+          cache: "maven"
+
       - name: Maven install and test
         id: build-and-test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
         with:
           t-2c: ${{ inputs.t-2c }}
-        env:
-          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
+
       - name: Bygg og push docker image
         if: inputs.build-image
         uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main # ratchet:exclude
@@ -79,6 +75,7 @@ jobs:
           build-version: ${{ steps.build-and-test.outputs.build-version }}
           push-image: ${{ inputs.push-image }}
           namespace: ${{ inputs.namespace }}
+
       - name: Clean up generated stuff before caching
         shell: bash
         run: |

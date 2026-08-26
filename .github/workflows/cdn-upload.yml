@@ -8,20 +8,20 @@ on:
       image:
         required: true
         type: string
-        description: 'Image tag (build-version) å hente assets fra (eksempel 2023.03.10.080433-f821119)'
+        description: "Image tag (build-version) å hente assets fra (eksempel 2023.03.10.080433-f821119)"
       image_suffix:
         required: true
         type: string
-        description: 'Suffix på imaget som assets hentes fra (eksempel /engangsstonad)'
+        description: "Suffix på imaget som assets hentes fra (eksempel /engangsstonad)"
       destination:
         required: true
         type: string
-        description: 'CDN-destinasjon, typisk appens vite base (eksempel /engangsstonad/soknad)'
+        description: "CDN-destinasjon, typisk appens vite base (eksempel /engangsstonad/soknad)"
       image_path:
         required: false
         type: string
-        description: 'Sti til de bygde assetene inne i containeren'
-        default: '/app/public'
+        description: "Sti til de bygde assetene inne i containeren"
+        default: "/app/public"
 
 jobs:
   upload-to-cdn:
@@ -35,14 +35,17 @@ jobs:
         id: login
         with:
           team: teamforeldrepenger
+
       - name: Extract assets from built image
         env:
           IMAGE: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}:${{ inputs.image }}
+          IMAGE_PATH: ${{ inputs.image_path }}
         run: |
           docker pull "$IMAGE"
           cid=$(docker create "$IMAGE")
-          docker cp "$cid:${{ inputs.image_path }}" ./cdn-dist
+          docker cp "$cid:$IMAGE_PATH" ./cdn-dist
           docker rm "$cid"
+
       - name: Upload static files to CDN
         id: upload
         uses: nais/deploy/actions/cdn-upload/v2@849e900e3cfa7faf7ad1532bb3a3e6499c932199 # ratchet:nais/deploy/actions/cdn-upload/v2@v2
@@ -51,4 +54,7 @@ jobs:
           source: ./cdn-dist
           source_keep_parent_name: false
           destination: ${{ inputs.destination }}
-      - run: 'echo "uploaded file ${{ steps.upload.outputs.uploaded }}"'
+
+      - run: 'echo "uploaded file $UPLOADED"'
+        env:
+          UPLOADED: ${{ steps.upload.outputs.uploaded }}

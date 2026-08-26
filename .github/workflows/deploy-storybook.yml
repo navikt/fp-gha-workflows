@@ -1,5 +1,5 @@
-name: Deploy storybook
-# Autentiserer mot npm.pkg.github.com med den innebygde GITHUB_TOKEN.
+name: Deploy storybook til GitHub Pages
+# Gjenbrukbar workflow: bygger og deployerer Storybook til GitHub Pages.
 on:
   workflow_call:
     inputs:
@@ -30,10 +30,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # Trinn 1: Sjekk ut repository
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
-      # Trinn 2 Sett opp yarn/pnpm + node
       - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main # ratchet:exclude
         if: inputs.package-manager == 'yarn'
 
@@ -44,10 +44,9 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: ${{ inputs.package-manager }}
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@navikt'
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@navikt"
 
-      # Trinn 3: Håndter caching for turbo builds
       - name: Cache turbo build setup
         if: inputs.cache == 'turbo'
         id: hent-cache
@@ -58,27 +57,26 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
 
-      # Trinn 4: yarn install+build
       - name: Installer avhengigheter med Yarn
         if: inputs.package-manager == 'yarn'
         run: |
           yarn install --immutable
+
       - name: Bygg Storybook med Yarn
         if: inputs.package-manager == 'yarn'
         run: yarn build:storybook
 
-      # Trinn 4: pnpm install+build
       - name: Installer avhengigheter med Pnpm
         if: inputs.package-manager == 'pnpm'
         run: |
           pnpm install --frozen-lockfile --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Bygg Storybook med Pnpm
         if: inputs.package-manager == 'pnpm'
         run: pnpm build:storybook
 
-      # Trinn 5: Konfigurer og deploy til GitHub Pages
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # ratchet:actions/configure-pages@v6.0.0
 
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # ratchet:actions/upload-pages-artifact@v5.0.0
@@ -88,7 +86,6 @@ jobs:
       - uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # ratchet:actions/deploy-pages@v5.0.0
         id: deployment
 
-      # Trinn 6: Lagre turbo cache
       - name: Lagre turbo cache
         if: always() && inputs.cache == 'turbo' && steps.hent-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # ratchet:actions/cache/save@v6.1.0

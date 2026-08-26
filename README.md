@@ -14,27 +14,35 @@ and applies to every workflow in every fp-repo.
 
 Triggered via `workflow_call`.
 
-| Workflow | Purpose | Key inputs |
-|----------|---------|------------|
-| `build-app-no-db.yml` | Maven build + optional Docker image build/push, no DB | `java-version`, `build-image`, `push-image`, `use-reader` |
-| `build-feature.yml` | Build feature branch (no deploy) | `java-version`, `t-2c`, `use-reader`, `working-directory` |
-| `codeql.yml` | CodeQL static analysis (+ optional Sonar) | `language`, `sonar`, `java-version` |
-| `deploy.yml` | Deploy image to a NAIS cluster | `image` (req), `cluster` (req), `namespace`, `naiserator_file`, `gar` |
-| `deploy-storybook.yml` | Build + deploy Storybook to GitHub Pages | `package-manager` (req), `cache` (req) |
-| `mvn-dependency-submission.yml` | Submit Maven dep graph to GitHub Dependency Submission API | `java-version` |
-| `release-drafter.yml` | Auto-draft release notes | — |
-| `release-feature.yml` | Release artifact from a feature branch | `release-version` (req), `release-branch`, `release-profiles` |
+| Workflow                        | Purpose                                                    | Key inputs                                                            | Secrets                                            |
+| ------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------- |
+| `build-app-no-db.yml`           | Maven build + optional Docker image build/push, no DB      | `java-version`, `build-image`, `push-image`, `namespace`              | —                                                  |
+| `build-feature.yml`             | Build feature branch (no deploy)                           | `java-version`, `t-2c`, `working-directory`                           | —                                                  |
+| `codeql.yml`                    | CodeQL static analysis (+ optional Sonar)                  | `sonar`, `java-version`, `t-2c`                                       | `SONAR_TOKEN` (optional, brukes når `sonar: true`) |
+| `deploy.yml`                    | Deploy image to a NAIS cluster                             | `image` (req), `cluster` (req), `namespace`, `naiserator_file`, `gar` | —                                                  |
+| `deploy-storybook.yml`          | Build + deploy Storybook to GitHub Pages                   | `package-manager` (req), `cache` (req)                                | —                                                  |
+| `mvn-dependency-submission.yml` | Submit Maven dep graph to GitHub Dependency Submission API | `java-version`                                                        | —                                                  |
+| `release-drafter.yml`           | Auto-draft release notes                                   | —                                                                     | —                                                  |
+| `release-feature.yml`           | Release artifact from a feature branch                     | `release-version` (req), `release-branch`, `release-profiles`         | —                                                  |
+
+Alle workflowene bruker det innebygde `GITHUB_TOKEN` automatisk (via
+`permissions:`) — de trenger ikke eksplisitt tilsendte secrets utover det som
+står i tabellen. Send kun de secretsene som faktisk er deklarert; unngå
+`secrets: inherit`.
 
 ## Composite actions (`.github/actions/`)
 
 Reusable steps for use inside any workflow.
 
-| Action | Purpose | Key inputs |
-|--------|---------|------------|
-| `build-maven-application` | Maven install with cache + build-version output | `t-2c`, `profil` |
-| `build-push-docker-image` | Build + push a Docker image | `build-version` (req), `dockerfile`, `push-image` |
-| `knip-it` | Frontend unused-export detection (Knip) | `package-manager` (req) |
-| `setup-yarnrc` | Yarn registry config for `@navikt/*` packages | — |
+| Action                    | Purpose                                         | Key inputs                                                                | Secrets |
+| ------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------- | ------- |
+| `build-maven-application` | Maven install with cache + build-version output | `t-2c`, `profil`                                                          | —       |
+| `build-push-docker-image` | Build + push a Docker image                     | `build-version` (req), `dockerfile` (req), `push-image`, `docker_context` | —       |
+| `knip-it`                 | Frontend unused-export detection (Knip)         | `package-manager` (req), `node-version`                                   | —       |
+| `setup-yarnrc`            | Yarn registry config for `@navikt/*` packages   | —                                                                         | —       |
+
+Composite actions deklarerer ikke egne secrets — de arver `GITHUB_TOKEN` og
+miljøet fra jobben som kaller dem.
 
 ## Shared config
 
@@ -53,8 +61,10 @@ jobs:
     with:
       build-image: true
       push-image: true
-    secrets: inherit
 ```
+
+Send secrets eksplisitt kun når en workflow deklarerer dem (f.eks. `SONAR_TOKEN`
+til `codeql.yml`) — ikke bruk `secrets: inherit`.
 
 Reference composite actions the same way:
 
@@ -65,4 +75,3 @@ steps:
 
 External actions must be pinned to a full commit SHA with a ratchet comment —
 see the [pinning policy in fp-context](https://github.com/navikt/fp-context/blob/main/operations/ci-cd.md#workflow-pinning--ratchet-policy).
-

@@ -7,22 +7,17 @@ on:
         required: false
         type: string
         description: Miljø versjon som skal brukes til bygg.
-        default: 'ubuntu-latest'
+        default: "ubuntu-latest"
       t-2c:
         required: false
         type: string
         description: Tråd konfig til maven.
-        default: ''
+        default: ""
       java-version:
         required: false
         type: string
         description: Java SDK versjon som skal brukes.
-        default: '25'
-      use-reader:
-        required: false
-        type: boolean
-        description: Hvilket token skal brukes?
-        default: false
+        default: "25"
       working-directory:
         required: false
         default: .
@@ -40,19 +35,24 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
+          persist-credentials: false
+
       - name: Set up JDK-${{ inputs.java-version }} with cache
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # ratchet:actions/setup-java@v5.7.0
         with:
           java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: "temurin"
+          cache: "maven"
+
       - name: Maven verify
         shell: bash
         working-directory: ${{ inputs.working-directory }}
-        run: mvn verify -ntp -e -B ${{ inputs.t-2c }}
+        run: mvn verify -ntp -e -B ${T_2C}
         env:
-          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
+          T_2C: ${{ inputs.t-2c }}
+
       - name: Clean up generated stuff before caching
         run: |
           if [[ -d "~/.m2/repository/no/nav/foreldrepenger" ]]; then
