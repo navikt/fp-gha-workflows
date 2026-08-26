@@ -36,23 +36,30 @@ runs:
   steps:
     - name: Set up QEMU
       uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # ratchet:docker/setup-qemu-action@v4.2.0
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # ratchet:docker/setup-buildx-action@v4.3.0
+
     - name: NAIS login
       uses: nais/login@40b72a35a18ddf2ad74b632461139ab838cc2a2f # ratchet:nais/login@v0
       id: login
       with:
         team: ${{ inputs.namespace }}
+
     - name: Setup environment
       shell: bash
+      env:
+        DOCKERFILE: ${{ inputs.dockerfile }}
+        DOCKER_CONTEXT: ${{ inputs.docker_context }}
       run: |
-        if [ ! -f "${{ inputs.dockerfile }}" ]; then
-          echo "::error ::Dockerfile not found: ${{ inputs.dockerfile }}. Do you need to prepend context or working directory?"
+        if [ ! -f "$DOCKERFILE" ]; then
+          echo "::error ::Dockerfile not found: $DOCKERFILE. Do you need to prepend context or working directory?"
           exit 1
-        elif [ ! -d "${{ inputs.docker_context }}" ]; then
-          echo "::error ::Docker context not found: ${{ inputs.docker_context }}."
+        elif [ ! -d "$DOCKER_CONTEXT" ]; then
+          echo "::error ::Docker context not found: $DOCKER_CONTEXT."
           exit 1
         fi
+
     - name: Docker meta
       uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # ratchet:docker/metadata-action@v6.2.0
       id: meta
@@ -62,6 +69,7 @@ runs:
           type=raw,value=${{ inputs.build-version }}
           # set latest tag for default branch (master)
           type=raw,value=latest,enable={{is_default_branch}}
+
     - name: Bygg og push docker image
       uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # ratchet:docker/build-push-action@v7.3.0
       id: build_push

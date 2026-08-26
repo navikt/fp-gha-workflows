@@ -20,14 +20,21 @@ runs:
       id: generate-build-version
       shell: bash
       run: echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+
     - name: Print build version
       shell: bash
-      run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
+      env:
+        BUILD_VERSION: ${{ steps.generate-build-version.outputs.build-version }}
+      run: echo "Generated build-version is $BUILD_VERSION"
+
     - name: Build artifacts
       shell: bash
       run: |
-        echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
-        mvn versions:set -DnewVersion="${{ steps.generate-build-version.outputs.build-version }}" -q -e -B
-        mvn install ${{ inputs.t-2c }} -ntp -e -B ${{ inputs.profil }} ${{ (inputs.skip-tests == 'true' && '-DskipTests') || '' }}
+        echo "Building artifacts $BUILD_VERSION"
+        mvn versions:set -DnewVersion="$BUILD_VERSION" -q -e -B
+        mvn install $T_2C -ntp -e -B $PROFIL ${{ (inputs.skip-tests == 'true' && '-DskipTests') || '' }}
       env:
         TESTCONTAINERS_REUSE_ENABLE: true
+        BUILD_VERSION: ${{ steps.generate-build-version.outputs.build-version }}
+        T_2C: ${{ inputs.t-2c }}
+        PROFIL: ${{ inputs.profil }}

@@ -49,12 +49,15 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ inputs.release-branch }}
+          persist-credentials: false
+
       - name: Set up JDK-${{ inputs.java-version }} with cache
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # ratchet:actions/setup-java@v5.7.0
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: 'maven'
+
       - name: Publish artifacts
         working-directory: ${{ inputs.working-directory }}
         run: |

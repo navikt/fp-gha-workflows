@@ -53,12 +53,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # checkout gir shallow copy - fetch-depth: 0 vil tilgjengeliggjøre tags
+          persist-credentials: false
+
       - name: Set up JDK-${{ inputs.java-version }} with cache
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # ratchet:actions/setup-java@v5.7.0
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
           cache: 'maven'
+
       - name: Maven install and test
         id: build-and-test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude
@@ -67,6 +70,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
+
       - name: Bygg og push docker image
         if: inputs.build-image
         uses: navikt/fp-gha-workflows/.github/actions/build-push-docker-image@main # ratchet:exclude
@@ -74,6 +78,7 @@ jobs:
           build-version: ${{ steps.build-and-test.outputs.build-version }}
           push-image: ${{ inputs.push-image }}
           namespace: ${{ inputs.namespace }}
+
       - name: Clean up generated stuff before caching
         shell: bash
         run: |

@@ -20,6 +20,8 @@ runs:
   using: composite
   steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+      with:
+        persist-credentials: false
 
     - uses: navikt/fp-gha-workflows/.github/actions/setup-yarnrc@main # ratchet:exclude
       if: inputs.package-manager == 'yarn'

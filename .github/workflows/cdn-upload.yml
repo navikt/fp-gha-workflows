@@ -35,6 +35,7 @@ jobs:
         id: login
         with:
           team: teamforeldrepenger
+
       - name: Extract assets from built image
         env:
           IMAGE: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}:${{ inputs.image }}
@@ -44,6 +45,7 @@ jobs:
           cid=$(docker create "$IMAGE")
           docker cp "$cid:$IMAGE_PATH" ./cdn-dist
           docker rm "$cid"
+
       - name: Upload static files to CDN
         id: upload
         uses: nais/deploy/actions/cdn-upload/v2@849e900e3cfa7faf7ad1532bb3a3e6499c932199 # ratchet:nais/deploy/actions/cdn-upload/v2@v2
@@ -52,6 +54,7 @@ jobs:
           source: ./cdn-dist
           source_keep_parent_name: false
           destination: ${{ inputs.destination }}
+
       - run: 'echo "uploaded file $UPLOADED"'
         env:
           UPLOADED: ${{ steps.upload.outputs.uploaded }}
