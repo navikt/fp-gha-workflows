@@ -41,3 +41,5 @@ runs:
         BUILD_VERSION: ${{ steps.generate-build-version.outputs.build-version }}
         T_2C: ${{ inputs.t-2c }}
         PROFIL: ${{ inputs.profil }}
+        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_ACTOR: ${{ github.actor }}

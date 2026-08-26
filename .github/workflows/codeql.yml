@@ -61,9 +61,6 @@ jobs:
         with:
           t-2c: ${{ inputs.t-2c }}
           profil: -Psonar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # ratchet:github/codeql-action/analyze@v4.37.7
