@@ -7,17 +7,17 @@ on:
         required: false
         type: string
         description: Miljø versjon som skal brukes til bygg.
-        default: 'ubuntu-latest'
+        default: "ubuntu-latest"
       t-2c:
         required: false
         type: string
         description: Tråd konfig til maven.
-        default: ''
+        default: ""
       java-version:
         required: false
         type: string
         description: Java SDK versjon som skal brukes.
-        default: '25'
+        default: "25"
       working-directory:
         required: false
         default: .
@@ -41,8 +41,8 @@ jobs:
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # ratchet:actions/setup-java@v5.7.0
         with:
           java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: "temurin"
+          cache: "maven"
 
       - name: Maven verify
         shell: bash

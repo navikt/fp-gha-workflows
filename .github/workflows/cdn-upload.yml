@@ -8,20 +8,20 @@ on:
       image:
         required: true
         type: string
-        description: 'Image tag (build-version) å hente assets fra (eksempel 2023.03.10.080433-f821119)'
+        description: "Image tag (build-version) å hente assets fra (eksempel 2023.03.10.080433-f821119)"
       image_suffix:
         required: true
         type: string
-        description: 'Suffix på imaget som assets hentes fra (eksempel /engangsstonad)'
+        description: "Suffix på imaget som assets hentes fra (eksempel /engangsstonad)"
       destination:
         required: true
         type: string
-        description: 'CDN-destinasjon, typisk appens vite base (eksempel /engangsstonad/soknad)'
+        description: "CDN-destinasjon, typisk appens vite base (eksempel /engangsstonad/soknad)"
       image_path:
         required: false
         type: string
-        description: 'Sti til de bygde assetene inne i containeren'
-        default: '/app/public'
+        description: "Sti til de bygde assetene inne i containeren"
+        default: "/app/public"
 
 jobs:
   upload-to-cdn:

@@ -44,8 +44,8 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: ${{ inputs.package-manager }}
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@navikt'
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@navikt"
 
       - name: Cache turbo build setup
         if: inputs.cache == 'turbo'

@@ -46,15 +46,15 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # ratchet:github/codeql-action/init@v4.37.7
         with:
-          languages: 'java'
+          languages: "java"
           config-file: navikt/fp-gha-workflows/.github/codeql/codeql-config.yml@main # ratchet:exclude
 
       - name: Set up JDK-${{ inputs.java-version }} with cache
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # ratchet:actions/setup-java@v5.7.0
         with:
           java-version: ${{ inputs.java-version }}
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: "temurin"
+          cache: "maven"
 
       - name: Maven install and test
         uses: navikt/fp-gha-workflows/.github/actions/build-maven-application@main # ratchet:exclude

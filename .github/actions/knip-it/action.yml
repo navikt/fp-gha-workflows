@@ -33,8 +33,8 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ inputs.package-manager }}
-        registry-url: 'https://npm.pkg.github.com'
-        scope: '@navikt'
+        registry-url: "https://npm.pkg.github.com"
+        scope: "@navikt"
 
     - name: Yarn install
       if: inputs.package-manager == 'yarn'
