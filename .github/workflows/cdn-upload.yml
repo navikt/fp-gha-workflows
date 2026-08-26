@@ -38,10 +38,11 @@ jobs:
       - name: Extract assets from built image
         env:
           IMAGE: ${{ steps.login.outputs.registry }}/${{ github.repository }}${{ inputs.image_suffix }}:${{ inputs.image }}
+          IMAGE_PATH: ${{ inputs.image_path }}
         run: |
           docker pull "$IMAGE"
           cid=$(docker create "$IMAGE")
-          docker cp "$cid:${{ inputs.image_path }}" ./cdn-dist
+          docker cp "$cid:$IMAGE_PATH" ./cdn-dist
           docker rm "$cid"
       - name: Upload static files to CDN
         id: upload
@@ -51,4 +52,6 @@ jobs:
           source: ./cdn-dist
           source_keep_parent_name: false
           destination: ${{ inputs.destination }}
-      - run: 'echo "uploaded file ${{ steps.upload.outputs.uploaded }}"'
+      - run: 'echo "uploaded file $UPLOADED"'
+        env:
+          UPLOADED: ${{ steps.upload.outputs.uploaded }}

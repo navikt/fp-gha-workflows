@@ -58,8 +58,12 @@ jobs:
       - name: Publish artifacts
         working-directory: ${{ inputs.working-directory }}
         run: |
-          mvn -B versions:set -DnewVersion=${{ inputs.release-version }} ${{ inputs.release-file }}
-          mvn -B -Dmaven.wagon.http.pool=false -DskipTests clean deploy ${{ inputs.mvn-projects }} ${{ inputs.release-profiles }} ${{ inputs.release-file }}
+          mvn -B versions:set -DnewVersion="$RELEASE_VERSION" $RELEASE_FILE
+          mvn -B -Dmaven.wagon.http.pool=false -DskipTests clean deploy $MVN_PROJECTS $RELEASE_PROFILES $RELEASE_FILE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
+          RELEASE_VERSION: ${{ inputs.release-version }}
+          RELEASE_FILE: ${{ inputs.release-file }}
+          MVN_PROJECTS: ${{ inputs.mvn-projects }}
+          RELEASE_PROFILES: ${{ inputs.release-profiles }}

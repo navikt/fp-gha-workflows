@@ -28,11 +28,6 @@ on:
         type: boolean
         description: Skal docker image pushes?
         default: false
-      use-reader:
-        required: false
-        type: boolean
-        description: Hvilket token skal brukes?
-        default: false
       namespace:
         required: false
         type: string
@@ -70,7 +65,7 @@ jobs:
         with:
           t-2c: ${{ inputs.t-2c }}
         env:
-          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
       - name: Bygg og push docker image
         if: inputs.build-image

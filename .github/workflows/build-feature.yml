@@ -18,11 +18,6 @@ on:
         type: string
         description: Java SDK versjon som skal brukes.
         default: '25'
-      use-reader:
-        required: false
-        type: boolean
-        description: Hvilket token skal brukes?
-        default: false
       working-directory:
         required: false
         default: .
@@ -49,10 +44,11 @@ jobs:
       - name: Maven verify
         shell: bash
         working-directory: ${{ inputs.working-directory }}
-        run: mvn verify -ntp -e -B ${{ inputs.t-2c }}
+        run: mvn verify -ntp -e -B ${T_2C}
         env:
-          GITHUB_TOKEN: ${{ (github.actor != 'dependabot[bot]' && inputs.use-reader && secrets.READER_TOKEN) || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
+          T_2C: ${{ inputs.t-2c }}
       - name: Clean up generated stuff before caching
         run: |
           if [[ -d "~/.m2/repository/no/nav/foreldrepenger" ]]; then

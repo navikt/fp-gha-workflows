@@ -17,11 +17,6 @@ on:
         type: string
         description: Språk som skal scannes
         default: "java"
-      use-reader:
-        required: false
-        type: boolean
-        description: Utfaset/ignorert – bygg bruker alltid GITHUB_TOKEN.
-        default: false
       sonar:
         required: false
         type: boolean

@@ -30,12 +30,16 @@ jobs:
         run: echo "build-version=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
       - name: Print build version
         shell: bash
-        run: echo "Generated build-version is ${{ steps.generate-build-version.outputs.build-version }}"
+        env:
+          BUILD_VERSION: ${{ steps.generate-build-version.outputs.build-version }}
+        run: echo "Generated build-version is $BUILD_VERSION"
       - name: Build artifactsM
         shell: bash
+        env:
+          BUILD_VERSION: ${{ steps.generate-build-version.outputs.build-version }}
         run: |
-          echo "Building artifacts ${{ steps.generate-build-version.outputs.build-version }}"
-          mvn versions:set -DnewVersion="${{ steps.generate-build-version.outputs.build-version }}" -q -e -B
+          echo "Building artifacts $BUILD_VERSION"
+          mvn versions:set -DnewVersion="$BUILD_VERSION" -q -e -B
       - name: Submit Dependency Snapshot to Github Security
         uses: advanced-security/maven-dependency-submission-action@b275d12641ac2d2108b2cbb7598b154ad2f2cee8 # ratchet:advanced-security/maven-dependency-submission-action@v5.0.0
         with:

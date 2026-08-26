@@ -16,8 +16,8 @@ Triggered via `workflow_call`.
 
 | Workflow | Purpose | Key inputs |
 |----------|---------|------------|
-| `build-app-no-db.yml` | Maven build + optional Docker image build/push, no DB | `java-version`, `build-image`, `push-image`, `use-reader` |
-| `build-feature.yml` | Build feature branch (no deploy) | `java-version`, `t-2c`, `use-reader`, `working-directory` |
+| `build-app-no-db.yml` | Maven build + optional Docker image build/push, no DB | `java-version`, `build-image`, `push-image`, `namespace` |
+| `build-feature.yml` | Build feature branch (no deploy) | `java-version`, `t-2c`, `working-directory` |
 | `codeql.yml` | CodeQL static analysis (+ optional Sonar) | `language`, `sonar`, `java-version` |
 | `deploy.yml` | Deploy image to a NAIS cluster | `image` (req), `cluster` (req), `namespace`, `naiserator_file`, `gar` |
 | `deploy-storybook.yml` | Build + deploy Storybook to GitHub Pages | `package-manager` (req), `cache` (req) |
