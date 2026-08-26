@@ -1,4 +1,5 @@
 name: Build app
+# Gjenbrukbar workflow: bygger og tester en Maven-app, og bygger/pusher evt. Docker-image.
 on:
   workflow_call:
     inputs:
@@ -45,9 +46,9 @@ jobs:
   build-and-test:
     name: Build and test
     permissions:
-      contents: read
-      packages: write
-      id-token: write
+      contents: read    # checkout av koden
+      packages: read    # lese private @navikt Maven-pakker fra GitHub Packages under `mvn install`
+      id-token: write   # OIDC mot NAIS/GAR for docker login + push + signering/attestering
     runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     env:
       TZ: "Europe/Oslo"

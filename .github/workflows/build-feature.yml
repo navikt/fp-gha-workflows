@@ -1,4 +1,5 @@
 name: Build app
+# Gjenbrukbar workflow: kjører `mvn verify` (bygg + test), uten database.
 on:
   workflow_call:
     inputs:
@@ -30,6 +31,8 @@ on:
 jobs:
   build-and-test:
     name: Build and test
+    permissions:
+      contents: read    # checkout av koden (public @navikt Maven-deps leses uten packages-perm)
     runs-on: ${{ (github.event.pull_request.user.login == 'dependabot[bot]' && 'ubuntu-latest') || inputs.runs-on }}
     outputs:
       build-version: ${{ steps.build-and-test.outputs.build-version }}
