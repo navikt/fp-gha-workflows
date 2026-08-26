@@ -8,12 +8,10 @@ on:
         type: string
         description: Java SDK versjon som skal brukes.
         default: "25"
+
 jobs:
   scan:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_ACTOR: ${{ github.actor }}
     permissions:
       contents: write   # submitte dependency snapshot via Dependency Submission API
     steps:
@@ -39,10 +37,12 @@ jobs:
           BUILD_VERSION: ${{ steps.generate-build-version.outputs.build-version }}
         run: echo "Generated build-version is $BUILD_VERSION"
 
-      - name: Build artifactsM
+      - name: Build artifacts
         shell: bash
         env:
           BUILD_VERSION: ${{ steps.generate-build-version.outputs.build-version }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_ACTOR: ${{ github.actor }}
         run: |
           echo "Building artifacts $BUILD_VERSION"
           mvn versions:set -DnewVersion="$BUILD_VERSION" -q -e -B
@@ -51,3 +51,6 @@ jobs:
         uses: advanced-security/maven-dependency-submission-action@b275d12641ac2d2108b2cbb7598b154ad2f2cee8 # ratchet:advanced-security/maven-dependency-submission-action@v5.0.0
         with:
           maven-args: -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_ACTOR: ${{ github.actor }}
