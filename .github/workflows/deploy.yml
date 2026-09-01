@@ -5,6 +5,7 @@ name: Deploy
 # deploy-dev:
 #    name: Deploy dev
 #    permissions:
+#      contents: read
 #      id-token: write
 #    if: github.ref_name == 'master'
 #    needs: [build-app]
@@ -14,7 +15,10 @@ name: Deploy
 #      image: ${{ needs.build-app.outputs.build-version }}
 #      cluster: dev-fss
 #```
-# Autentisering skjer via OIDC – kallende jobb må sette `permissions: { id-token: write }`.
+# Autentisering mot nais skjer via OIDC – kallende jobb må sette `permissions: { id-token: write }`.
+# Workflowen gjør `actions/checkout` for å hente `.deploy/`-filene. Offentlige repoer
+# klones anonymt, men private/interne repoer krever i tillegg `permissions: { contents: read }`
+# for at checkout skal få lese repoet. Sett derfor alltid `contents: read` på deploy-jobben.
 # Workflowen bruker ingen secrets, så `secrets`-blokken er ikke nødvendig.
 on:
   workflow_call:
