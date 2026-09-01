@@ -36,6 +36,23 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Frigjør diskplass på runner
+      shell: bash
+      # Multi-arch-bygg (amd64+arm64) + buildx-cache + Trivy sin Java-DB (~1 GB) kan fylle
+      # opp den efemere disken på hosted runner, slik at SBOM-steget feiler med
+      # "no space left on device". Vi fjerner store forhåndsinstallerte verktøy vi ikke
+      # bruker (Android, .NET, Haskell) for å frigjøre ~15 GB før bygg og skanning.
+      run: |
+        echo "Diskbruk før opprydding:"
+        df -h /
+        sudo rm -rf /usr/local/lib/android || true
+        sudo rm -rf /usr/share/dotnet || true
+        sudo rm -rf /opt/ghc /usr/local/.ghcup || true
+        sudo rm -rf /usr/local/share/boost || true
+        docker image prune -af || true
+        echo "Diskbruk etter opprydding:"
+        df -h /
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # ratchet:docker/setup-qemu-action@v4.2.0
 
