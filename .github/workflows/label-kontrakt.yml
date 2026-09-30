@@ -22,23 +22,13 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           LABEL_DESCRIPTION: ${{ inputs.label-description }}
         run: |
-          if [[ ! "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
-            echo "::error::Workflowen krever en pull request-kontekst."
-            exit 1
-          fi
+          : "${PR_NUMBER:?Workflowen krever en pull request-kontekst.}"
 
           existing_label=$(gh api --paginate "repos/$GITHUB_REPOSITORY/labels" \
             --jq '.[] | select(.name == "kontrakt") | .name')
           if [[ -z "$existing_label" ]]; then
-            if ! response=$(gh api --method POST "repos/$GITHUB_REPOSITORY/labels" \
-              -f name=kontrakt -f color=0e8a16 -f description="$LABEL_DESCRIPTION"); then
-              # Another PR may have created the label after the lookup.
-              if ! jq -e '(.errors // []) | length > 0 and all(.[];
-                .resource == "Label" and .field == "name" and .code == "already_exists"
-              )' <<< "$response" > /dev/null; then
-                exit 1
-              fi
-            fi
+            gh label create kontrakt --repo "$GITHUB_REPOSITORY" --color 0e8a16 \
+              --description "$LABEL_DESCRIPTION"
           fi
 
           gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --add-label kontrakt
