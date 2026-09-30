@@ -1,0 +1,44 @@
+name: "Label kontrakt-PRer"
+
+on:
+  workflow_call:
+    inputs:
+      label-description:
+        description: Beskrivelse ved opprettelse av kontrakt-labelen.
+        required: false
+        type: string
+        default: "Endrer kontrakter/"
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Label kontrakt-PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          LABEL_DESCRIPTION: ${{ inputs.label-description }}
+        run: |
+          if [[ ! "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::Workflowen krever en pull request-kontekst."
+            exit 1
+          fi
+
+          existing_label=$(gh api --paginate "repos/$GITHUB_REPOSITORY/labels" \
+            --jq '.[] | select(.name == "kontrakt") | .name')
+          if [[ -z "$existing_label" ]]; then
+            if ! response=$(gh api --method POST "repos/$GITHUB_REPOSITORY/labels" \
+              -f name=kontrakt -f color=0e8a16 -f description="$LABEL_DESCRIPTION"); then
+              # Another PR may have created the label after the lookup.
+              if ! jq -e '(.errors // []) | length > 0 and all(.[];
+                .resource == "Label" and .field == "name" and .code == "already_exists"
+              )' <<< "$response" > /dev/null; then
+                exit 1
+              fi
+            fi
+          fi
+
+          gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --add-label kontrakt

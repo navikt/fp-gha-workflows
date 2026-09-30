@@ -21,6 +21,7 @@ Triggered via `workflow_call`.
 | `codeql.yml`                    | CodeQL static analysis (+ optional Sonar)                  | `sonar`, `java-version`, `t-2c`                                       | `SONAR_TOKEN` (optional, brukes når `sonar: true`) |
 | `deploy.yml`                    | Deploy image to a NAIS cluster                             | `image` (req), `cluster` (req), `namespace`, `naiserator_file`, `gar` | —                                                  |
 | `deploy-storybook.yml`          | Build + deploy Storybook to GitHub Pages                   | `package-manager` (req), `cache` (req)                                | —                                                  |
+| `label-kontrakt.yml`            | Label PRs that change contracts                            | `label-description` (optional)                                         | —                                                  |
 | `mvn-dependency-submission.yml` | Submit Maven dep graph to GitHub Dependency Submission API | `java-version`                                                        | —                                                  |
 | `release-drafter.yml`           | Auto-draft release notes                                   | —                                                                     | —                                                  |
 | `release-feature.yml`           | Release artifact from a feature branch                     | `release-version` (req), `release-branch`, `release-profiles`         | —                                                  |
@@ -75,3 +76,70 @@ steps:
 
 External actions must be pinned to a full commit SHA with a ratchet comment —
 see the [pinning policy in fp-context](https://github.com/navikt/fp-context/blob/main/operations/ci-cd.md#workflow-pinning--ratchet-policy).
+
+### Contract PR labels
+
+`label-kontrakt.yml` adds the `kontrakt` label to the calling pull request.
+If the label is missing, it is created with color `0e8a16` and description
+`Endrer kontrakter/`. Optional `label-description` overrides the description
+only when creating the label; existing label metadata is preserved.
+
+The caller owns the PR events and path filters. The shared workflow requires
+a pull request context, uses the caller's built-in `GITHUB_TOKEN`, and does
+not check out code or inspect changed files. Grant `pull-requests: write`
+on the calling job; do not pass secrets.
+
+```yaml
+name: "Label kontrakt-PRer"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'kontrakter/**'
+
+jobs:
+  label:
+    permissions:
+      pull-requests: write
+    uses: navikt/fp-gha-workflows/.github/workflows/label-kontrakt.yml@main # ratchet:exclude
+```
+
+Choose paths to match the repository's contract structure:
+
+| Repository | Caller `paths` | `label-description` |
+| ---------- | -------------- | ------------------- |
+| fp-inntektsmelding, fp-soknad, fp-abakus | `kontrakter/**` | Default |
+| fp-kalkulus | `kontrakt/**` | `Endrer kontrakt/` |
+| fp-kontrakter | For example, `vl-kontrakt-*/**`, `hendelser-behandling/**`, `pom.xml` | `Endrer kontrakter` |
+
+For fp-kalkulus, replace the example's path with `kontrakt/**` and add this
+to the calling job:
+
+```yaml
+    with:
+      label-description: "Endrer kontrakt/"
+```
+
+For fp-kontrakter, the caller can select several contract modules:
+
+```yaml
+    paths:
+      - 'vl-kontrakt-*/**'
+      - 'hendelser-behandling/**'
+      - 'pom.xml'
+```
+
+Use `label-description: "Endrer kontrakter"` for that caller. The description
+does not control filtering. fp-oversikt has no separate contract module in
+its own repository; its published contract lives in
+`fp-kontrakter/vl-kontrakt-fp-oversikt`. Changes there should be labeled in
+fp-kontrakter, not automatically in the consuming fp-oversikt repository.
+
+The workflow only adds labels; it does not remove them if contract changes
+are later removed from a PR. Fork and Dependabot PRs may have read-only
+tokens and cannot necessarily run the labeling job successfully. Keep
+`pull_request`; do not switch to `pull_request_target` to bypass this.
+
+Merge the shared workflow into fp-gha-workflows `main` before enabling a
+caller that references it.
