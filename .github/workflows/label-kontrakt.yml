@@ -1,4 +1,19 @@
 name: "Label kontrakt-PRer"
+# Gjenbrukbar workflow for kontraktmerking. Kalleren bestemmer paths-filteret.
+# Eksempel:
+# ```yaml
+# on:
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+#     paths: ['kontrakter/**']
+# jobs:
+#   label:
+#     permissions:
+#       pull-requests: write
+#     uses: navikt/fp-gha-workflows/.github/workflows/label-kontrakt.yml@main # ratchet:exclude
+# ```
+# Valgfri input: label-description (standard: "Endrer kontrakter/").
+# Bruker innebygd GITHUB_TOKEN; ikke send secrets.
 
 on:
   workflow_call:
