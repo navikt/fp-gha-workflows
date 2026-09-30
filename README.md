@@ -79,19 +79,11 @@ see the [pinning policy in fp-context](https://github.com/navikt/fp-context/blob
 
 ### Contract PR labels
 
-`label-kontrakt.yml` adds the `kontrakt` label to the calling pull request.
-If the label is missing, it is created with color `0e8a16` and description
-`Endrer kontrakter/`. Optional `label-description` overrides the description
-only when creating the label; existing label metadata is preserved.
-
-The caller owns the PR events and path filters. The shared workflow requires
-a pull request context, uses the caller's built-in `GITHUB_TOKEN`, and does
-not check out code or inspect changed files. Grant `pull-requests: write`
-on the calling job; do not pass secrets.
+Adds `kontrakt` to the calling PR, creating the label if missing.
+Optional `label-description` defaults to `Endrer kontrakter/` and only applies
+on creation. The caller controls path filters; no secrets need to be passed.
 
 ```yaml
-name: "Label kontrakt-PRer"
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -105,41 +97,7 @@ jobs:
     uses: navikt/fp-gha-workflows/.github/workflows/label-kontrakt.yml@main # ratchet:exclude
 ```
 
-Choose paths to match the repository's contract structure:
-
-| Repository | Caller `paths` | `label-description` |
-| ---------- | -------------- | ------------------- |
-| fp-inntektsmelding, fp-soknad, fp-abakus | `kontrakter/**` | Default |
-| fp-kalkulus | `kontrakt/**` | `Endrer kontrakt/` |
-| fp-kontrakter | For example, `vl-kontrakt-*/**`, `hendelser-behandling/**`, `pom.xml` | `Endrer kontrakter` |
-
-For fp-kalkulus, replace the example's path with `kontrakt/**` and add this
-to the calling job:
-
-```yaml
-    with:
-      label-description: "Endrer kontrakt/"
-```
-
-For fp-kontrakter, the caller can select several contract modules:
-
-```yaml
-    paths:
-      - 'vl-kontrakt-*/**'
-      - 'hendelser-behandling/**'
-      - 'pom.xml'
-```
-
-Use `label-description: "Endrer kontrakter"` for that caller. The description
-does not control filtering. fp-oversikt has no separate contract module in
-its own repository; its published contract lives in
-`fp-kontrakter/vl-kontrakt-fp-oversikt`. Changes there should be labeled in
-fp-kontrakter, not automatically in the consuming fp-oversikt repository.
-
-The workflow only adds labels; it does not remove them if contract changes
-are later removed from a PR. Fork and Dependabot PRs may have read-only
-tokens and cannot necessarily run the labeling job successfully. Keep
-`pull_request`; do not switch to `pull_request_target` to bypass this.
-
-Merge the shared workflow into fp-gha-workflows `main` before enabling a
-caller that references it.
+Use `kontrakter/**` for fp-inntektsmelding, fp-soknad and fp-abakus;
+`kontrakt/**` for fp-kalkulus. For fp-kontrakter, select e.g.
+`vl-kontrakt-*/**`, `hendelser-behandling/**` and `pom.xml`.
+fp-oversikt's published contract lives in fp-kontrakter.
