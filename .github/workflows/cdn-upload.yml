@@ -48,7 +48,7 @@ jobs:
 
       - name: Upload static files to CDN
         id: upload
-        uses: nais/deploy/actions/cdn-upload/v2@f93637de5533a1bb573f940ceb7527a5b3b0dea0 # ratchet:nais/deploy/actions/cdn-upload/v2@v2
+        uses: nais/deploy/actions/cdn-upload/v2@3944168fd20b7eea3818e97de3810f74b54c78ff # ratchet:nais/deploy/actions/cdn-upload/v2@v2
         with:
           team: teamforeldrepenger
           source: ./cdn-dist
