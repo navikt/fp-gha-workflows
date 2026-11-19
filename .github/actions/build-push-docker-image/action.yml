@@ -87,6 +87,14 @@ runs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
+    - name: Reclaim build cache before SBOM generation
+      if: inputs.push-image == 'true'
+      shell: bash
+      run: |
+        df -h .
+        docker buildx prune --all --force
+        df -h .
+
     - name: Generate SBOM, attest and sign image
       if: inputs.push-image == 'true'
       uses: nais/attest-sign@v2.1.3 # ratchet:exclude
